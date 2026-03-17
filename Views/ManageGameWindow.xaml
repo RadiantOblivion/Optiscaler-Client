@@ -1,4 +1,4 @@
-<Window x:Class="OptiscalerManager.ManageGameWindow"
+<Window x:Class="OptiscalerManager.Views.ManageGameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,7 +12,7 @@
         Background="{StaticResource BrBgBase}"
         Foreground="{StaticResource BrTextPrimary}"
         FontFamily="{StaticResource FontPrimary}"
-        Icon="assets/icon.png"
+        Icon="/Assets/icon.png"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
 

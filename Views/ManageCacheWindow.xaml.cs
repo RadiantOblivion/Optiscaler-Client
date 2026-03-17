@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using OptiscalerManager.Services;
 using System;
 
-namespace OptiscalerManager
+namespace OptiscalerManager.Views
 {
     public partial class ManageCacheWindow : Window
     {

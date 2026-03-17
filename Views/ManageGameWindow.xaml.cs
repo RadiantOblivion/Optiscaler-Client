@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using OptiscalerManager.Models;
 using System.Collections.ObjectModel;
 
-namespace OptiscalerManager
+namespace OptiscalerManager.Views
 {
     public partial class ManageGameWindow : Window
     {

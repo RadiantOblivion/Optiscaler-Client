@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Linq;
 
-namespace OptiscalerManager
+namespace OptiscalerManager.Views
 {
     public partial class SettingsWindow : Window
     {

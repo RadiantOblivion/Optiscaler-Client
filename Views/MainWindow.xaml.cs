@@ -7,9 +7,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using OptiscalerManager;
 using OptiscalerManager.Converters;
 
-namespace OptiscalerManager
+namespace OptiscalerManager.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

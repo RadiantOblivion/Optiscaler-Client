@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace OptiscalerManager;
+namespace OptiscalerManager.Views;
 
 public partial class ComponentInfoWindow : Window
 {

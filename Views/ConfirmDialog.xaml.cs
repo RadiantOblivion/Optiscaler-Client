@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace OptiscalerManager;
+namespace OptiscalerManager.Views;
 
 public partial class ConfirmDialog : Window
 {

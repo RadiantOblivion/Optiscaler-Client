@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 
-namespace OptiscalerManager;
+namespace OptiscalerManager.Views;
 
 public partial class AppUpdateWindow : Window
 {

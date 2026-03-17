@@ -7,6 +7,7 @@ using System.Linq;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 using OptiscalerManager.Models;
+using OptiscalerManager.Views;
 
 namespace OptiscalerManager.Services
 {

@@ -20,6 +20,15 @@ namespace OptiscalerManager
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+            {
+                System.IO.File.WriteAllText("crash.log", args.ExceptionObject.ToString());
+            };
+            this.DispatcherUnhandledException += (s, args) =>
+            {
+                System.IO.File.WriteAllText("crash.log", args.Exception.ToString());
+            };
+
             base.OnStartup(e);
 
             // Hook into every window activation so we can apply the dark title bar
