@@ -8,6 +8,22 @@
 
 ---
 
+## Screenshots
+
+* Main window
+
+<img width="1266" height="713" alt="opti_1" src="https://github.com/user-attachments/assets/de1b06b8-402d-459e-be99-8ca5699bdc8b" />
+
+* Game management
+
+<img width="1266" height="715" alt="opti_2" src="https://github.com/user-attachments/assets/9f92a629-21c7-4f9e-a470-9c4214a912aa" />
+
+* Main window after installation
+
+<img width="1266" height="713" alt="opti_3" src="https://github.com/user-attachments/assets/c72bb06e-f34b-4a9b-81d1-73b6791b1aea" />
+
+---
+
 ## 🚀 Key Features
 
 *   **🔍 Auto-Scanner**: Deeply scans Steam, Epic Games, GOG, EA, Ubisoft, Battle.net, and Xbox libraries to find your games instantly.
