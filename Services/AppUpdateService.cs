@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OptiscalerClient.Models;
+using OptiscalerClient.Views;
 
 namespace OptiscalerClient.Services
 {
@@ -19,6 +20,7 @@ namespace OptiscalerClient.Services
         public string? LatestVersion { get; private set; }
         public string? ReleaseNotes { get; private set; }
         public string? DownloadUrl { get; private set; }
+        public bool IsError { get; private set; }
 
         public AppUpdateService(ComponentManagementService componentService)
         {
@@ -29,6 +31,7 @@ namespace OptiscalerClient.Services
 
         public async Task<bool> CheckForAppUpdateAsync()
         {
+            IsError = false;
             try
             {
                 var repo = _componentService.Config.App;
@@ -36,9 +39,15 @@ namespace OptiscalerClient.Services
                     return false;
 
                 var url = $"https://api.github.com/repos/{repo.RepoOwner}/{repo.RepoName}/releases/latest";
+                DebugWindow.Log($"[AppUpdate] Fetching latest App version from: {url}");
+                
                 var response = await _httpClient.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
+                {
+                    DebugWindow.Log($"[AppUpdate] API Error: {response.StatusCode} ({(int)response.StatusCode})");
+                    IsError = true;
                     return false;
+                }
 
                 var json = await response.Content.ReadAsStringAsync();
                 using var doc = JsonDocument.Parse(json);
@@ -76,23 +85,68 @@ namespace OptiscalerClient.Services
                         }
                     }
 
-                    var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-                    if (currentVersion == null || string.IsNullOrEmpty(LatestVersion)) return false;
+                    // More robust way to get current version
+                    string currentVersionStr = typeof(AppUpdateService).Assembly
+                        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                        .InformationalVersion ?? "0.0.0.0";
+                    
+                    // Cleanup version string (remove common git suffixes like +...)
+                    if (currentVersionStr.Contains("+")) currentVersionStr = currentVersionStr.Split('+')[0];
+                    if (currentVersionStr.StartsWith("v", StringComparison.OrdinalIgnoreCase)) currentVersionStr = currentVersionStr.Substring(1);
 
-                    if (Version.TryParse(LatestVersion, out var newVersion))
+                    if (string.IsNullOrEmpty(LatestVersion)) return false;
+
+                    // Normalize LatestVersion too (remove prefixes like 'OptiscalerClient-' or 'v')
+                    if (LatestVersion.StartsWith("OptiscalerClient-", StringComparison.OrdinalIgnoreCase)) 
+                        LatestVersion = LatestVersion.Substring("OptiscalerClient-".Length);
+                    if (LatestVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase)) 
+                        LatestVersion = LatestVersion.Substring(1);
+
+                    // Support for comparison logs
+                    string logMsg = $"[AppUpdate] Normalized: Current='{currentVersionStr}', Latest='{LatestVersion}'";
+                    Console.WriteLine(logMsg);
+                    Console.Out.Flush();
+                    System.IO.File.AppendAllText("update_debug.log", logMsg + Environment.NewLine);
+                    DebugWindow.Log(logMsg);
+
+                    if (Version.TryParse(currentVersionStr, out var currentVer) && Version.TryParse(LatestVersion, out var newVer))
                     {
-                        if (newVersion > currentVersion)
+                        string parseMsg = $"[AppUpdate] Parsed versions: Current='{currentVer}', New='{newVer}'";
+                        Console.WriteLine(parseMsg);
+                        Console.Out.Flush();
+                        System.IO.File.AppendAllText("update_debug.log", parseMsg + Environment.NewLine);
+                        DebugWindow.Log(parseMsg);
+
+                        if (newVer > currentVer)
+                        {
+                            string updateMsg = $"[AppUpdate] Detected UPDATE: {newVer} > {currentVer}";
+                            Console.WriteLine(updateMsg);
+                            Console.Out.Flush();
+                            System.IO.File.AppendAllText("update_debug.log", updateMsg + Environment.NewLine);
+                            DebugWindow.Log(updateMsg);
                             return true;
+                        }
                     }
                     else
                     {
-                        // Fallback simple string comparison if semantic versioning parsing fails
-                        if (LatestVersion != currentVersion.ToString(3) && LatestVersion != currentVersion.ToString())
+                        string fallbackMsg = $"[AppUpdate] Fallback (non-SEMVER) comparison: '{LatestVersion}' != '{currentVersionStr}'";
+                        Console.WriteLine(fallbackMsg);
+                        Console.Out.Flush();
+                        System.IO.File.AppendAllText("update_debug.log", fallbackMsg + Environment.NewLine);
+                        DebugWindow.Log(fallbackMsg);
+                        if (LatestVersion != currentVersionStr)
                             return true;
                     }
                 }
             }
-            catch { /* Ignore errors during update check */ }
+            catch (Exception ex)
+            { 
+                string errorMsg = $"[AppUpdate] FATAL ERROR: {ex.Message}";
+                Console.WriteLine(errorMsg);
+                Console.Out.Flush();
+                System.IO.File.AppendAllText("update_debug.log", errorMsg + Environment.NewLine);
+                DebugWindow.Log(errorMsg);
+            }
             return false;
         }
 
@@ -191,7 +245,7 @@ del ""%~f0""
                 };
                 Process.Start(psi);
             }
-            System.Windows.Application.Current.Shutdown();
+            // Avalonia UI TODO: System.Windows.Application.Current.Shutdown();
         }
     }
 }

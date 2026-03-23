@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace OptiscalerClient.Services
                                      bool installFakenvapi = false, string fakenvapiCachePath = "",
                                      bool installNukemFG = false, string nukemFGCachePath = "",
                                      string? optiscalerVersion = null,
-                                     bool isManualMode = false)
+                                     string? overrideGameDir = null)
         {
             if (!Directory.Exists(cachePath))
                 throw new DirectoryNotFoundException("Updates cache directory not found. Please download OptiScaler first.");
@@ -33,9 +33,9 @@ namespace OptiscalerClient.Services
 
             // Determine game directory intelligently (rules for base exe, Phoenix override, or user modal)
             string? gameDir;
-            if (isManualMode)
+            if (overrideGameDir != null)
             {
-                gameDir = ShowFolderSelectionDialog(game);
+                gameDir = overrideGameDir;
             }
             else
             {
@@ -486,14 +486,9 @@ namespace OptiscalerClient.Services
 
             string? bestMatchDir = null;
 
-            if (allExes.Length == 1)
+            if (allExes.Length > 0)
             {
-                // Only one executable found, must be it
-                bestMatchDir = Path.GetDirectoryName(allExes[0]);
-            }
-            else if (allExes.Length > 1)
-            {
-                // Multiple executables, try to match by name or context
+                // Try to match by name or context
                 int bestScore = -1;
                 string? bestExe = null;
 
@@ -507,7 +502,9 @@ namespace OptiscalerClient.Services
                     if (fileName.Contains("Crash", StringComparison.OrdinalIgnoreCase) ||
                         fileName.Contains("Redist", StringComparison.OrdinalIgnoreCase) ||
                         fileName.Contains("Setup", StringComparison.OrdinalIgnoreCase) ||
-                        fileName.Contains("UnrealCEFSubProcess", StringComparison.OrdinalIgnoreCase))
+                        fileName.Contains("Launcher", StringComparison.OrdinalIgnoreCase) ||
+                        fileName.Contains("UnrealCEFSubProcess", StringComparison.OrdinalIgnoreCase) ||
+                        fileName.Contains("Prerequisites", StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     int score = 0;
@@ -518,7 +515,7 @@ namespace OptiscalerClient.Services
                         if (exeLetters.Contains(gameNameLetters, StringComparison.OrdinalIgnoreCase) ||
                             gameNameLetters.Contains(exeLetters, StringComparison.OrdinalIgnoreCase))
                         {
-                            score += 10;
+                            score += 15;
                         }
                     }
 
@@ -526,6 +523,17 @@ namespace OptiscalerClient.Services
                     {
                         score += 5;
                     }
+
+                    try
+                    {
+                        // Main game executables are usually decently sized (> 5MB)
+                        var fileInfo = new FileInfo(exePath);
+                        if (fileInfo.Length > 5 * 1024 * 1024)
+                        {
+                            score += 10;
+                        }
+                    }
+                    catch { }
 
                     var exeDir = Path.GetDirectoryName(exePath);
                     if (exeDir != null)
@@ -536,9 +544,9 @@ namespace OptiscalerClient.Services
                             foreach (var dll in dlls)
                             {
                                 var dllName = Path.GetFileName(dll).ToLowerInvariant();
-                                if (dllName.Contains("amd") || dllName.Contains("fsr") || dllName.Contains("nvngx") || dllName.Contains("dlss") || dllName.Contains("sl.interposer"))
+                                if (dllName.Contains("amd") || dllName.Contains("fsr") || dllName.Contains("nvngx") || dllName.Contains("dlss") || dllName.Contains("sl.interposer") || dllName.Contains("xess"))
                                 {
-                                    score += 20; // High confidence if scaling DLLs are nearby
+                                    score += 25; // High confidence if scaling DLLs are nearby
                                     break;
                                 }
                             }
@@ -590,27 +598,6 @@ namespace OptiscalerClient.Services
             return game.InstallPath;
         }
 
-        private string? ShowFolderSelectionDialog(Game game)
-        {
-            string? selectedPath = null;
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                var dialog = new Microsoft.Win32.OpenFileDialog
-                {
-                    Title = $"Select the main executable (.exe) for '{game.Name}'",
-                    InitialDirectory = game.InstallPath,
-                    Filter = "Executable files (*.exe)|*.exe|All files (*.*)|*.*",
-                    CheckFileExists = true
-                };
-
-                if (dialog.ShowDialog() == true)
-                {
-                    selectedPath = Path.GetDirectoryName(dialog.FileName);
-                }
-            });
-
-            return selectedPath;
-        }
 
         /// <summary>
         /// Detects the correct installation directory fallback for older uninstalls.

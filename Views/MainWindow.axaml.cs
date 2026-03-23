@@ -1,0 +1,734 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
+using OptiscalerClient.Models;
+using OptiscalerClient.Services;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using System.Collections.ObjectModel;
+using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
+using System.IO;
+using System.Collections.Generic;
+
+namespace OptiscalerClient.Views
+{
+    public partial class MainWindow : Window
+    {
+        private readonly GameScannerService _scannerService;
+        private readonly GamePersistenceService _persistenceService;
+        private ObservableCollection<Game> _games;
+        private List<Game> _allGames = new List<Game>();
+        private readonly ComponentManagementService _componentService;
+        private readonly IGpuDetectionService _gpuService;
+
+        private ScrollViewer? _gameListScrollViewer;
+        private bool _isInitializingLanguage = true;
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            if (OperatingSystem.IsWindows())
+            {
+                _scannerService = new GameScannerService();
+            }
+            else
+            {
+                _scannerService = null!; // TODO: Implement Linux game scanner
+            }
+            _persistenceService = new GamePersistenceService();
+            _componentService = new ComponentManagementService();
+            App.ChangeLanguage(_componentService.Config.Language);
+            if (OperatingSystem.IsWindows())
+            {
+                _gpuService = new WindowsGpuDetectionService();
+            }
+            else
+            {
+                _gpuService = null!; // TODO: Implement Linux GPU detection
+            }
+            _games = new ObservableCollection<Game>();
+
+            // Debug Window check
+            if (_componentService.Config.Debug)
+            {
+                var debugWindow = new DebugWindow(true);
+                debugWindow.Show();
+                DebugWindow.Log("Application Started in DEBUG mode.");
+            }
+            
+            // In Avalonia we bind items via Name in AXAML. Here we set ItemsSource.
+            var lstGames = this.FindControl<ListBox>("LstGames");
+            if (lstGames != null)
+            {
+                lstGames.ItemsSource = _games;
+            }
+
+            _componentService.OnStatusChanged += ComponentStatusChanged;
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void ComponentStatusChanged()
+        {
+        }
+
+        private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
+        {
+            _gameListScrollViewer = this.FindControl<ScrollViewer>("GameListScrollViewer");
+
+            bool hadSavedGames = LoadSavedGames();
+            _ = LoadGpuInfoAsync();
+            _ = CheckUpdatesOnStartupAsync();
+
+            if (!hadSavedGames)
+            {
+                BtnScan_Click(null!, null!);
+            }
+        }
+
+        private void UpdateSearchPlaceholderVisibility()
+        {
+            var txtSearch = this.FindControl<TextBox>("TxtSearch");
+            var txtSearchPlaceholder = this.FindControl<TextBlock>("TxtSearchPlaceholder");
+            
+            if (txtSearchPlaceholder == null || txtSearch == null) return;
+
+            if (txtSearch.IsFocused)
+            {
+                txtSearchPlaceholder.IsVisible = false;
+            }
+            else
+            {
+                txtSearchPlaceholder.IsVisible = string.IsNullOrEmpty(txtSearch.Text);
+            }
+        }
+
+        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateSearchPlaceholderVisibility();
+            if (sender is TextBox textBox)
+            {
+                ApplyFilter(textBox.Text);
+            }
+        }
+
+        private void ApplyFilter(string? searchText)
+        {
+            if (_allGames == null) return;
+
+            var filtered = string.IsNullOrWhiteSpace(searchText) 
+                ? _allGames 
+                : _allGames.Where(g => g.Name != null && g.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            _games.Clear();
+            foreach (var game in filtered)
+            {
+                _games.Add(game);
+            }
+        }
+
+        private void TxtSearch_GotFocus(object sender, GotFocusEventArgs e)
+        {
+            UpdateSearchPlaceholderVisibility();
+        }
+
+        private void TxtSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            UpdateSearchPlaceholderVisibility();
+        }
+
+        private void GameListScrollViewer_PointerWheelChanged(object sender, PointerWheelEventArgs e)
+        {
+            if (_gameListScrollViewer != null && e.Delta.Y != 0)
+            {
+                e.Handled = true;
+                // Move manually with boost
+                var currentOffset = _gameListScrollViewer.Offset;
+                var newY = currentOffset.Y - (e.Delta.Y * 120); // 120 for fast and fluid
+                _gameListScrollViewer.Offset = new Vector(currentOffset.X, Math.Max(0, newY));
+            }
+        }
+
+        private async void BtnGuide_Click2(object sender, RoutedEventArgs e)
+        {
+            var guide = new GuideWindow(this);
+            await guide.ShowDialog(this);
+        }
+
+        private void NavGames_Click(object sender, RoutedEventArgs e)
+        {
+            this.FindControl<Grid>("ViewGames")!.IsVisible = true;
+            this.FindControl<Grid>("ViewSettings")!.IsVisible = false;
+            this.FindControl<Grid>("ViewHelp")!.IsVisible = false;
+        }
+
+        private void NavHelp_Click(object sender, RoutedEventArgs e)
+        {
+            this.FindControl<Grid>("ViewGames")!.IsVisible = false;
+            this.FindControl<Grid>("ViewSettings")!.IsVisible = false;
+            this.FindControl<Grid>("ViewHelp")!.IsVisible = true;
+            PopulateHelpContent();
+        }
+
+        private void NavSettings_Click(object sender, RoutedEventArgs e)
+        {
+            this.FindControl<Grid>("ViewGames")!.IsVisible = false;
+            this.FindControl<Grid>("ViewSettings")!.IsVisible = true;
+            this.FindControl<Grid>("ViewHelp")!.IsVisible = false;
+
+            _isInitializingLanguage = true;
+            var cmbLanguage = this.FindControl<ComboBox>("CmbLanguage");
+            if (cmbLanguage != null)
+            {
+                foreach (var baseItem in cmbLanguage.Items)
+                {
+                    if (baseItem is ComboBoxItem item && item.Tag?.ToString() == App.CurrentLanguage)
+                    {
+                        cmbLanguage.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+            _isInitializingLanguage = false;
+        }
+
+        private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isInitializingLanguage) return;
+            var cmbLanguage = sender as ComboBox;
+            if (cmbLanguage?.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string? langCode = selectedItem.Tag?.ToString();
+                if (!string.IsNullOrEmpty(langCode))
+                {
+                    App.ChangeLanguage(langCode);
+                    _componentService.Config.Language = langCode;
+                    _componentService.SaveConfiguration();
+                }
+            }
+        }
+
+        private async void BtnManageCache_Click(object sender, RoutedEventArgs e)
+        {
+            var cacheWindow = new CacheManagementWindow(this);
+            await cacheWindow.ShowDialog<object>(this);
+        }
+
+        private async Task CheckUpdatesOnStartupAsync()
+        {
+            var txtStatus = this.FindControl<TextBlock>("TxtStatus");
+            try
+            {
+                if (txtStatus != null) txtStatus.Text = GetResourceString("TxtCheckingUpdates", "Checking for updates...");
+                await _componentService.CheckForUpdatesAsync();
+            }
+            catch { }
+            finally
+            {
+                ComponentStatusChanged();
+                if (txtStatus != null) txtStatus.Text = GetResourceString("TxtReady", "Ready");
+            }
+        }
+
+        private void PopulateHelpContent()
+        {
+            var txtAppVersion = this.FindControl<TextBlock>("TxtAppVersion");
+            var txtBuildDate = this.FindControl<TextBlock>("TxtBuildDate");
+            
+            try
+            {
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var version = assembly.GetName().Version?.ToString(3) ?? "0.1.0";
+                if (txtAppVersion != null) txtAppVersion.Text = $"v{version}";
+
+                var buildDate = System.IO.File.GetLastWriteTime(System.AppContext.BaseDirectory);
+                if (txtBuildDate != null) txtBuildDate.Text = buildDate.ToString("yyyy-MM-dd");
+            }
+            catch
+            {
+                if (txtAppVersion != null) txtAppVersion.Text = "v1.0.1";
+                if (txtBuildDate != null) txtBuildDate.Text = "Unknown";
+            }
+
+            var txtOptiVersion = this.FindControl<TextBlock>("TxtOptiVersion");
+            var bdOptiUpdate = this.FindControl<Border>("BdOptiUpdate");
+            
+            if (txtOptiVersion != null)
+                txtOptiVersion.Text = string.IsNullOrWhiteSpace(_componentService.OptiScalerVersion) ? "Not installed" : _componentService.OptiScalerVersion;
+            
+            if (bdOptiUpdate != null)
+                bdOptiUpdate.IsVisible = _componentService.IsOptiScalerUpdateAvailable;
+
+            var txtFakeVersion = this.FindControl<TextBlock>("TxtFakeVersion");
+            if (txtFakeVersion != null)
+                txtFakeVersion.Text = string.IsNullOrWhiteSpace(_componentService.FakenvapiVersion) ? "Not installed" : _componentService.FakenvapiVersion;
+
+            var txtNukemVersion = this.FindControl<TextBlock>("TxtNukemVersion");
+            var btnUpdateNukemFG = this.FindControl<Button>("BtnUpdateNukemFG");
+            if (_componentService.IsNukemFGInstalled)
+            {
+                var ver = _componentService.NukemFGVersion;
+                if (txtNukemVersion != null) txtNukemVersion.Text = (string.IsNullOrWhiteSpace(ver) || ver == "manual") ? "Available" : ver;
+                if (btnUpdateNukemFG != null) btnUpdateNukemFG.Content = "Update";
+            }
+            else
+            {
+                if (txtNukemVersion != null) txtNukemVersion.Text = "Not installed";
+                if (btnUpdateNukemFG != null) btnUpdateNukemFG.Content = "Install";
+            }
+        }
+
+        private async void BtnUpdateFakenvapi_Click(object sender, RoutedEventArgs e)
+        {
+            var btnUpdateFakenvapi = this.FindControl<Button>("BtnUpdateFakenvapi");
+            if (btnUpdateFakenvapi == null) return;
+            
+            btnUpdateFakenvapi.IsEnabled = false;
+            var originalContent = btnUpdateFakenvapi.Content;
+            btnUpdateFakenvapi.Content = "Checking...";
+            try
+            {
+                await _componentService.CheckForUpdatesAsync();
+                
+                if (_componentService.IsFakenvapiUpdateAvailable || string.IsNullOrEmpty(_componentService.FakenvapiVersion))
+                {
+                    btnUpdateFakenvapi.Content = "Downloading...";
+                    await _componentService.DownloadAndExtractFakenvapiAsync();
+                    await new ConfirmDialog(this, "Success", "Fakenvapi downloaded successfully.").ShowDialog<object>(this);
+                    PopulateHelpContent();
+                }
+                else
+                {
+                    await new ConfirmDialog(this, "Up to date", "You already have the latest version of Fakenvapi.").ShowDialog<object>(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                await new ConfirmDialog(this, "Error", $"Error updating Fakenvapi: {ex.Message}").ShowDialog<object>(this);
+            }
+            finally
+            {
+                btnUpdateFakenvapi.Content = originalContent;
+                btnUpdateFakenvapi.IsEnabled = true;
+            }
+        }
+
+        private async void BtnUpdateNukemFG_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool isUpdate = _componentService.IsNukemFGInstalled;
+                DebugWindow.Log($"[NukemFG] Starting manual {(isUpdate ? "update" : "install")}");
+                
+                bool result = await _componentService.ProvideNukemFGManuallyAsync(isUpdate);
+                
+                if (result)
+                {
+                    DebugWindow.Log("[NukemFG] Manual process completed successfully.");
+                    PopulateHelpContent();
+                }
+                else
+                {
+                    DebugWindow.Log("[NukemFG] Manual process cancelled or failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugWindow.Log($"[NukemFG] Error: {ex.Message}");
+                await new ConfirmDialog(this, "Error", $"Error installing NukemFG: {ex.Message}").ShowDialog<object>(this);
+            }
+        }
+
+        private async void BtnCheckUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            var btnCheckUpdates = this.FindControl<Button>("BtnCheckUpdates");
+            if (btnCheckUpdates == null) return;
+
+            btnCheckUpdates.IsEnabled = false;
+            var originalContent = btnCheckUpdates.Content;
+            btnCheckUpdates.Content = GetResourceString("TxtCheckingUpdates", "Checking…");
+
+            try
+            {
+                // 1. Check for component updates (Fakenvapi, etc)
+                await _componentService.CheckForUpdatesAsync();
+                PopulateHelpContent();
+
+                // 2. Check for App Updates
+                var appUpdateService = new AppUpdateService(_componentService);
+                bool hasUpdate = await appUpdateService.CheckForAppUpdateAsync();
+
+                if (hasUpdate)
+                {
+                    var updateTitle = GetResourceString("TxtUpdateAvailableTitle", "Update Available");
+                    var updateMsgFormat = GetResourceString("TxtUpdateAvailableMsg", "A new version is available (v{0}). Download now?");
+                    var updateMsg = string.Format(updateMsgFormat, appUpdateService.LatestVersion);
+
+                    var dialog = new ConfirmDialog(this, updateTitle, updateMsg, false);
+                    if (await dialog.ShowDialog<bool>(this))
+                    {
+                        btnCheckUpdates.Content = GetResourceString("TxtUpdatingApp", "Updating...");
+                        
+                        await appUpdateService.DownloadAndPrepareUpdateAsync(new Progress<double>(p => {
+                            btnCheckUpdates.Content = $"{GetResourceString("TxtUpdatingApp", "Updating")} ({p:F0}%)";
+                        }));
+
+                        var readyTitle = GetResourceString("TxtUpdateReady", "Update Ready");
+                        var readyMsg = GetResourceString("TxtUpdateReadyMsg", "Update downloaded. Restarting...");
+                        
+                        await new ConfirmDialog(this, readyTitle, readyMsg).ShowDialog<object>(this);
+                        
+                        appUpdateService.FinalizeAndRestart();
+                        
+                        if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                        {
+                            desktop.Shutdown();
+                        }
+                    }
+                }
+                else if (appUpdateService.IsError)
+                {
+                    var errorMsg = GetResourceString("TxtUpdateCheckError", "There was a problem checking for updates.");
+                    await new ConfirmDialog(this, GetResourceString("TxtUpdateError", "Error"), errorMsg).ShowDialog<object>(this);
+                }
+                else
+                {
+                    var noUpdateMsg = GetResourceString("TxtNoUpdateFound", "No new updates found.");
+                    await new ConfirmDialog(this, GetResourceString("TxtReady", "Updates"), noUpdateMsg).ShowDialog<object>(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugWindow.Log($"[AppUpdate] Fatal exception: {ex.Message}");
+                var errorTitle = GetResourceString("TxtUpdateError", "Error");
+                await new ConfirmDialog(this, errorTitle, $"Error: {ex.Message}").ShowDialog<object>(this);
+            }
+            finally
+            {
+                btnCheckUpdates.Content = originalContent;
+                btnCheckUpdates.IsEnabled = true;
+            }
+        }
+
+        private async void BtnGithub_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var repoOwner = _componentService.Config.App.RepoOwner ?? "Agustinm28";
+                var repoName = _componentService.Config.App.RepoName ?? "Optiscaler-Switcher";
+                var url = $"https://github.com/{repoOwner}/{repoName}";
+
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                await new ConfirmDialog(this, "Error", $"Could not open browser: {ex.Message}").ShowDialog<object>(this);
+            }
+        }
+
+        private bool LoadSavedGames()
+        {
+            var savedGames = _persistenceService.LoadGames();
+            _allGames = savedGames;
+            
+            var txtSearch = this.FindControl<TextBox>("TxtSearch");
+            ApplyFilter(txtSearch?.Text);
+            
+            var txtStatus = this.FindControl<TextBlock>("TxtStatus");
+            var loadedFormat = GetResourceString("TxtLoadedGamesFormat", "Loaded {0} games.");
+            if (txtStatus != null) txtStatus.Text = string.Format(loadedFormat, savedGames.Count);
+
+            if (savedGames.Count > 0)
+            {
+                _ = Task.Run(async () =>
+                {
+                    var analyzer = new GameAnalyzerService();
+                    var metadata = new GameMetadataService();
+
+                    foreach (var game in savedGames)
+                    {
+                        try { analyzer.AnalyzeGame(game); }
+                        catch { }
+
+                        if (string.IsNullOrEmpty(game.CoverImageUrl) || game.CoverImageUrl.StartsWith("http"))
+                        {
+                            var appIdKey = !string.IsNullOrEmpty(game.AppId) ? game.AppId : 
+                                         !string.IsNullOrEmpty(game.Name) ? game.Name : Guid.NewGuid().ToString();
+                                         
+                            game.CoverImageUrl = await metadata.FetchAndCacheCoverImageAsync(game.Name, appIdKey);
+                        }
+                    }
+
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        var lstGames = this.FindControl<ListBox>("LstGames");
+                        if (lstGames != null)
+                        {
+                            lstGames.ItemsSource = null;
+                            lstGames.ItemsSource = _games;
+                        }
+                        _persistenceService.SaveGames(_games);
+                    });
+                });
+            }
+
+            return savedGames.Count > 0;
+        }
+
+        private async void BtnScan_Click(object sender, RoutedEventArgs e)
+        {
+            var btnScan = this.FindControl<Button>("BtnScan");
+            var txtStatus = this.FindControl<TextBlock>("TxtStatus");
+            var overlayScanning = this.FindControl<Grid>("OverlayScanning");
+            
+            if (btnScan != null) btnScan.IsEnabled = false;
+            if (txtStatus != null) txtStatus.Text = GetResourceString("TxtScanningShort", "Scanning for games...");
+            if (overlayScanning != null) overlayScanning.IsVisible = true;
+
+            try
+            {
+                List<Game> scanResults;
+                if (OperatingSystem.IsWindows() && _scannerService != null)
+                {
+                    scanResults = await _scannerService.ScanAllGamesAsync();
+                }
+                else
+                {
+                    scanResults = new List<Game>();
+                }
+                var manualGames = _games.Where(g => g.Platform == GamePlatform.Manual).ToList();
+
+                _games.Clear();
+
+                var analyzer = new GameAnalyzerService();
+                foreach (var manualGame in manualGames)
+                {
+                    analyzer.AnalyzeGame(manualGame);
+                    _games.Add(manualGame);
+                }
+
+                var metadataService = new GameMetadataService();
+                foreach (var scannedGame in scanResults)
+                {
+                    if (!_games.Any(g => g.InstallPath.Equals(scannedGame.InstallPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (string.IsNullOrEmpty(scannedGame.CoverImageUrl))
+                        {
+                            var appIdKey = !string.IsNullOrEmpty(scannedGame.AppId) ? scannedGame.AppId : scannedGame.Name;
+                            scannedGame.CoverImageUrl = await metadataService.FetchAndCacheCoverImageAsync(scannedGame.Name, appIdKey);
+                        }
+                        _games.Add(scannedGame);
+                    }
+                }
+
+                _allGames = _games.ToList();
+                _persistenceService.SaveGames(_games);
+
+                var txtSearch = this.FindControl<TextBox>("TxtSearch");
+                if (txtSearch != null && !string.IsNullOrEmpty(txtSearch.Text))
+                {
+                    ApplyFilter(txtSearch.Text);
+                }
+
+                var scanCompleteFormat = GetResourceString("TxtScanCompleteFormat", "Scan complete. Total games: {0}");
+                if (txtStatus != null) txtStatus.Text = string.Format(scanCompleteFormat, _games.Count);
+            }
+            catch (Exception ex)
+            {
+                var errorFormat = GetResourceString("TxtErrorFormat", "Error: {0}");
+                if (txtStatus != null) txtStatus.Text = string.Format(errorFormat, ex.Message);
+                await new ConfirmDialog(this, "Error", ex.Message).ShowDialog<object>(this);
+            }
+            finally
+            {
+                if (btnScan != null) btnScan.IsEnabled = true;
+                if (overlayScanning != null) overlayScanning.IsVisible = false;
+            }
+        }
+
+        private async void BtnAddManual_Click(object sender, RoutedEventArgs e)
+        {
+            var files = await this.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = GetResourceString("TxtSelectExe", "Select Game Executable"),
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
+                {
+                    new FilePickerFileType("Executable Files (*.exe)")
+                    {
+                        Patterns = new List<string> { "*.exe" }
+                    }
+                }
+            });
+
+            if (files != null && files.Count > 0)
+            {
+                try
+                {
+                    var filePath = files[0].Path.LocalPath;
+                    var fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                    var installDir = System.IO.Path.GetDirectoryName(filePath) ?? "";
+
+                    var newGame = new Game
+                    {
+                        Name = fileName,
+                        InstallPath = installDir,
+                        ExecutablePath = filePath,
+                        Platform = GamePlatform.Manual,
+                        AppId = "Manual_" + Guid.NewGuid().ToString().Substring(0, 8)
+                    };
+
+                    var analyzer = new GameAnalyzerService();
+                    analyzer.AnalyzeGame(newGame);
+
+                    var metadata = new GameMetadataService();
+                    newGame.CoverImageUrl = await metadata.FetchAndCacheCoverImageAsync(newGame.Name, newGame.AppId);
+
+                    _games.Insert(0, newGame);
+                    _allGames = _games.ToList();
+                    _persistenceService.SaveGames(_games);
+
+                    var lstGames = this.FindControl<ListBox>("LstGames");
+                    if (lstGames != null)
+                    {
+                        lstGames.ItemsSource = null;
+                        lstGames.ItemsSource = _games;
+                    }
+
+                    var txtStatus = this.FindControl<TextBlock>("TxtStatus");
+                    if (txtStatus != null) txtStatus.Text = string.Format(GetResourceString("TxtAddedRefFormat", "Added {0} manually."), newGame.Name);
+                }
+                catch (Exception ex)
+                {
+                    await new ConfirmDialog(this, GetResourceString("TxtError", "Error"), ex.Message).ShowDialog<object>(this);
+                }
+            }
+        }
+
+        private async void BtnManage_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is Game game)
+            {
+                var manageWindow = new ManageGameWindow(this, game);
+                await manageWindow.ShowDialog<object>(this);
+
+                var index = _games.IndexOf(game);
+                if (index != -1)
+                {
+                    _games[index] = game;
+                    _persistenceService.SaveGames(_games);
+                }
+
+                var lstGames = this.FindControl<ListBox>("LstGames");
+                if (lstGames != null)
+                {
+                    lstGames.ItemsSource = null;
+                    lstGames.ItemsSource = _games;
+                }
+            }
+        }
+
+        private async void BtnRemoveGame_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is Game game)
+            {
+                var title = GetResourceString("TxtRemoveGameTitle", "Remove Game");
+                var confirmFormat = GetResourceString("TxtRemoveGameConfirm", "Are you sure you want to remove '{0}' from the list?");
+                var message = string.Format(confirmFormat, game.Name);
+
+                var dialog = new ConfirmDialog(this, title, message, false);
+                var result = await dialog.ShowDialog<bool>(this); // true if confirmed
+
+                if (result)
+                {
+                    _games.Remove(game);
+                    _persistenceService.SaveGames(_games);
+                }
+            }
+        }
+
+        private async Task LoadGpuInfoAsync()
+        {
+            try
+            {
+                var txtGpuInfo = this.FindControl<TextBlock>("TxtGpuInfo");
+                if (txtGpuInfo == null) return;
+
+                GpuInfo? gpu = await Task.Run(() =>
+                {
+                    if (OperatingSystem.IsWindows() && _gpuService != null)
+                    {
+                        try
+                        {
+                            return _gpuService.GetDiscreteGPU() ?? _gpuService.GetPrimaryGPU();
+                        }
+                        catch { return null; }
+                    }
+                    return null;
+                });
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (gpu != null)
+                    {
+                        string icon = "⚪";
+                        IBrush color = Brushes.Gray;
+
+                        switch (gpu.Vendor)
+                        {
+                            case GpuVendor.NVIDIA:
+                                icon = "🟢"; color = new SolidColorBrush(Color.FromRgb(118, 185, 0)); break;
+                            case GpuVendor.AMD:
+                                icon = "🔴"; color = new SolidColorBrush(Color.FromRgb(237, 28, 36)); break;
+                            case GpuVendor.Intel:
+                                icon = "🔵"; color = new SolidColorBrush(Color.FromRgb(0, 113, 197)); break;
+                        }
+
+                        txtGpuInfo.Text = $"{icon} {gpu.Name}";
+                        txtGpuInfo.Foreground = color;
+                        ToolTip.SetTip(txtGpuInfo, $"{gpu.Name}\nVendor: {gpu.Vendor}\nVRAM: {gpu.VideoMemoryGB}\nDriver: {gpu.DriverVersion}");
+                    }
+                    else
+                    {
+                        txtGpuInfo.Text = GetResourceString("TxtNoGpu", "⚠️ No GPU detected");
+                        txtGpuInfo.Foreground = Brushes.Orange;
+                        ToolTip.SetTip(txtGpuInfo, GetResourceString("TxtNoGpuTip", "No GPU was detected on this system"));
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var txtGpuInfo = this.FindControl<TextBlock>("TxtGpuInfo");
+                    if (txtGpuInfo != null)
+                    {
+                        txtGpuInfo.Text = GetResourceString("TxtGpuFail", "⚠️ GPU detection failed");
+                        txtGpuInfo.Foreground = Brushes.Gray;
+                        var format = GetResourceString("TxtGpuFailTipFormat", "Error detecting GPU: {0}");
+                        ToolTip.SetTip(txtGpuInfo, string.Format(format, ex.Message));
+                    }
+                });
+            }
+        }
+
+        private string GetResourceString(string key, string fallback)
+        {
+            return Application.Current?.TryFindResource(key, out var res) == true && res is string str ? str : fallback;
+        }
+    }
+}

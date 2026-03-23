@@ -1,0 +1,152 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OptiscalerClient.Views.ManualDownloadDialog"
+        Title="Manual Installation Required"
+        Width="580"
+        Height="500"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+    <Panel Margin="16">
+        <Border CornerRadius="12"
+                Background="{StaticResource BrBgBase}"
+                BoxShadow="0 10 30 0 #A0000000">
+            
+            <Grid>
+                <!-- Separate layer for the subtle border -->
+                <Border CornerRadius="12"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="1"
+                        ZIndex="10"
+                        IsHitTestVisible="False"/>
+
+                <!-- Main Content Layout -->
+                <Border CornerRadius="12"
+                        Background="Transparent"
+                        ClipToBounds="True">
+                    
+                    <Grid RowDefinitions="Auto, *, Auto">
+                        
+                        <!-- Custom Title Bar (Draggable) -->
+                        <Border Grid.Row="0"
+                                Name="TitleBar"
+                                Background="{StaticResource BrBgDeep}"
+                                Padding="24,18"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,0,0,1">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Name="TxtTitle"
+                                           Text="Manual File Required"
+                                           FontSize="18"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource BrTextPrimary}"/>
+                                <TextBlock Name="TxtComponentName"
+                                           Text="Nukem's DLSSG-to-FSR3 Mod"
+                                           FontSize="12"
+                                           Foreground="{StaticResource BrAccent}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <Button Grid.Column="1"
+                                    Content="✕"
+                                    Classes="BtnSecondary"
+                                    Padding="8,4"
+                                    MinWidth="32"
+                                    FontSize="14"
+                                    Click="BtnSkip_Click"
+                                    VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    BorderThickness="0"/>
+                        </Grid>
+                        </Border>
+
+                        <!-- Content Area -->
+                        <ScrollViewer Grid.Row="1" Margin="0" Padding="0">
+                            <StackPanel Spacing="16" Margin="24,20">
+                                
+                                <TextBlock Name="TxtMainInstruction"
+                                           TextWrapping="Wrap"
+                                           FontSize="13"
+                                           Foreground="{StaticResource BrTextPrimary}"
+                                           LineHeight="20"/>
+
+                                <!-- Nexus Link Card -->
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12"
+                                        Cursor="Hand"
+                                        PointerPressed="BtnOpenLink_Click">
+                                    <Grid ColumnDefinitions="Auto, *, Auto">
+                                        <TextBlock Grid.Column="0" Text="🌐" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Nexus Mods — dlssg-to-fsr3" 
+                                                       FontSize="13" FontWeight="Bold" 
+                                                       Foreground="{StaticResource BrAccent}"/>
+                                            <TextBlock Text="Download the files manually from here" 
+                                                       FontSize="11" Foreground="{StaticResource BrTextSecondary}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Text="→" FontSize="18" Foreground="{StaticResource BrTextSecondary}"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- File Requirement Info -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Required filename:" FontSize="12" Foreground="{StaticResource BrTextSecondary}"/>
+                                    <Border Background="{StaticResource BrBgDeep}" 
+                                            BorderBrush="{StaticResource BrBorderSubtle}" BorderThickness="1" 
+                                            CornerRadius="6" Padding="12,8">
+                                        <TextBlock Name="TxtRequiredFile" 
+                                                   Text="dlssg_to_fsr3_amd_is_better.dll" 
+                                                   FontFamily="Consolas, Monospace" FontSize="12"
+                                                   Foreground="{StaticResource BrAccentWarm}"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- File Picker -->
+                                <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,0">
+                                    <TextBox Name="TxtSelectedPath"
+                                             Grid.Column="0"
+                                             IsReadOnly="True"
+                                             Watermark="No file selected..."
+                                             Margin="0,0,10,0"
+                                             FontSize="12"/>
+                                    <Button Name="BtnBrowse"
+                                            Grid.Column="1"
+                                            Content="Browse..."
+                                            Classes="BtnSecondary"
+                                            Click="BtnBrowse_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Footer Actions -->
+                        <Border Grid.Row="2"
+                                Padding="24,18"
+                                Background="{StaticResource BrBgDeep}"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,1,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                                <Button Name="BtnSkip"
+                                        Content="Cancel"
+                                        Classes="BtnSecondary"
+                                        Click="BtnSkip_Click"/>
+                                <Button Name="BtnConfirm"
+                                        Content="Install"
+                                        Classes="BtnPrimary"
+                                        IsEnabled="False"
+                                        Click="BtnConfirm_Click"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</Window>

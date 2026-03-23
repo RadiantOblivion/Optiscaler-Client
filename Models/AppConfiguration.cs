@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace OptiscalerClient.Models
 {
@@ -21,6 +21,7 @@ namespace OptiscalerClient.Models
         public RepositoryConfig Fakenvapi { get; set; } = new();
         public RepositoryConfig NukemFG { get; set; } = new();
         public string Language { get; set; } = "en";
+        public bool Debug { get; set; } = false;
     }
 
     /// <summary>

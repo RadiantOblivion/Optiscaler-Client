@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -145,6 +145,7 @@ namespace OptiscalerClient.Services
                 // To avoid spamming GitHub API (rate limits), only check every 15 minutes max per session
                 if (_cachedOptiScalerVersions == null || (DateTime.Now - _lastApiCheckTime).TotalMinutes > 15)
                 {
+                    DebugWindow.Log($"[ComponentCheck] Fetching updates from GitHub API (Rates: {(DateTime.Now - _lastApiCheckTime).ToString(@"hh\:mm\:ss")} since last check)");
                     var optiVersionsTask = FetchAllComponentVersionsAsync(_config.OptiScaler);
                     var fakeTask = CheckComponentUpdateAsync("Fakenvapi", _config.Fakenvapi);
                     var nukemTask = CheckComponentUpdateAsync("NukemFG", _config.NukemFG);
@@ -171,6 +172,10 @@ namespace OptiscalerClient.Services
                 IsFakenvapiUpdateAvailable = IsUpdateAvailable(_localVersions.FakenvapiVersion, _remoteVersions.FakenvapiVersion);
                 IsNukemFGUpdateAvailable = IsUpdateAvailable(_localVersions.NukemFGVersion, _remoteVersions.NukemFGVersion);
 
+                DebugWindow.Log($"[ComponentUpdate] Status: Opti={IsOptiScalerUpdateAvailable} (Local={_localVersions.OptiScalerVersion}, Remote={_remoteVersions.OptiScalerVersion})");
+                DebugWindow.Log($"[ComponentUpdate] Status: Fake={IsFakenvapiUpdateAvailable} (Local={_localVersions.FakenvapiVersion}, Remote={_remoteVersions.FakenvapiVersion})");
+                DebugWindow.Log($"[ComponentUpdate] Status: Nukem={IsNukemFGUpdateAvailable} (Local={_localVersions.NukemFGVersion}, Remote={_remoteVersions.NukemFGVersion})");
+
                 OnStatusChanged?.Invoke();
             }
             catch (Exception ex)
@@ -194,13 +199,17 @@ namespace OptiscalerClient.Services
                 if (doc.RootElement.TryGetProperty("tag_name", out var tagName))
                 {
                     var version = tagName.GetString();
+                    DebugWindow.Log($"[ComponentCheck] {componentName} Raw Tag: {version}");
                     // Strip the conventional "v" prefix (e.g. "v0.7.1" → "0.7.1")
                     if (version != null && version.StartsWith("v", StringComparison.OrdinalIgnoreCase))
                         version = version.Substring(1);
                     return version;
                 }
             }
-            catch { /* Component check failed */ }
+            catch (Exception ex)
+            { 
+                DebugWindow.Log($"[ComponentCheck] {componentName} failed: {ex.Message}");
+            }
 
             return null;
         }
@@ -273,7 +282,7 @@ namespace OptiscalerClient.Services
             // If the DLL is not present yet, we prompt the user here.
             if (!IsNukemFGInstalled)
             {
-                bool provided = ProvideNukemFGManually(isUpdate: false);
+                bool provided = await ProvideNukemFGManuallyAsync(isUpdate: false);
                 if (!provided)
                     errors.Add("NukemFG: Manual download was skipped.");
             }
@@ -371,6 +380,9 @@ namespace OptiscalerClient.Services
                     while (isMoreToRead);
                 }
 
+                // Ensure 100% is reached
+                progress?.Report(100);
+
                 // Extract
                 using (var archive = ArchiveFactory.Open(tempZip))
                 {
@@ -424,24 +436,30 @@ namespace OptiscalerClient.Services
         /// future installs, and the provided version tag is saved to versions.json.
         /// </summary>
         /// <param name="isUpdate">True when the user is updating an existing DLL (vs. first install).</param>
-        public bool ProvideNukemFGManually(bool isUpdate = false)
+        public async Task<bool> ProvideNukemFGManuallyAsync(bool isUpdate = false)
         {
             var targetVersion = _remoteVersions.NukemFGVersion ?? "manual";
 
             try
             {
-                var dialog = new ManualDownloadDialog(
-                    "NukemFG (dlssg-to-fsr3)",
-                    "dlssg_to_fsr3_amd_is_better.dll",
-                    GetNukemFGCachePath(),
-                    isUpdate
-                );
+                bool confirmed = false;
 
-                var mainWindow = System.Windows.Application.Current.MainWindow;
-                if (mainWindow != null)
-                    dialog.Owner = mainWindow;
+                if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var dialog = new Views.ManualDownloadDialog("Nukem's DLSSG-to-FSR3 Mod", "dlssg_to_fsr3_amd_is_better.dll", GetNukemFGCachePath(), isUpdate);
+                    
+                    if (desktop.MainWindow != null)
+                    {
+                        await dialog.ShowDialog(desktop.MainWindow);
+                    }
+                    else
+                    {
+                        dialog.Show();
+                        // this isn't strictly awaited properly if there's no mainwindow, but fallback
+                    }
 
-                bool confirmed = dialog.ShowDialog() == true;
+                    confirmed = dialog.WasSuccessful;
+                }
 
                 if (confirmed)
                 {

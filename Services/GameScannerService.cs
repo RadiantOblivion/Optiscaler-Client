@@ -1,8 +1,10 @@
-﻿using OptiscalerClient.Models;
+using OptiscalerClient.Models;
 using System.IO;
+using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
+[SupportedOSPlatform("windows")]
 public class GameScannerService
 {
     private readonly SteamScanner _steamScanner;

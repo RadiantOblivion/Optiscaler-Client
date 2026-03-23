@@ -1,9 +1,11 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using OptiscalerClient.Models;
 using System.IO;
+using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
+[SupportedOSPlatform("windows")]
 public class BattleNetScanner
 {
     private readonly string[] UNINSTALL_PATHS = new[]

@@ -1,5 +1,6 @@
 using System.Management;
 using Microsoft.Win32;
+using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services
 {
@@ -30,6 +31,7 @@ namespace OptiscalerClient.Services
     /// <summary>
     /// Service to detect GPU information using WMI
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class WindowsGpuDetectionService : IGpuDetectionService
     {
         /// <summary>

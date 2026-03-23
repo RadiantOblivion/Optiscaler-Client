@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OptiscalerClient.Views.DebugWindow"
+        Title="Debug Logs" Width="700" Height="400"
+        Background="#0E0E1A"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid RowDefinitions="*, Auto">
+        <ScrollViewer Name="LogScrollViewer" Grid.Row="0" Margin="10">
+            <SelectableTextBlock Name="TxtLogs" 
+                                 Foreground="#5CB87E" 
+                                 FontFamily="Consolas, Monospace" 
+                                 FontSize="12" 
+                                 TextWrapping="Wrap"/>
+        </ScrollViewer>
+        
+        <Border Grid.Row="1" Background="#13131F" Padding="10" BorderBrush="#2A2A42" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Content="Clear Logs" Click="BtnClear_Click" Padding="10,5"/>
+                <Button Content="Copy All" Click="BtnCopy_Click" Padding="10,5"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -1,8 +1,12 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using OptiscalerClient.Models;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
+
+[SupportedOSPlatform("windows")]
 
 public class UbisoftScanner
 {

@@ -28,5 +28,6 @@
             "Name": "GameSave",
             "PathSegment": "GameSave"
         }
-    ]
+    ],
+    "Debug": false
 }

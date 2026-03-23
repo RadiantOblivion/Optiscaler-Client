@@ -1,0 +1,156 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OptiscalerClient.Views.GuideWindow"
+        Title="Guide"
+        Width="580"
+        Height="660"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+    <Panel Margin="16">
+        <!-- BoxShadow is applied to a ghost panel that doesn't clip content -->
+        <Border CornerRadius="12"
+                Background="{StaticResource BrBgBase}"
+                BoxShadow="0 10 30 0 #A0000000">
+            
+            <Grid>
+                <!-- Separate layer for the subtle border so it NEVER gets clipped by child content -->
+                <Border CornerRadius="12"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="1"
+                        ZIndex="10"
+                        IsHitTestVisible="False"/>
+
+                <!-- Main Content Layout -->
+                <Border CornerRadius="12"
+                        Background="Transparent"
+                        ClipToBounds="True">
+                    
+                    <Grid RowDefinitions="Auto, *, Auto">
+                        
+                        <!-- Custom Title Bar (Draggable) -->
+                        <Border Grid.Row="0"
+                                Name="TitleBar"
+                                Background="{StaticResource BrBgDeep}"
+                                Padding="24,18"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,0,0,1">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource TxtGuideHeader}"
+                                           FontSize="18"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource BrTextPrimary}"/>
+                                <TextBlock Text="{DynamicResource TxtGuideHeaderDesc}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Content -->
+                        <ScrollViewer Grid.Row="1" Margin="0" Padding="0">
+                            <StackPanel Spacing="16" Margin="24,18">
+                                
+                                <!-- Step 1 Card -->
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{DynamicResource TxtGuideStep1Title}"
+                                                   FontSize="13"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource BrAccent}"/>
+                                        <TextBlock Text="{DynamicResource TxtGuideStep1Desc}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource BrTextPrimary}"
+                                                   LineHeight="18"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Step 2 Card -->
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{DynamicResource TxtGuideStep2Title}"
+                                                   FontSize="13"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource BrAccent}"/>
+                                        <TextBlock Text="{DynamicResource TxtGuideStep2Desc}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource BrTextPrimary}"
+                                                   LineHeight="18"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Step 3 Card -->
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{DynamicResource TxtGuideStep3Title}"
+                                                   FontSize="13"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource BrAccent}"/>
+                                        <TextBlock Text="{DynamicResource TxtGuideStep3Desc}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource BrTextPrimary}"
+                                                   LineHeight="18"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Step 4 Card -->
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16,12">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{DynamicResource TxtGuideStep4Title}"
+                                                   FontSize="13"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource BrAccent}"/>
+                                        <TextBlock Text="{DynamicResource TxtGuideStep4Desc}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource BrTextPrimary}"
+                                                   LineHeight="18"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Footer / Close Button -->
+                        <Border Grid.Row="2"
+                                Padding="24,18"
+                                Background="{StaticResource BrBgDeep}"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,1,0,0">
+                            <Button Name="BtnGotIt"
+                                    Content="{DynamicResource TxtGotIt}"
+                                    Classes="BtnPrimary"
+                                    HorizontalAlignment="Right"
+                                    Padding="24,10"
+                                    FontSize="13"
+                                    Click="BtnClose_Click"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</Window>

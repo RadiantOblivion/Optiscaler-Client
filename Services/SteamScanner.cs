@@ -1,10 +1,14 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using OptiscalerClient.Models;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 
 namespace OptiscalerClient.Services;
 
+[SupportedOSPlatform("windows")]
 public class SteamScanner
 {
     private const string REGISTRY_PATH = @"SOFTWARE\Valve\Steam";

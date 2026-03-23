@@ -1,0 +1,335 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OptiscalerClient"
+        xmlns:converters="clr-namespace:OptiscalerClient.Converters"
+        xmlns:models="clr-namespace:OptiscalerClient.Models"
+        mc:Ignorable="d"
+        x:Class="OptiscalerClient.Views.ManageGameWindow"
+        Title="{DynamicResource TxtManageGameWindow}"
+        Height="540" Width="960"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        WindowStartupLocation="Manual"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter  x:Key="BoolToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
+        <converters:BoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter" Invert="True"/>
+    </Window.Resources>
+
+    <Panel Margin="15">
+        <!-- Main Container with Shadow -->
+        <Border CornerRadius="12"
+                Background="{StaticResource BrBgBase}"
+                BoxShadow="0 8 32 0 #80000000"
+                BorderBrush="{StaticResource BrBorderSubtle}"
+                BorderThickness="1">
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- Custom Header -->
+                    <RowDefinition Height="Auto"/>   <!-- Status card -->
+                    <RowDefinition Height="*"/>      <!-- Detected components -->
+                    <RowDefinition Height="Auto"/>   <!-- Progress bar -->
+                    <RowDefinition Height="Auto"/>   <!-- Action bar -->
+                </Grid.RowDefinitions>
+
+                <!-- ════════════════════════════════════════════════════════
+                     HEADER / TITLE BAR (Draggable)
+                     ════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="0"
+                        Name="TitleBar"
+                        Background="{StaticResource BrBgDeep}"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="0,0,0,1"
+                        CornerRadius="12,12,0,0"
+                        Padding="24,18">
+                    <Grid ColumnDefinitions="*, Auto, Auto">
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Name="TxtGameName"
+                                       Text="Game Name"
+                                       FontSize="{StaticResource FontSizeSubtitle}"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource BrTextPrimary}"/>
+                            <TextBlock Name="TxtInstallPath"
+                                       Text=""
+                                       FontSize="{StaticResource FontSizeCaption}"
+                                       Foreground="{StaticResource BrTextSecondary}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <Button Name="BtnOpenFolder"
+                                Grid.Column="1"
+                                Content="{DynamicResource TxtOpenFolder}"
+                                Classes="BtnBase"
+                                Padding="12,7"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center"
+                                Click="BtnOpenFolder_Click"/>
+                        
+                        <!-- Close button -->
+                        <Button Name="BtnClose"
+                                Grid.Column="2"
+                                Classes="BtnBase"
+                                Width="34" Height="34"
+                                Padding="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                VerticalAlignment="Center"
+                                Click="BtnClose_Click">
+                            <TextBlock Text="&#xE711;"
+                                       FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI"
+                                       FontSize="12"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ════════════════════════════════════════════════════════
+                     STATUS CARD
+                     ════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="1"
+                        Background="{StaticResource BrBgCard}"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource RadiusLarge}"
+                        Margin="24,20,24,0"
+                        Padding="20,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Status indicator + text -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Name="StatusIndicator"
+                                     Width="10" Height="10"
+                                     Margin="0,0,12,0"
+                                     VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource TxtOptiStatus}"
+                                           FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{StaticResource BrTextSecondary}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Name="TxtStatus"
+                                               Text="Not Installed"
+                                               FontSize="{StaticResource FontSizeBodyLarge}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource BrTextPrimary}"/>
+                                    <TextBlock Name="TxtVersion"
+                                               Text=""
+                                               FontSize="{StaticResource FontSizeBodyLarge}"
+                                               Foreground="{StaticResource BrTextSecondary}"
+                                               Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ════════════════════════════════════════════════════════
+                     DETECTED COMPONENTS
+                     ════════════════════════════════════════════════════════ -->
+                <StackPanel Grid.Row="2" Margin="24,20,24,0">
+                    <TextBlock Text="{DynamicResource TxtDetectedComponents}"
+                               FontSize="{StaticResource FontSizeBody}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource BrTextSecondary}"
+                               Margin="0,0,0,10"/>
+                    <ListBox Name="LstComponents"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             IsHitTestVisible="False">
+                        
+                    </ListBox>
+                </StackPanel>
+
+                <!-- ════════════════════════════════════════════════════════
+                     INSTALL PROGRESS
+                     ════════════════════════════════════════════════════════ -->
+                <Border Name="BdProgress" 
+                        Grid.Row="3"
+                        Background="{StaticResource BrBgCard}"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource RadiusLarge}"
+                        Margin="24,10,24,10"
+                        Padding="20,14"
+                        IsVisible="False">
+                    <StackPanel>
+                        <TextBlock Name="TxtProgressState" Text="Downloading OptiScaler..." 
+                                   Foreground="{StaticResource BrTextPrimary}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ProgressBar Name="PrgDownload" Height="8" Minimum="0" Maximum="100" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ════════════════════════════════════════════════════════
+                     TOAST NOTIFICATION
+                     ════════════════════════════════════════════════════════ -->
+                <Border Name="BdToast" 
+                        Grid.Row="3" Grid.RowSpan="2"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                        Background="{StaticResource BrBgElevated}"
+                        BorderBrush="{StaticResource BrAccent}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource RadiusMedium}"
+                        Margin="0,0,0,80"
+                        Padding="16,10"
+                        IsVisible="False"
+                        ZIndex="10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="TxtToastIcon" Text="✓" Foreground="{StaticResource BrAccent}" FontWeight="Bold" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Name="TxtToastMessage" Text="Success" Foreground="{StaticResource BrTextPrimary}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ════════════════════════════════════════════════════════
+                     UNINSTALL CONFIRMATION MODAL
+                     ════════════════════════════════════════════════════════ -->
+                <Grid Name="BdConfirmUninstall" Grid.RowSpan="5" Background="#80000000" IsVisible="False" ZIndex="20">
+                    <Border Background="{StaticResource BrBgElevated}"
+                            BorderBrush="{StaticResource BrBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource RadiusLarge}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Padding="24,24,24,20"
+                            MaxWidth="400">
+                        <StackPanel>
+                            <!-- Warning Icon & Title -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="⚠️" Foreground="{StaticResource BrAccentWarm}" FontSize="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource TxtConfirmUninstallTitle}" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="Bold" Foreground="{StaticResource BrTextPrimary}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <!-- Message -->
+                            <TextBlock Text="{DynamicResource TxtConfirmUninstallMsg}"
+                                       Foreground="{StaticResource BrTextSecondary}" FontSize="{StaticResource FontSizeBody}"
+                                       TextWrapping="Wrap" Margin="0,0,0,24"/>
+                            
+                            <!-- Buttons -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Name="BtnConfirmUninstallNo" Content="{DynamicResource TxtCancel}" Classes="BtnBase" Padding="16,8" Margin="0,0,10,0" Click="BtnConfirmUninstallNo_Click"/>
+                                <Button Name="BtnConfirmUninstallYes" Content="{DynamicResource TxtUninstall}" Classes="BtnDanger" Padding="16,8" Click="BtnConfirmUninstallYes_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ════════════════════════════════════════════════════════
+                     ACTION BAR
+                     ════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="4"
+                        Background="{StaticResource BrBgDeep}"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="0,1,0,0"
+                        CornerRadius="0,0,12,12"
+                        Padding="24,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Install options (injection method + component checkboxes) -->
+                        <StackPanel Name="PnlInstallOptions"
+                                    Grid.Column="0"
+                                    Orientation="Vertical"
+                                    VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <TextBlock Text="{DynamicResource TxtVersionLbl}"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           Width="65"/>
+                                <ComboBox Name="CmbOptiVersion"
+                                          Width="220"
+                                          SelectedIndex="0"
+                                          VerticalContentAlignment="Center" />
+                            </StackPanel>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{DynamicResource TxtInjectionLbl}"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           VerticalAlignment="Center"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           Width="65"/>
+                            <ComboBox Name="CmbInjectionMethod"
+                                      Width="130"
+                                      SelectedIndex="0"
+                                      VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="dxgi.dll"     Tag="dxgi.dll"/>
+                                <ComboBoxItem Content="winmm.dll"    Tag="winmm.dll"/>
+                                <ComboBoxItem Content="d3d12.dll"    Tag="d3d12.dll"/>
+                                <ComboBoxItem Content="dbghelp.dll"  Tag="dbghelp.dll"/>
+                                <ComboBoxItem Content="version.dll"  Tag="version.dll"/>
+                                <ComboBoxItem Content="wininet.dll"  Tag="wininet.dll"/>
+                                <ComboBoxItem Content="winhttp.dll"  Tag="winhttp.dll"/>
+                            </ComboBox>
+
+                            <Border Width="1"
+                                    Background="{StaticResource BrBorderSubtle}"
+                                    Margin="16,4"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,16,0" VerticalAlignment="Center">
+                                <CheckBox Name="ChkInstallFakenvapi"
+                                          Content="Fakenvapi"
+                                          VerticalAlignment="Center"/>
+                                <Border Background="{StaticResource BrBgElevated}" BorderBrush="{StaticResource BrBorderSubtle}" BorderThickness="1" CornerRadius="8" Width="16" Height="16" Margin="6,0,0,0" ToolTip.ShowDelay="100" Cursor="Help" ToolTip.Tip="{DynamicResource TxtFakenvapiHelpTip}">
+                                    <TextBlock Text="?" Foreground="{StaticResource BrTextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <CheckBox Name="ChkInstallNukemFG"
+                                          Content="NukemFG"
+                                          VerticalAlignment="Center"/>
+                                <Border Background="{StaticResource BrBgElevated}" BorderBrush="{StaticResource BrBorderSubtle}" BorderThickness="1" CornerRadius="8" Width="16" Height="16" Margin="6,0,0,0" ToolTip.ShowDelay="100" Cursor="Help" ToolTip.Tip="{DynamicResource TxtNukemHelpTip}">
+                                    <TextBlock Text="?" Foreground="{StaticResource BrTextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                                </Border>
+                            </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Right-side action buttons -->
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom">
+
+                            <!-- Install Buttons -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0" Name="InstallBtnGroup">
+                                <Button Name="BtnInstallManual"
+                                        Content="{DynamicResource TxtBtnManualInstall}"
+                                        Classes="BtnSuccess"
+                                        Padding="18,8"
+                                        Margin="0,0,10,0"
+                                        Click="BtnInstallManual_Click"/>
+
+                                <Button Name="BtnInstall"
+                                        Content="{DynamicResource TxtInstallOpti}"
+                                        Classes="BtnSuccess"
+                                        Padding="18,8"
+                                        Click="BtnInstall_Click"/>
+                            </StackPanel>
+
+                            <Button Name="BtnUninstall"
+                                    Content="{DynamicResource TxtUninstall}"
+                                    Classes="BtnDanger"
+                                    Padding="18,8"
+                                    Margin="0,0,0,0"
+                                    IsVisible="False"
+                                    Click="BtnUninstall_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</Window>
