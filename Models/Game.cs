@@ -9,7 +9,8 @@ public enum GamePlatform
     EA,
     BattleNet,
     Ubisoft,
-    Manual
+    Manual,
+    Custom
 }
 
 public class Game

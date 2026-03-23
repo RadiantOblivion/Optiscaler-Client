@@ -245,6 +245,12 @@ namespace OptiscalerClient.Views
             await cacheWindow.ShowDialog<object>(this);
         }
 
+        private async void BtnManageScanSources_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ManageScanSourcesWindow(this, _componentService);
+            await dialog.ShowDialog<bool?>(this);
+        }
+
         private void TglAutoScan_IsCheckedChanged(object sender, RoutedEventArgs e)
         {
             if (_isInitializingLanguage) return;
@@ -570,7 +576,7 @@ namespace OptiscalerClient.Views
                 List<Game> scanResults;
                 if (OperatingSystem.IsWindows() && _scannerService != null)
                 {
-                    scanResults = await _scannerService.ScanAllGamesAsync();
+                    scanResults = await _scannerService.ScanAllGamesAsync(_componentService.Config.ScanSources);
                 }
                 else
                 {

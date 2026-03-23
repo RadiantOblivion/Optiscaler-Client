@@ -1,0 +1,206 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Platform.Storage;
+using OptiscalerClient.Helpers;
+using OptiscalerClient.Services;
+
+namespace OptiscalerClient.Views
+{
+    public partial class ManageScanSourcesWindow : Window
+    {
+        private readonly ComponentManagementService _componentService;
+        private readonly List<string> _customFolders = new();
+
+        public ManageScanSourcesWindow()
+        {
+            InitializeComponent();
+            _componentService = new ComponentManagementService();
+        }
+
+        public ManageScanSourcesWindow(Window owner, ComponentManagementService componentService)
+        {
+            InitializeComponent();
+            _componentService = componentService;
+
+            this.Opacity = 0;
+
+            var titleBar = this.FindControl<Border>("TitleBar");
+            if (titleBar != null)
+            {
+                titleBar.PointerPressed += (s, e) => this.BeginMoveDrag(e);
+            }
+
+            this.Opened += (s, e) =>
+            {
+                this.Opacity = 1;
+                var rootPanel = this.FindControl<Panel>("RootPanel");
+                if (rootPanel != null)
+                {
+                    AnimationHelper.SetupPanelTransition(rootPanel);
+                    rootPanel.Opacity = 1;
+                }
+            };
+
+            LoadCurrentSettings();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        private void LoadCurrentSettings()
+        {
+            var config = _componentService.Config.ScanSources;
+
+            var tglSteam = this.FindControl<ToggleSwitch>("TglSteam");
+            var tglEpic = this.FindControl<ToggleSwitch>("TglEpic");
+            var tglGOG = this.FindControl<ToggleSwitch>("TglGOG");
+            var tglXbox = this.FindControl<ToggleSwitch>("TglXbox");
+            var tglEA = this.FindControl<ToggleSwitch>("TglEA");
+            var tglUbisoft = this.FindControl<ToggleSwitch>("TglUbisoft");
+
+            if (tglSteam != null) tglSteam.IsChecked = config.ScanSteam;
+            if (tglEpic != null) tglEpic.IsChecked = config.ScanEpic;
+            if (tglGOG != null) tglGOG.IsChecked = config.ScanGOG;
+            if (tglXbox != null) tglXbox.IsChecked = config.ScanXbox;
+            if (tglEA != null) tglEA.IsChecked = config.ScanEA;
+            if (tglUbisoft != null) tglUbisoft.IsChecked = config.ScanUbisoft;
+
+            _customFolders.Clear();
+            _customFolders.AddRange(config.CustomFolders);
+            RefreshCustomFoldersList();
+        }
+
+        private void RefreshCustomFoldersList()
+        {
+            var pnlCustomFolders = this.FindControl<StackPanel>("PnlCustomFolders");
+            var txtNoCustomFolders = this.FindControl<TextBlock>("TxtNoCustomFolders");
+
+            if (pnlCustomFolders == null) return;
+
+            pnlCustomFolders.Children.Clear();
+
+            if (_customFolders.Count == 0)
+            {
+                if (txtNoCustomFolders != null)
+                {
+                    pnlCustomFolders.Children.Add(txtNoCustomFolders);
+                }
+                return;
+            }
+
+            foreach (var folder in _customFolders)
+            {
+                var card = CreateFolderCard(folder);
+                pnlCustomFolders.Children.Add(card);
+            }
+        }
+
+        private Border CreateFolderCard(string folderPath)
+        {
+            var grid = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitions("*, Auto")
+            };
+
+            var txtPath = new TextBlock
+            {
+                Text = folderPath,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                Foreground = Application.Current?.FindResource("BrTextPrimary") as IBrush ?? Brushes.White,
+                TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
+                Margin = new Thickness(0, 0, 12, 0)
+            };
+
+            var btnRemove = new Button
+            {
+                Content = Application.Current?.FindResource("TxtRemove") as string ?? "Remove",
+                Classes = { "BtnSecondary" },
+                Padding = new Thickness(12, 4),
+                FontSize = 11,
+                Tag = folderPath
+            };
+            btnRemove.Click += BtnRemoveFolder_Click;
+
+            grid.Children.Add(txtPath);
+            Grid.SetColumn(txtPath, 0);
+
+            grid.Children.Add(btnRemove);
+            Grid.SetColumn(btnRemove, 1);
+
+            return new Border
+            {
+                Background = Application.Current?.FindResource("BrBgSurface") as IBrush ?? Brushes.Transparent,
+                BorderBrush = Application.Current?.FindResource("BrBorderSubtle") as IBrush ?? Brushes.DimGray,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(12, 8),
+                Child = grid
+            };
+        }
+
+        private async void BtnAddFolder_Click(object? sender, RoutedEventArgs e)
+        {
+            var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Select Game Folder",
+                AllowMultiple = false
+            });
+
+            if (folders != null && folders.Count > 0)
+            {
+                var selectedPath = folders[0].Path.LocalPath;
+
+                if (!_customFolders.Contains(selectedPath))
+                {
+                    _customFolders.Add(selectedPath);
+                    RefreshCustomFoldersList();
+                }
+            }
+        }
+
+        private void BtnRemoveFolder_Click(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string folderPath)
+            {
+                _customFolders.Remove(folderPath);
+                RefreshCustomFoldersList();
+            }
+        }
+
+        private void BtnSave_Click(object? sender, RoutedEventArgs e)
+        {
+            var tglSteam = this.FindControl<ToggleSwitch>("TglSteam");
+            var tglEpic = this.FindControl<ToggleSwitch>("TglEpic");
+            var tglGOG = this.FindControl<ToggleSwitch>("TglGOG");
+            var tglXbox = this.FindControl<ToggleSwitch>("TglXbox");
+            var tglEA = this.FindControl<ToggleSwitch>("TglEA");
+            var tglUbisoft = this.FindControl<ToggleSwitch>("TglUbisoft");
+
+            _componentService.Config.ScanSources.ScanSteam = tglSteam?.IsChecked ?? true;
+            _componentService.Config.ScanSources.ScanEpic = tglEpic?.IsChecked ?? true;
+            _componentService.Config.ScanSources.ScanGOG = tglGOG?.IsChecked ?? true;
+            _componentService.Config.ScanSources.ScanXbox = tglXbox?.IsChecked ?? true;
+            _componentService.Config.ScanSources.ScanEA = tglEA?.IsChecked ?? true;
+            _componentService.Config.ScanSources.ScanUbisoft = tglUbisoft?.IsChecked ?? true;
+            _componentService.Config.ScanSources.CustomFolders = _customFolders.ToList();
+
+            _componentService.SaveConfiguration();
+            Close(true);
+        }
+
+        private void BtnCancel_Click(object? sender, RoutedEventArgs e)
+        {
+            Close(false);
+        }
+    }
+}

@@ -12,6 +12,20 @@ namespace OptiscalerClient.Models
     }
 
     /// <summary>
+    /// Configuration for scan sources
+    /// </summary>
+    public class ScanSourcesConfig
+    {
+        public bool ScanSteam { get; set; } = true;
+        public bool ScanEpic { get; set; } = true;
+        public bool ScanGOG { get; set; } = true;
+        public bool ScanXbox { get; set; } = true;
+        public bool ScanEA { get; set; } = true;
+        public bool ScanUbisoft { get; set; } = true;
+        public List<string> CustomFolders { get; set; } = new();
+    }
+
+    /// <summary>
     /// Root configuration containing all repository configurations
     /// </summary>
     public class AppConfiguration
@@ -24,6 +38,7 @@ namespace OptiscalerClient.Models
         public bool Debug { get; set; } = false;
         public bool AutoScan { get; set; } = true;
         public bool AnimationsEnabled { get; set; } = true;
+        public ScanSourcesConfig ScanSources { get; set; } = new();
     }
 
     /// <summary>

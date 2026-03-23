@@ -1,0 +1,171 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OptiscalerClient.Views.ManageScanSourcesWindow"
+        Title="Manage Scan Sources"
+        Width="520"
+        Height="680"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        CanResize="False"
+        ShowInTaskbar="False">
+
+    <Panel Margin="16" Name="RootPanel" Opacity="0">
+        <Border CornerRadius="12"
+                Background="{StaticResource BrBgBase}"
+                BoxShadow="0 10 30 0 #A0000000">
+            
+            <Grid>
+                <Border CornerRadius="12"
+                        BorderBrush="{StaticResource BrBorderSubtle}"
+                        BorderThickness="1"
+                        ZIndex="10"
+                        IsHitTestVisible="False"/>
+
+                <Border CornerRadius="12"
+                        Background="Transparent"
+                        ClipToBounds="True">
+                    
+                    <Grid RowDefinitions="Auto, *, Auto">
+                        
+                        <!-- Title Bar -->
+                        <Border Grid.Row="0"
+                                Name="TitleBar"
+                                Background="{StaticResource BrBgDeep}"
+                                Padding="24,18"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,0,0,1">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource TxtManageScanSources}"
+                                           FontSize="18"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource BrTextPrimary}"/>
+                                <TextBlock Text="{DynamicResource TxtManageScanSourcesDesc}"
+                                           FontSize="{StaticResource FontSizeCaption}"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Content -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="24,20">
+                                
+                                <!-- Default Sources -->
+                                <TextBlock Text="{DynamicResource TxtDefaultSources}"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           Foreground="{StaticResource BrTextPrimary}"
+                                           Margin="0,0,0,12"/>
+                                
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusMedium}"
+                                        Padding="16,12"
+                                        Margin="0,0,0,24">
+                                    <StackPanel Spacing="12">
+                                        
+                                        <!-- Steam -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Steam" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglSteam" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+                                        
+                                        <!-- Epic Games -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Epic Games" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglEpic" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+                                        
+                                        <!-- GOG Galaxy -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="GOG Galaxy" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglGOG" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+                                        
+                                        <!-- Xbox (Microsoft Store) -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Xbox (Microsoft Store)" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglXbox" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+                                        
+                                        <!-- EA App -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="EA App" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglEA" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+
+                                        <!-- Ubisoft Connect -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Ubisoft Connect" VerticalAlignment="Center" Foreground="{StaticResource BrTextPrimary}"/>
+                                            <ToggleSwitch Grid.Column="1" Name="TglUbisoft" OnContent="" OffContent="" IsChecked="True"/>
+                                        </Grid>
+                                        
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Custom Folders -->
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{DynamicResource TxtCustomFolders}"
+                                               FontWeight="SemiBold"
+                                               FontSize="14"
+                                               Foreground="{StaticResource BrTextPrimary}"
+                                               VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1"
+                                            Name="BtnAddFolder"
+                                            Content="{DynamicResource TxtAddFolder}"
+                                            Classes="BtnBase"
+                                            Padding="12,6"
+                                            FontSize="12"
+                                            Click="BtnAddFolder_Click"/>
+                                </Grid>
+                                
+                                <Border Background="{StaticResource BrBgCard}"
+                                        BorderBrush="{StaticResource BrBorderSubtle}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusMedium}"
+                                        Padding="16,12"
+                                        MinHeight="120">
+                                    <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
+                                        <StackPanel Name="PnlCustomFolders" Spacing="8">
+                                            <!-- Custom folders will be added here dynamically -->
+                                            <TextBlock Name="TxtNoCustomFolders"
+                                                       Text="{DynamicResource TxtNoCustomFolders}"
+                                                       Foreground="{StaticResource BrTextSecondary}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,20"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Footer Buttons -->
+                        <Border Grid.Row="2"
+                                Background="{StaticResource BrBgDeep}"
+                                BorderBrush="{StaticResource BrBorderSubtle}"
+                                BorderThickness="0,1,0,0"
+                                Padding="24,16">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                                <Button Content="{DynamicResource TxtCancel}"
+                                        Classes="BtnSecondary"
+                                        Padding="20,10"
+                                        Click="BtnCancel_Click"/>
+                                <Button Content="{DynamicResource TxtSave}"
+                                        Classes="BtnPrimary"
+                                        Padding="20,10"
+                                        Click="BtnSave_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</Window>

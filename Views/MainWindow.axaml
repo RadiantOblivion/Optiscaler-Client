@@ -464,6 +464,41 @@
                          </Grid>
                      </Border>
          
+                     <!-- Scan Sources -->
+                     <Border Background="{StaticResource BrBgCard}"
+                             BorderBrush="{StaticResource BrBorderSubtle}"
+                             BorderThickness="1"
+                             CornerRadius="{StaticResource RadiusLarge}"
+                             Padding="20,16"
+                             Margin="0,16,0,0">
+                         <Grid>
+                             <Grid.ColumnDefinitions>
+                                 <ColumnDefinition Width="*"/>
+                                 <ColumnDefinition Width="Auto"/>
+                             </Grid.ColumnDefinitions>
+                             
+                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                 <TextBlock Text="{DynamicResource TxtScanSources}"
+                                            FontWeight="SemiBold"
+                                            Foreground="{StaticResource BrTextPrimary}"/>
+                                 <TextBlock Text="{DynamicResource TxtScanSourcesDesc}"
+                                            Foreground="{StaticResource BrTextSecondary}"
+                                            TextWrapping="Wrap"
+                                            Margin="0,4,16,0"
+                                            FontSize="{StaticResource FontSizeCaption}"/>
+                             </StackPanel>
+                             
+                             <Button Name="BtnManageScanSources"
+                                     Grid.Column="1"
+                                     Content="{DynamicResource TxtManage}"
+                                     Classes="BtnBase"
+                                     Padding="16,8"
+                                     VerticalAlignment="Center"
+                                     Click="BtnManageScanSources_Click"/>
+                         </Grid>
+                     </Border>
+ 
+                     <!-- Auto Scan -->
                      <Border Background="{StaticResource BrBgCard}"
                              BorderBrush="{StaticResource BrBorderSubtle}"
                              BorderThickness="1"
