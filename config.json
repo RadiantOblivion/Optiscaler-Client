@@ -7,6 +7,10 @@
         "RepoOwner": "optiscaler",
         "RepoName": "OptiScaler"
     },
+    "OptiScalerBetas": {
+        "RepoOwner": "Agustinm28",
+        "RepoName": "OptiScaler-Betas"
+    },
     "Fakenvapi": {
         "RepoOwner": "optiscaler",
         "RepoName": "fakenvapi"

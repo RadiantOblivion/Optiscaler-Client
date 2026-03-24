@@ -232,6 +232,11 @@ namespace OptiscalerClient.Views
             {
                 tglAnimations.IsChecked = _componentService.Config.AnimationsEnabled;
             }
+            var tglBetaVersions = this.FindControl<ToggleSwitch>("TglBetaVersions");
+            if (tglBetaVersions != null)
+            {
+                tglBetaVersions.IsChecked = _componentService.Config.ShowBetaVersions;
+            }
             _isInitializingLanguage = false;
         }
 
@@ -281,6 +286,16 @@ namespace OptiscalerClient.Views
                 _componentService.Config.AnimationsEnabled = tgl.IsChecked ?? true;
                 _componentService.SaveConfiguration();
                 UpdateAnimationsState(_componentService.Config.AnimationsEnabled);
+            }
+        }
+
+        private void TglBetaVersions_IsCheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializingLanguage) return;
+            if (sender is ToggleSwitch tgl)
+            {
+                _componentService.Config.ShowBetaVersions = tgl.IsChecked ?? true;
+                _componentService.SaveConfiguration();
             }
         }
 

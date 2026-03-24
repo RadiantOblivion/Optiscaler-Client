@@ -531,6 +531,37 @@
                          </Grid>
                      </Border>
  
+                     <!-- Beta Versions -->
+                     <Border Background="{StaticResource BrBgCard}"
+                             BorderBrush="{StaticResource BrBorderSubtle}"
+                             BorderThickness="1"
+                             CornerRadius="{StaticResource RadiusLarge}"
+                             Padding="20,16"
+                             Margin="0,16,0,0">
+                         <Grid>
+                             <Grid.ColumnDefinitions>
+                                 <ColumnDefinition Width="*"/>
+                                 <ColumnDefinition Width="Auto"/>
+                             </Grid.ColumnDefinitions>
+                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                 <TextBlock Text="{DynamicResource TxtBetaVersions}"
+                                            FontWeight="SemiBold"
+                                            Foreground="{StaticResource BrTextPrimary}"/>
+                                 <TextBlock Text="{DynamicResource TxtBetaVersionsDesc}"
+                                            Foreground="{StaticResource BrTextSecondary}"
+                                            TextWrapping="Wrap"
+                                            Margin="0,4,16,0"
+                                            FontSize="{StaticResource FontSizeCaption}"/>
+                             </StackPanel>
+                             <ToggleSwitch Name="TglBetaVersions"
+                                           Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           OnContent="" OffContent=""
+                                           IsChecked="True"
+                                           IsCheckedChanged="TglBetaVersions_IsCheckedChanged"/>
+                         </Grid>
+                     </Border>
+
                      <!-- Animations -->
                      <Border Background="{StaticResource BrBgCard}"
                              BorderBrush="{StaticResource BrBorderSubtle}"
