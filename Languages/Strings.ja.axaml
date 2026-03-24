@@ -151,6 +151,8 @@
     <x:String x:Key="TxtAutoScanDesc">起動時にリストが空の場合に自動的にゲームをスキャンします。</x:String>
     <x:String x:Key="TxtAnimations">アニメーションを有効にする</x:String>
     <x:String x:Key="TxtAnimationsDesc">インターフェース全体で滑らかな遷移とアニメーションを有効にします</x:String>
+    <x:String x:Key="TxtBetaVersions">ベータ版を表示</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">バージョンセレクターにOptiScalerのベータ版を含める。ベータ版は不安定な場合があります。</x:String>
 
     <!-- App Update -->
     <x:String x:Key="TxtUpdateAvailableTitle">更新利用可能</x:String>

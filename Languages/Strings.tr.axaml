@@ -151,6 +151,8 @@
     <x:String x:Key="TxtAutoScanDesc">Başlangıçta liste boşsa otomatik olarak oyunları tara.</x:String>
     <x:String x:Key="TxtAnimations">Animasyonları etkinleştir</x:String>
     <x:String x:Key="TxtAnimationsDesc">Arayüz genelinde yumuşak geçişler ve animasyonları etkinleştir</x:String>
+    <x:String x:Key="TxtBetaVersions">Beta sürümlerini göster</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">Sürüm seçicide OptiScaler beta sürümlerini dahil et. Betalar kararsız olabilir.</x:String>
 
     <!-- App Update -->
     <x:String x:Key="TxtUpdateAvailableTitle">Güncelleme Mevcut</x:String>

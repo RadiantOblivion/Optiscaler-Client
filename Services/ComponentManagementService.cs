@@ -28,12 +28,16 @@ namespace OptiscalerClient.Services
         private ComponentVersions _remoteVersions = new();
 
         private static System.Collections.Generic.List<string>? _cachedOptiScalerVersions = null;
+        private static System.Collections.Generic.HashSet<string> _cachedBetaVersions = new();
+        private static string? _cachedLatestBetaVersion = null;
         private static string? _cachedFakenvapiVersion = null;
         private static string? _cachedNukemFGVersion = null;
         private static DateTime _lastApiCheckTime = DateTime.MinValue;
 
         public System.Collections.Generic.List<string> OptiScalerAvailableVersions
             => _cachedOptiScalerVersions ?? GetDownloadedOptiScalerVersions();
+        public System.Collections.Generic.HashSet<string> BetaVersions => _cachedBetaVersions;
+        public string? LatestBetaVersion => _cachedLatestBetaVersion;
 
         public string? OptiScalerVersion => _localVersions.OptiScalerVersion;
         public string? FakenvapiVersion => _localVersions.FakenvapiVersion;
@@ -147,15 +151,29 @@ namespace OptiscalerClient.Services
                 {
                     DebugWindow.Log($"[ComponentCheck] Fetching updates from GitHub API (Rates: {(DateTime.Now - _lastApiCheckTime).ToString(@"hh\:mm\:ss")} since last check)");
                     var optiVersionsTask = FetchAllComponentVersionsAsync(_config.OptiScaler);
+                    var optiBetasTask = _config.ShowBetaVersions
+                        ? FetchAllComponentVersionsAsync(_config.OptiScalerBetas)
+                        : Task.FromResult(new System.Collections.Generic.List<string>());
                     var fakeTask = CheckComponentUpdateAsync("Fakenvapi", _config.Fakenvapi);
                     var nukemTask = CheckComponentUpdateAsync("NukemFG", _config.NukemFG);
 
-                    await Task.WhenAll(optiVersionsTask, fakeTask, nukemTask);
+                    await Task.WhenAll(optiVersionsTask, optiBetasTask, fakeTask, nukemTask);
 
-                    var newOptiVersions = await optiVersionsTask;
-                    if (newOptiVersions != null && newOptiVersions.Count > 0)
+                    var stableVersions = await optiVersionsTask;
+                    var betaVersions = await optiBetasTask;
+
+                    // Track which versions are betas
+                    _cachedBetaVersions = new System.Collections.Generic.HashSet<string>(betaVersions ?? new());
+                    _cachedLatestBetaVersion = betaVersions?.FirstOrDefault();
+
+                    // Merge stable and beta versions, removing duplicates
+                    var allVersions = new System.Collections.Generic.List<string>();
+                    if (stableVersions != null) allVersions.AddRange(stableVersions);
+                    if (betaVersions != null) allVersions.AddRange(betaVersions);
+                    
+                    if (allVersions.Count > 0)
                     {
-                        _cachedOptiScalerVersions = newOptiVersions;
+                        _cachedOptiScalerVersions = allVersions.Distinct().ToList();
                     }
                     _cachedFakenvapiVersion = await fakeTask ?? _cachedFakenvapiVersion;
                     _cachedNukemFGVersion = await nukemTask ?? _cachedNukemFGVersion;
@@ -217,10 +235,19 @@ namespace OptiscalerClient.Services
         private async Task<System.Collections.Generic.List<string>> FetchAllComponentVersionsAsync(RepositoryConfig config)
         {
             var versions = new System.Collections.Generic.List<string>();
+            var repoLabel = $"{config.RepoOwner}/{config.RepoName}";
             try
             {
+                if (string.IsNullOrEmpty(config.RepoOwner) || string.IsNullOrEmpty(config.RepoName))
+                {
+                    DebugWindow.Log($"[FetchVersions] Skipping {repoLabel}: empty config");
+                    return versions;
+                }
+
                 var url = $"https://api.github.com/repos/{config.RepoOwner}/{config.RepoName}/releases?per_page=30";
+                DebugWindow.Log($"[FetchVersions] GET {url}");
                 var response = await _httpClient.GetAsync(url);
+                DebugWindow.Log($"[FetchVersions] {repoLabel} → HTTP {(int)response.StatusCode}");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -238,8 +265,12 @@ namespace OptiscalerClient.Services
                         }
                     }
                 }
+                DebugWindow.Log($"[FetchVersions] {repoLabel} → {versions.Count} version(s): [{string.Join(", ", versions)}]");
             }
-            catch { /* Component check failed */ }
+            catch (Exception ex)
+            {
+                DebugWindow.Log($"[FetchVersions] {repoLabel} → ERROR: {ex.Message}");
+            }
 
             return versions;
         }
@@ -312,17 +343,38 @@ namespace OptiscalerClient.Services
             LastError = null;
             try
             {
-                // Retrieve release from GitHub
+                // Try to retrieve release from stable repo first, then beta repo
+                HttpResponseMessage? response = null;
+                string? json = null;
+                
+                // Try stable repo with v prefix
                 var url = $"https://api.github.com/repos/{_config.OptiScaler.RepoOwner}/{_config.OptiScaler.RepoName}/releases/tags/v{version}";
-                var response = await _httpClient.GetAsync(url);
+                response = await _httpClient.GetAsync(url);
+                
                 if (!response.IsSuccessStatusCode)
                 {
+                    // Try stable repo without v prefix
                     url = $"https://api.github.com/repos/{_config.OptiScaler.RepoOwner}/{_config.OptiScaler.RepoName}/releases/tags/{version}";
                     response = await _httpClient.GetAsync(url);
                 }
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Try beta repo with v prefix
+                    url = $"https://api.github.com/repos/{_config.OptiScalerBetas.RepoOwner}/{_config.OptiScalerBetas.RepoName}/releases/tags/v{version}";
+                    response = await _httpClient.GetAsync(url);
+                }
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Try beta repo without v prefix
+                    url = $"https://api.github.com/repos/{_config.OptiScalerBetas.RepoOwner}/{_config.OptiScalerBetas.RepoName}/releases/tags/{version}";
+                    response = await _httpClient.GetAsync(url);
+                }
+                
                 response.EnsureSuccessStatusCode();
 
-                var json = await response.Content.ReadAsStringAsync();
+                json = await response.Content.ReadAsStringAsync();
                 using var doc = JsonDocument.Parse(json);
 
                 string? downloadUrl = null;

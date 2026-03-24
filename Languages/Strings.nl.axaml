@@ -151,6 +151,8 @@
     <x:String x:Key="TxtAutoScanDesc">Scan automatisch voor games als de lijst leeg is bij opstarten.</x:String>
     <x:String x:Key="TxtAnimations">Activeer animaties</x:String>
     <x:String x:Key="TxtAnimationsDesc">Activeer soepele overgangen en animaties in de hele interface</x:String>
+    <x:String x:Key="TxtBetaVersions">Beta-versies weergeven</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">Beta-versies van OptiScaler opnemen in de versieselectie. Betas kunnen instabiel zijn.</x:String>
 
     <!-- App Update -->
     <x:String x:Key="TxtUpdateAvailableTitle">Update Beschikbaar</x:String>

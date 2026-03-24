@@ -32,12 +32,14 @@ namespace OptiscalerClient.Models
     {
         public RepositoryConfig App { get; set; } = new() { RepoOwner = "Agustinm28", RepoName = "Optiscaler-Switcher" };
         public RepositoryConfig OptiScaler { get; set; } = new();
+        public RepositoryConfig OptiScalerBetas { get; set; } = new();
         public RepositoryConfig Fakenvapi { get; set; } = new();
         public RepositoryConfig NukemFG { get; set; } = new();
         public string Language { get; set; } = "en";
         public bool Debug { get; set; } = false;
         public bool AutoScan { get; set; } = true;
         public bool AnimationsEnabled { get; set; } = true;
+        public bool ShowBetaVersions { get; set; } = true;
         public ScanSourcesConfig ScanSources { get; set; } = new();
     }
 

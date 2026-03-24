@@ -151,6 +151,8 @@
     <x:String x:Key="TxtAutoScanDesc">启动时如果列表为空则自动扫描游戏。</x:String>
     <x:String x:Key="TxtAnimations">启用动画</x:String>
     <x:String x:Key="TxtAnimationsDesc">在整个界面中启用平滑过渡和动画</x:String>
+    <x:String x:Key="TxtBetaVersions">显示测试版</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">在版本选择器中包含 OptiScaler 测试版。测试版可能不稳定。</x:String>
 
     <!-- App Update -->
     <x:String x:Key="TxtUpdateAvailableTitle">更新可用</x:String>

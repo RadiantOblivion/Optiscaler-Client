@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using OptiscalerClient.Models;
 using System.Collections.ObjectModel;
 using Avalonia.Controls.Shapes;
+using Avalonia.Layout;
 using OptiscalerClient.Services;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
@@ -23,6 +24,7 @@ namespace OptiscalerClient.Views
     {
         private readonly Game _game;
         private readonly IGpuDetectionService _gpuService;
+        private HashSet<string> _betaVersions = new();
 
         public bool NeedsScan { get; private set; }
 
@@ -90,6 +92,38 @@ namespace OptiscalerClient.Views
             _ = LoadVersionsAsync();
         }
 
+        private static ComboBoxItem BuildVersionItem(string ver, bool isBeta, bool isLatest)
+        {
+            var stack = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, VerticalAlignment = VerticalAlignment.Center };
+            stack.Children.Add(new TextBlock { Text = ver, VerticalAlignment = VerticalAlignment.Center });
+
+            if (isBeta)
+            {
+                var badge = new Border
+                {
+                    CornerRadius = new CornerRadius(4),
+                    Background = new SolidColorBrush(Color.Parse("#D4A017")),
+                    Padding = new Thickness(5, 1),
+                    Child = new TextBlock { Text = "BETA", FontSize = 10, Foreground = Brushes.White, FontWeight = Avalonia.Media.FontWeight.Bold, VerticalAlignment = VerticalAlignment.Center }
+                };
+                stack.Children.Add(badge);
+            }
+
+            if (isLatest)
+            {
+                var badge = new Border
+                {
+                    CornerRadius = new CornerRadius(4),
+                    Background = new SolidColorBrush(Color.Parse("#7C3AED")),
+                    Padding = new Thickness(5, 1),
+                    Child = new TextBlock { Text = "LATEST", FontSize = 10, Foreground = Brushes.White, FontWeight = Avalonia.Media.FontWeight.Bold, VerticalAlignment = VerticalAlignment.Center }
+                };
+                stack.Children.Add(badge);
+            }
+
+            return new ComboBoxItem { Content = stack, Tag = ver };
+        }
+
         private async Task LoadVersionsAsync()
         {
             var componentService = new ComponentManagementService();
@@ -100,13 +134,16 @@ namespace OptiscalerClient.Views
 
             Dispatcher.UIThread.Post(() =>
             {
-                var versions = componentService.OptiScalerAvailableVersions;
+                var allVersions = componentService.OptiScalerAvailableVersions;
+                var betaVersions = componentService.BetaVersions;
+                var latestBeta = componentService.LatestBetaVersion;
+
                 var cmbOptiVersion = this.FindControl<ComboBox>("CmbOptiVersion");
                 if (cmbOptiVersion == null) return;
-                
+
                 cmbOptiVersion.Items.Clear();
 
-                if (versions.Count == 0)
+                if (allVersions.Count == 0)
                 {
                     cmbOptiVersion.Items.Add(GetResourceString("TxtNoOptiDetected", "No version detected"));
                     cmbOptiVersion.SelectedIndex = 0;
@@ -114,25 +151,46 @@ namespace OptiscalerClient.Views
                     return;
                 }
 
-                bool isLatestMarked = false;
-                int latestIndex = 0;
+                _betaVersions = betaVersions;
+
+                var stableVersions = allVersions.Where(v => !betaVersions.Contains(v)).ToList();
+                var otherBetas = allVersions.Where(v => betaVersions.Contains(v) && v != latestBeta).ToList();
+
+                int selectedIndex = 0;
                 int currentIndex = 0;
 
-                foreach (var ver in versions)
+                // 1. Latest beta at top (if present)
+                if (!string.IsNullOrEmpty(latestBeta))
                 {
-                    var display = ver;
-                    if (!isLatestMarked && !ver.Contains("nightly", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var latestStr = GetResourceString("TxtOptiLatest", " (Latest)");
-                        display += latestStr;
-                        isLatestMarked = true;
-                        latestIndex = currentIndex;
-                    }
-                    cmbOptiVersion.Items.Add(new ComboBoxItem { Content = display, Tag = ver });
+                    cmbOptiVersion.Items.Add(BuildVersionItem(latestBeta, isBeta: true, isLatest: false));
                     currentIndex++;
                 }
 
-                cmbOptiVersion.SelectedIndex = latestIndex;
+                // 2. Stable versions — default selection is first non-nightly stable
+                bool isLatestStableMarked = false;
+                foreach (var ver in stableVersions)
+                {
+                    bool isFirstStable = !isLatestStableMarked && !ver.Contains("nightly", StringComparison.OrdinalIgnoreCase);
+                    if (isFirstStable)
+                    {
+                        selectedIndex = currentIndex;
+                        isLatestStableMarked = true;
+                    }
+                    cmbOptiVersion.Items.Add(BuildVersionItem(ver, isBeta: false, isLatest: isFirstStable));
+                    currentIndex++;
+                }
+
+                // 3. Remaining betas at end
+                foreach (var ver in otherBetas)
+                {
+                    cmbOptiVersion.Items.Add(BuildVersionItem(ver, isBeta: true, isLatest: false));
+                    currentIndex++;
+                }
+
+                cmbOptiVersion.SelectedIndex = selectedIndex;
+
+                // Wire SelectionChanged here so it only fires on user interaction, not during init
+                cmbOptiVersion.SelectionChanged += CmbOptiVersion_SelectionChanged;
             });
         }
 
@@ -572,10 +630,46 @@ namespace OptiscalerClient.Views
                         components.Add($"Found: {file}");
                     }
                 }
+
+                if (File.Exists(System.IO.Path.Combine(_game.InstallPath, "nvapi64.dll")))
+                    components.Add("Fakenvapi: installed");
+
+                if (File.Exists(System.IO.Path.Combine(_game.InstallPath, "dlssg_to_fsr3_amd_is_better.dll")))
+                    components.Add("NukemFG: installed");
             }
 
             var lstComponents = this.FindControl<ListBox>("LstComponents");
             if (lstComponents != null) lstComponents.ItemsSource = components;
+        }
+
+        private void CmbOptiVersion_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            var cmb = sender as ComboBox;
+            var selectedTag = (cmb?.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+            bool isBeta = !string.IsNullOrEmpty(selectedTag) && _betaVersions.Contains(selectedTag);
+
+            var chkFakenvapi = this.FindControl<CheckBox>("ChkInstallFakenvapi");
+            var chkNukemFG = this.FindControl<CheckBox>("ChkInstallNukemFG");
+
+            if (isBeta)
+            {
+                if (chkFakenvapi != null)
+                {
+                    chkFakenvapi.IsEnabled = false;
+                    chkFakenvapi.IsChecked = false;
+                    ToolTip.SetTip(chkFakenvapi, "Included in beta version");
+                }
+                if (chkNukemFG != null)
+                {
+                    chkNukemFG.IsEnabled = false;
+                    chkNukemFG.IsChecked = false;
+                    ToolTip.SetTip(chkNukemFG, "Included in beta version");
+                }
+            }
+            else
+            {
+                ConfigureAdditionalComponents();
+            }
         }
 
         private void ConfigureAdditionalComponents()

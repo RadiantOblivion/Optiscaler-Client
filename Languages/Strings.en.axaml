@@ -151,6 +151,8 @@
     <x:String x:Key="TxtAutoScanDesc">Automatically scan for games if the list is empty on startup.</x:String>
     <x:String x:Key="TxtAnimations">Enable animations</x:String>
     <x:String x:Key="TxtAnimationsDesc">Enable smooth transitions and animations throughout the interface</x:String>
+    <x:String x:Key="TxtBetaVersions">Show beta versions</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">Include OptiScaler beta versions in the version selector. Betas may be unstable.</x:String>
 
     <!-- Scan Sources -->
     <x:String x:Key="TxtManageScanSources">Manage Scan Sources</x:String>
