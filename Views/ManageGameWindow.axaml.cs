@@ -160,27 +160,32 @@ namespace OptiscalerClient.Views
                 int selectedIndex = 0;
                 int currentIndex = 0;
 
-                // 1. Latest beta at top (if present)
-                if (!string.IsNullOrEmpty(latestBeta))
+                // Determine what is truly "latest" - beta takes precedence if it exists
+                bool hasBeta = !string.IsNullOrEmpty(latestBeta);
+                
+                // 1. Latest beta at top (if present) - this is the LATEST overall
+                if (hasBeta && latestBeta != null)
                 {
-                    cmbOptiVersion.Items.Add(BuildVersionItem(latestBeta, isBeta: true, isLatest: false));
+                    cmbOptiVersion.Items.Add(BuildVersionItem(latestBeta, isBeta: true, isLatest: true));
                     currentIndex++;
                 }
 
-                // 2. Stable versions — default selection based on user preference
+                // 2. Stable versions — first stable gets "LATEST" badge only if no beta exists
                 bool isLatestStableMarked = false;
                 foreach (var ver in stableVersions)
                 {
                     bool isFirstStable = !isLatestStableMarked && !ver.Contains("nightly", StringComparison.OrdinalIgnoreCase);
                     
-                    // Mark as latest stable if this is the first stable version
+                    // Mark as latest stable if this is the first stable version AND no beta exists
+                    bool shouldMarkAsLatest = isFirstStable && !hasBeta;
+                    
                     if (isFirstStable)
                     {
                         isLatestStableMarked = true;
                     }
                     
                     // Select default version based on user preference
-                    if (showBetaVersions && !string.IsNullOrEmpty(latestBeta))
+                    if (showBetaVersions && hasBeta)
                     {
                         // User prefers latest beta - select the latest beta (index 0)
                         selectedIndex = 0;
@@ -191,7 +196,7 @@ namespace OptiscalerClient.Views
                         selectedIndex = currentIndex;
                     }
                     
-                    cmbOptiVersion.Items.Add(BuildVersionItem(ver, isBeta: false, isLatest: isFirstStable));
+                    cmbOptiVersion.Items.Add(BuildVersionItem(ver, isBeta: false, isLatest: shouldMarkAsLatest));
                     currentIndex++;
                 }
 

@@ -484,7 +484,8 @@ namespace OptiscalerClient.Services
                     
                     foreach (var entry in entries)
                     {
-                        var destPath = Path.Combine(extractPath, entry.Key);
+                        var entryKey = entry.Key ?? string.Empty;
+                        var destPath = Path.Combine(extractPath, entryKey);
                         var destDir = Path.GetDirectoryName(destPath);
                         
                         if (destDir != null && !Directory.Exists(destDir))
