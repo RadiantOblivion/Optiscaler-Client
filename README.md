@@ -1,12 +1,12 @@
-﻿# ✦ OptiScaler Client
+# ✦ OptiScaler Client
 
-[![GitHub Release](https://img.shields.io/github/v/release/Agustinm28/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/Agustinm28/Optiscaler-Client/releases/tag/OptiscalerClient-1.0.2b)
+[![GitHub Release](https://img.shields.io/github/v/release/Agustinm28/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/Agustinm28/Optiscaler-Client/releases/tag/OptiscalerClient-1.0.2)
 [![License: GPL](https://img.shields.io/badge/License-GPL-yellow.svg?style=flat-square)](LICENSE)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 
 > **⚠️ Disclaimer:** This is **not** an official OptiScaler project. I am not affiliated with the OptiScaler team. This is a personal project developed without any commercial purpose. Anyone is free to try and use this software at their own risk.
 
-**OptiScaler Client** is a modern, high-performance desktop utility designed to simplify the installation, management, and update of the **OptiScaler** mod across your entire game library. Built with **C#** and **WPF**.
+**OptiScaler Client** is a modern, high-performance desktop utility designed to simplify the installation, management, and update of the **OptiScaler** mod across your entire game library. Built with **C#** and **Avalonia UI**.
 
 ---
 
@@ -41,7 +41,7 @@
 
 Follow these simple steps to enhance your games:
 
-1.  **Find your games**: Click the **"Scan Games"** button to automatically detect installed titles. If you have a standalone or DRM-free game, use the **"Add Manually"** button.
+1.  **Find your games**: Click the **"Scan Games"** button to automatically detect installed titles. You can also manage scan sources or add custom folders for scanning in the **Settings** menu. For standalone or DRM-free games, use the **"Add Manually"** button.
 2.  **Select a Game**: Click the **"Manage"** button next to any game in your list to enter the management dashboard.
 3.  **Install OptiScaler**: Choose your desired version and click **"Auto Install"**. If the game uses a non-standard structure, use **"Manual Install"** to select the executable yourself.
 4.  **Launch & Tweak**: Start your game normally. Once inside, press the **`Insert`** key to open the OptiScaler menu and fine-tune your upscaling settings in real-time.
