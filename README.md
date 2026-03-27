@@ -14,15 +14,15 @@
 
 * Main window
 
-<img width="1282" height="752" alt="1 0 2_A" src="https://github.com/user-attachments/assets/89a78272-a0fc-4c7e-ad52-916c51f8d986" />
+<img width="1266" height="752" alt="1 0 3_A" src="https://github.com/user-attachments/assets/09b0706a-e047-485c-9ac7-0847d80a3fc5" />
 
 * Game management
 
-<img width="1278" height="751" alt="1 0 2_B" src="https://github.com/user-attachments/assets/4ea2deef-02ae-4831-8c9c-a5b1d5047f83" />
+<img width="1266" height="751" alt="1 0 3_B" src="https://github.com/user-attachments/assets/b4c86a32-13df-4ae2-921e-b89aacb7dfa1" />
 
 * Main window after installation
 
-<img width="1282" height="752" alt="1 0 2_C" src="https://github.com/user-attachments/assets/6abf6add-f316-4491-8b04-7f8b443b5136" />
+<img width="1266" height="752" alt="1 0 3_C" src="https://github.com/user-attachments/assets/e88307c8-13af-4401-90a0-a6daaf8a4977" />
 
 ---
 
