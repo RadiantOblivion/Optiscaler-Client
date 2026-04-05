@@ -12,8 +12,8 @@
     <!-- Build Optimizations -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <IncludeNativeLibrariesForSelfContained>true</IncludeNativeLibrariesForSelfContained>
-    <IncludeAllContentForSelfContained>true</IncludeAllContentForSelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed> <!-- Disabled globally to fix NETSDK1168 (WPF limitation) -->
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
