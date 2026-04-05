@@ -22,7 +22,7 @@ namespace OptiscalerClient.Views
 {
     public partial class ManageGameWindow : Window
     {
-        private readonly Game _game;
+        private readonly Game _game = null!;
         private HashSet<string> _betaVersions = new();
 
         public bool NeedsScan { get; private set; }

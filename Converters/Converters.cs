@@ -106,7 +106,7 @@ public class BoolToAccentColorConverter : IValueConverter
         bool isInstalled = value is bool b && b;
         string key = isInstalled ? "BrAccentWarm" : "BrAccent";
 
-        if (Application.Current?.TryFindResource(key, out var resource) == true)
+        if (Application.Current?.TryFindResource(key, out var resource) == true && resource != null)
             return resource;
 
         return isInstalled ? Brushes.Orange : Brushes.Purple;
