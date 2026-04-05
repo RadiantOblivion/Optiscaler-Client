@@ -104,15 +104,7 @@ namespace OptiscalerClient.Views
 
         private void BtnOpenLink_Click(object? sender, PointerPressedEventArgs? e)
         {
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "https://www.nexusmods.com/site/mods/738?tab=files",
-                    UseShellExecute = true
-                });
-            }
-            catch { }
+            ProcessHelper.OpenUrl("https://www.nexusmods.com/site/mods/738?tab=files");
         }
 
         private async void BtnBrowse_Click(object sender, RoutedEventArgs e)

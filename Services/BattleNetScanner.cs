@@ -5,7 +5,6 @@ using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
-[SupportedOSPlatform("windows")]
 public class BattleNetScanner : IGameScanner
 {
     private readonly string[] UNINSTALL_PATHS = new[]
@@ -17,6 +16,7 @@ public class BattleNetScanner : IGameScanner
     public List<Game> Scan()
     {
         var games = new List<Game>();
+        if (!System.OperatingSystem.IsWindows()) return games;
 
         try
         {

@@ -7,7 +7,7 @@
     <x:String x:Key="TxtAppPrefs">Préférences de l'application</x:String>
     <x:String x:Key="TxtCacheMgmt">Gestion du cache local</x:String>
     <x:String x:Key="TxtCacheDesc">Afficher et supprimer les versions d'OptiScaler téléchargées de votre stockage local pour libérer de l'espace.</x:String>
-    <x:String x:Key="TxtManage">&#xE8B7;  Gérer</x:String>
+    <x:String x:Key="TxtManage">Gérer</x:String>
     <x:String x:Key="TxtLanguage">Langue de l'application</x:String>
     <x:String x:Key="TxtLanguageDesc">Changer la langue de l'interface utilisateur.</x:String>
     <x:String x:Key="TxtClose">Fermer</x:String>
@@ -29,14 +29,16 @@
 
     <!-- MainWindow -->
     <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
-    <x:String x:Key="TxtBtnScan">⟳  Scanner les jeux</x:String>
-    <x:String x:Key="TxtBtnAddManual">＋  Ajouter manuellement</x:String>
+    <x:String x:Key="TxtBtnScan">Scanner les jeux</x:String>
+    <x:String x:Key="TxtBtnAddManual">Ajouter manuellement</x:String>
     <x:String x:Key="TxtTipSettings">Paramètres</x:String>
     <x:String x:Key="TxtTipComponent">Versions des composants</x:String>
-    <x:String x:Key="TxtUpdateNukem">↑  Mettre à jour NukemFG</x:String>
+    <x:String x:Key="TxtUpdateNukem">Mettre à jour NukemFG</x:String>
     <x:String x:Key="TxtTipUpdateNukem">Nouvelle version de NukemFG disponible. Cliquez pour fournir la DLL mise à jour.</x:String>
     <x:String x:Key="TxtDefaultGpu">Détection du GPU…</x:String>
     <x:String x:Key="TxtManageGame">Gérer</x:String>
+    <x:String x:Key="TxtQuickInstall">Installation rapide</x:String>
+    <x:String x:Key="TxtQuickUninstall">Désinstallation rapide</x:String>
     <x:String x:Key="TxtStatusReady">Prêt</x:String>
     <x:String x:Key="TxtScanningTitle">Scan des jeux en cours...</x:String>
     <x:String x:Key="TxtScanningDesc">Recherche de jeux sur toutes les plateformes...</x:String>
@@ -50,7 +52,7 @@
     <x:String x:Key="TxtLocalVersions">Versions locales</x:String>
     <x:String x:Key="TxtManageCacheDesc">Gérer le cache OptiScaler téléchargé</x:String>
     <x:String x:Key="TxtDownloadedVersions">Versions OptiScaler téléchargées :</x:String>
-    <x:String x:Key="TxtDeleteIcon">🗑️ Supprimer</x:String>
+    <x:String x:Key="TxtDeleteIcon">Supprimer</x:String>
     <x:String x:Key="TxtNoVersions">Aucune version actuellement téléchargée.</x:String>
     <x:String x:Key="TxtToastSuccess">Succès</x:String>
     <x:String x:Key="TxtConfirmDelTitle">Confirmer la suppression</x:String>
@@ -68,24 +70,24 @@
     <!-- ComponentInfoWindow -->
     <x:String x:Key="TxtComponentTitle">Versions des composants</x:String>
     <x:String x:Key="TxtComponentDesc">Versions installées de la boîte à outils OptiScaler</x:String>
-    <x:String x:Key="TxtBtnGuide">📖 Guide</x:String>
+    <x:String x:Key="TxtBtnGuide">Guide</x:String>
     <x:String x:Key="TxtUpdateAvail">Mise à jour disponible</x:String>
     <x:String x:Key="TxtAppVersionLbl">Version de l'application</x:String>
 
     <!-- ManageGameWindow -->
     <x:String x:Key="TxtManageGameWindow">Gérer le jeu</x:String>
-    <x:String x:Key="TxtOpenFolder">📂  Ouvrir le dossier</x:String>
+    <x:String x:Key="TxtOpenFolder">Ouvrir le dossier</x:String>
     <x:String x:Key="TxtOptiStatus">Statut OptiScaler</x:String>
     <x:String x:Key="TxtDetectedComponents">Composants détectés</x:String>
     <x:String x:Key="TxtConfirmUninstallTitle">Confirmer la désinstallation</x:String>
     <x:String x:Key="TxtConfirmUninstallMsg">Êtes-vous sûr de vouloir désinstaller OptiScaler ?&#x0a;Seuls les fichiers originaux sauvegardés seront restaurés.</x:String>
-    <x:String x:Key="TxtUninstall">✕ Désinstaller</x:String>
+    <x:String x:Key="TxtUninstall">Désinstaller</x:String>
     <x:String x:Key="TxtVersionLbl">Version :</x:String>
     <x:String x:Key="TxtInjectionLbl">Injection :</x:String>
-    <x:String x:Key="TxtInstallOpti">✦ Installation automatique</x:String>
-    <x:String x:Key="TxtBtnManualInstall">✦ Installation manuelle</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑ Mise à jour automatique / Réinstaller</x:String>
-    <x:String x:Key="TxtUpdateOptiManual">↑ Mise à jour manuelle / Réinstaller</x:String>
+    <x:String x:Key="TxtInstallOpti">Installation automatique</x:String>
+    <x:String x:Key="TxtBtnManualInstall">Installation manuelle</x:String>
+    <x:String x:Key="TxtUpdateOpti">Mise à jour automatique / Réinstaller</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">Mise à jour manuelle / Réinstaller</x:String>
     <x:String x:Key="TxtFakenvapiTip">Requis pour les GPU AMD/Intel pour activer DLSS FG avec le mod Nukem</x:String>
     <x:String x:Key="TxtNukemTip">Mod DLSSG-to-FSR3 de Nukem pour la génération de frames</x:String>
     <x:String x:Key="TxtFakenvapiHelpTip">Fait croire au jeu qu'il détecte une carte graphique NVIDIA, vous permettant de contourner les restrictions matérielles et d'activer les technologies DLSS sur les GPU AMD ou Intel.</x:String>
@@ -112,7 +114,7 @@
     <x:String x:Key="TxtDownloadFrom">Télécharger depuis : </x:String>
     <x:String x:Key="TxtReqFileLbl">Fichier requis : </x:String>
     <x:String x:Key="TxtBrowse">Parcourir…</x:String>
-    <x:String x:Key="TxtConfirmBtn">✓ Confirmer</x:String>
+    <x:String x:Key="TxtConfirmBtn">Confirmer</x:String>
     
     <x:String x:Key="TxtManualUpdateTitle">🔄 Mise à jour manuelle disponible</x:String>
     <x:String x:Key="TxtManualUpdateInst">Une nouvelle version de NukemFG est disponible sur Nexus Mods.&#x0a;Veuillez télécharger le fichier mis à jour depuis le lien ci-dessous et sélectionner la DLL (ou ZIP) :</x:String>
@@ -180,7 +182,7 @@
     <x:String x:Key="TxtNoUpdateFound">L'application est déjà à jour.</x:String>
     <x:String x:Key="TxtUpdateCheckError">Un problème est survenu lors de la vérification des mises à jour. Veuillez réessayer plus tard.</x:String>
 
-    <x:String x:Key="TxtBtnBulkInstall">⚡  Installation groupée</x:String>
+    <x:String x:Key="TxtBtnBulkInstall">Installation groupée</x:String>
 
     <!-- BulkInstallWindow -->
     <x:String x:Key="TxtBulkInstallWindow">Installation groupée d'OptiScaler</x:String>

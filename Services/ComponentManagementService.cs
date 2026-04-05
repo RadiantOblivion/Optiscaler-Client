@@ -882,7 +882,7 @@ namespace OptiscalerClient.Services
             }
         }
 
-        public async Task<string> DownloadOptiScalerAsync(string version, IProgress<double>? progress = null)
+        public async Task<string> DownloadOptiScalerAsync(string version, IProgress<double>? progress = null, IProgress<string>? statusText = null)
         {
             if (string.IsNullOrEmpty(version))
                 throw new Exception("Version cannot be empty");
@@ -895,6 +895,7 @@ namespace OptiscalerClient.Services
             }
 
             LastError = null;
+            statusText?.Report("Downloading OptiScaler...");
             DebugWindow.Log($"[Download] Starting download of OptiScaler v{version}");
             DebugWindow.Log($"[Download] Cache path: {extractPath}");
 
@@ -1038,13 +1039,14 @@ namespace OptiscalerClient.Services
                         {
                             await fs.WriteAsync(buffer, 0, read);
                             totalRead += read;
-                            var progressPercent = (double)totalRead / totalBytes * 100;
-                            progress?.Report(progressPercent);
+                            // Scale download progress to 0-100%
+                            var downloadPercent = (double)totalRead / totalBytes * 100;
+                            progress?.Report(downloadPercent);
 
                             // Log progress every 10 seconds
                             if (DateTime.Now - lastProgressLog > TimeSpan.FromSeconds(10))
                             {
-                                DebugWindow.Log($"[Download] Progress: {progressPercent:F1}% ({totalRead:N0}/{totalBytes:N0} bytes)");
+                                DebugWindow.Log($"[Download] Progress: {downloadPercent:F1}% ({totalRead:N0}/{totalBytes:N0} bytes)");
                                 lastProgressLog = DateTime.Now;
                             }
                         }
@@ -1054,10 +1056,16 @@ namespace OptiscalerClient.Services
 
                 DebugWindow.Log($"[Download] Download completed: {totalRead:N0} bytes downloaded");
 
-                // Ensure 100% is reached
+                // Download phase is over
                 progress?.Report(100);
 
                 // Extract
+                statusText?.Report("Extracting OptiScaler...");
+                progress?.Report(0);
+                
+                // Allow UI thread time to render the new status text since extraction is almost instantaneous
+                await Task.Delay(400);
+                
                 DebugWindow.Log($"[Extract] Starting extraction of {Path.GetFileName(tempZip)} to {extractPath}");
                 var extractStartTime = DateTime.Now;
                 var fileCount = 0;
@@ -1065,6 +1073,7 @@ namespace OptiscalerClient.Services
                 using (var archive = ArchiveFactory.Open(tempZip))
                 {
                     var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+                    var totalEntries = entries.Count;
 
                     foreach (var entry in entries)
                     {
@@ -1078,12 +1087,28 @@ namespace OptiscalerClient.Services
                         using (var entryStream = entry.OpenEntryStream())
                         using (var fileStream = File.Create(destPath))
                         {
-                            entryStream.CopyTo(fileStream, 81920); // 80KB buffer for faster extraction
+                            await entryStream.CopyToAsync(fileStream, 81920); // 80KB buffer for faster extraction
                         }
+                        
+                        // Artificial cadence to allow the user to see the progress bar organically climb
+                        // Since there are only ~2 files, it completes too fast for the eye without this.
+                        await Task.Delay(150);
 
                         fileCount++;
+                        // Scale extraction progress to 0-100%
+                        if (totalEntries > 0)
+                        {
+                            var extractionPercent = ((double)fileCount / totalEntries * 100);
+                            progress?.Report(extractionPercent);
+                        }
                     }
                 }
+                
+                // Ensure 100% is reached perfectly
+                progress?.Report(100);
+                
+                // Allow the user to visually register completion before dialog closes
+                await Task.Delay(300);
 
                 var extractDuration = DateTime.Now - extractStartTime;
                 DebugWindow.Log($"[Extract] Extraction completed: {fileCount} files extracted in {extractDuration.TotalSeconds:F1} seconds");

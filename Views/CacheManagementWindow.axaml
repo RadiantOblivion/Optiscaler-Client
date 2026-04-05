@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia"
         x:Class="OptiscalerClient.Views.CacheManagementWindow"
         Title="Cache Management"
         Width="500"
@@ -50,15 +51,15 @@
                                 </StackPanel>
                                 
                                 <Button Grid.Column="1"
-                                        Content="✕"
                                         Classes="BtnSecondary"
-                                        Padding="8,4"
-                                        MinWidth="32"
-                                        FontSize="14"
+                                        Width="32" Height="32"
+                                        Padding="0"
                                         Click="BtnClose_Click"
                                         VerticalAlignment="Top"
                                         Background="Transparent"
-                                        BorderThickness="0"/>
+                                        BorderThickness="0">
+                                    <ic:SymbolIcon Symbol="Dismiss" FontSize="12"/>
+                                </Button>
                             </Grid>
                         </Border>
 

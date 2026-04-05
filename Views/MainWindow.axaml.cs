@@ -15,6 +15,10 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using System.IO;
 using System.Collections.Generic;
+using OptiscalerClient.Helpers;
+using Ic = FluentIcons.Avalonia;
+using Avalonia.Layout;
+using FluentIcons.Common;
 
 namespace OptiscalerClient.Views
 {
@@ -26,12 +30,11 @@ namespace OptiscalerClient.Views
         private List<Game> _allGames = new List<Game>();
         private readonly ComponentManagementService _componentService;
         private readonly IGpuDetectionService _gpuService;
+        private readonly CompatibilityListService _compatibilityService;
 
         private GpuInfo? _lastDetectedGpu;
-        private ScrollViewer? _gameListScrollViewer;
         private bool _isInitializingLanguage = true;
-        private DispatcherTimer? _scanDotTimer;
-        private double _scanDotPhase = 0;
+
 
         private readonly GameAnalyzerService _analyzerService = new();
         private GameMetadataService _metadataService = null!;
@@ -52,26 +55,13 @@ namespace OptiscalerClient.Views
         public MainWindow()
         {
             InitializeComponent();
-            if (OperatingSystem.IsWindows())
-            {
-                _scannerService = new GameScannerService();
-            }
-            else
-            {
-                _scannerService = null!; // TODO: Implement Linux game scanner
-            }
+            _scannerService = new GameScannerService();
             _persistenceService = new GamePersistenceService();
             _componentService = new ComponentManagementService();
             _metadataService = new GameMetadataService(_componentService);
             App.ChangeLanguage(_componentService.Config.Language);
-            if (OperatingSystem.IsWindows())
-            {
-                _gpuService = new WindowsGpuDetectionService();
-            }
-            else
-            {
-                _gpuService = null!; // TODO: Implement Linux GPU detection
-            }
+            _gpuService = GpuDetectionServiceFactory.Create();
+            _compatibilityService = new CompatibilityListService();
             _games = new ObservableCollection<Game>();
 
             // Debug Window check
@@ -98,7 +88,6 @@ namespace OptiscalerClient.Views
 
         private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
         {
-            _gameListScrollViewer = this.FindControl<ScrollViewer>("GameListScrollViewer");
             _lstGames = this.FindControl<ListBox>("LstGames");
             _txtStatus = this.FindControl<TextBlock>("TxtStatus");
             _btnScan = this.FindControl<Button>("BtnScan");
@@ -110,14 +99,47 @@ namespace OptiscalerClient.Views
             if (_lstGames != null) _lstGames.ItemsSource = _games;
 
             bool hadSavedGames = LoadSavedGames();
+            GpuDetectionServiceFactory.WarmUpAsync(); // Pre-warm GPU cache in background
             _ = LoadGpuInfoAsync();
             _ = CheckUpdatesOnStartupAsync();
             
+            // Compatibility List Initial Setup
+            var tglComp = this.FindControl<ToggleSwitch>("TglCompatibleOnly");
+            if (tglComp != null) tglComp.IsChecked = _componentService.Config.ShowCompatibleOnly;
+            UpdateCompatibilityStatusText();
+
+            // Auto-refresh compatibility list on first launch if empty
+            if (_compatibilityService.GameCount == 0)
+            {
+                _ = Task.Run(async () => {
+                    await _compatibilityService.RefreshAsync();
+                    Dispatcher.UIThread.Post(() => {
+                        UpdateCompatibilityStatusText();
+                        // Re-tag games after fetch
+                        foreach (var g in _allGames) g.IsCompatibleWithOptiscaler = _compatibilityService.IsCompatible(g.Name);
+                        ApplyFilter(_txtSearch?.Text);
+                    });
+                });
+            }
+            
             UpdateAnimationsState(_componentService.Config.AnimationsEnabled);
 
-            if (!hadSavedGames && _componentService.Config.AutoScan)
+            if (_componentService.Config.AutoScan)
             {
-                BtnScan_Click(null!, null!);
+                // **UX REFINEMENT**: Render window first, then show scanning animation, then scan
+                _ = Task.Run(async () => 
+                {
+                    await Task.Delay(600); // Wait for premium fade-in
+                    
+                    Dispatcher.UIThread.Post(() => {
+                        // Pre-show scanning state before the heavy work starts
+                        if (_txtStatus != null) _txtStatus.Text = GetResourceString("TxtScanningShort", "Scanning for games...");
+                        if (_overlayScanning != null) _overlayScanning.IsVisible = true;
+                    });
+
+                    await Task.Delay(600); // Visual buffer so user sees the 'Scanning' state
+                    Dispatcher.UIThread.Post(() => BtnScan_Click(null!, null!));
+                });
             }
         }
 
@@ -148,15 +170,33 @@ namespace OptiscalerClient.Views
         {
             if (_allGames == null) return;
 
-            var filtered = string.IsNullOrWhiteSpace(searchText) 
-                ? _allGames 
-                : _allGames.Where(g => g.Name != null && g.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            var sorted = _allGames.Where(g => PassesFilter(g, searchText)).OrderBy(g => g.Name).ToList();
 
             _games.Clear();
-            foreach (var game in filtered)
+            foreach (var game in sorted)
             {
                 _games.Add(game);
             }
+        }
+
+        private bool PassesFilter(Game game, string? searchText = null)
+        {
+            // 1. Search text filter
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                if (game.Name == null || !game.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+
+            // 2. Compatibility filter
+            if (_componentService.Config.ShowCompatibleOnly)
+            {
+                // Visible if: compatible in wiki OR already has OptiScaler installed
+                if (!game.IsCompatibleWithOptiscaler && !game.IsOptiscalerInstalled)
+                    return false;
+            }
+
+            return true;
         }
 
         private void TxtSearch_GotFocus(object sender, GotFocusEventArgs e)
@@ -167,18 +207,6 @@ namespace OptiscalerClient.Views
         private void TxtSearch_LostFocus(object sender, RoutedEventArgs e)
         {
             UpdateSearchPlaceholderVisibility();
-        }
-
-        private void GameListScrollViewer_PointerWheelChanged(object sender, PointerWheelEventArgs e)
-        {
-            if (_gameListScrollViewer != null && e.Delta.Y != 0)
-            {
-                e.Handled = true;
-                // Move manually with boost
-                var currentOffset = _gameListScrollViewer.Offset;
-                var newY = currentOffset.Y - (e.Delta.Y * 120); // 120 for fast and fluid
-                _gameListScrollViewer.Offset = new Vector(currentOffset.X, Math.Max(0, newY));
-            }
         }
 
         private async void BtnGuide_Click2(object sender, RoutedEventArgs e)
@@ -329,8 +357,51 @@ namespace OptiscalerClient.Views
             if (_isInitializingLanguage) return;
             if (sender is ToggleSwitch tgl)
             {
-                _componentService.Config.ShowBetaVersions = tgl.IsChecked ?? true;
+                _componentService.Config.ShowBetaVersions = tgl.IsChecked ?? false;
                 _componentService.SaveConfiguration();
+            }
+        }
+
+        private void TglCompatibleOnly_IsCheckedChanged(object? sender, RoutedEventArgs e)
+        {
+            if (_isInitializingLanguage) return;
+            if (sender is ToggleSwitch ts)
+            {
+                _componentService.Config.ShowCompatibleOnly = ts.IsChecked ?? false;
+                _componentService.SaveConfiguration();
+                ApplyFilter(_txtSearch?.Text);
+            }
+        }
+
+        private async void BtnRefreshCompatibility_Click(object? sender, RoutedEventArgs e)
+        {
+            var btn = this.FindControl<Button>("BtnRefreshCompatibility");
+            if (btn != null) btn.IsEnabled = false;
+            
+            var status = this.FindControl<TextBlock>("TxtCompatibilityStatus");
+            if (status != null) status.Text = "Refreshing wiki list...";
+
+            await _compatibilityService.RefreshAsync();
+
+            // Refresh game compatibility tags
+            foreach (var game in _allGames)
+            {
+                game.IsCompatibleWithOptiscaler = _compatibilityService.IsCompatible(game.Name);
+            }
+
+            UpdateCompatibilityStatusText();
+            ApplyFilter(_txtSearch?.Text);
+            
+            if (btn != null) btn.IsEnabled = true;
+        }
+
+        private void UpdateCompatibilityStatusText()
+        {
+            var status = this.FindControl<TextBlock>("TxtCompatibilityStatus");
+            if (status != null && _compatibilityService.GameCount > 0)
+            {
+                var date = _compatibilityService.LastUpdated.ToString("yyyy-MM-dd");
+                status.Text = $"Last updated: {date} ({_compatibilityService.GameCount} games)";
             }
         }
 
@@ -561,29 +632,18 @@ namespace OptiscalerClient.Views
             }
         }
 
-        private async void BtnGithub_Click(object sender, RoutedEventArgs e)
+        private void BtnGithub_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var repoOwner = _componentService.Config.App.RepoOwner ?? "Agustinm28";
-                var repoName = _componentService.Config.App.RepoName ?? "Optiscaler-Switcher";
-                var url = $"https://github.com/{repoOwner}/{repoName}";
+            var repoOwner = _componentService.Config.App.RepoOwner ?? "Agustinm28";
+            var repoName = _componentService.Config.App.RepoName ?? "Optiscaler-Switcher";
+            var url = $"https://github.com/{repoOwner}/{repoName}";
 
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                await new ConfirmDialog(this, "Error", $"Could not open browser: {ex.Message}").ShowDialog<object>(this);
-            }
+            ProcessHelper.OpenUrl(url);
         }
 
         private bool LoadSavedGames()
         {
-            var savedGames = _persistenceService.LoadGames();
+            var savedGames = _persistenceService.LoadGames().OrderBy(g => g.Name).ToList();
             _allGames = savedGames;
             
             ApplyFilter(_txtSearch?.Text);
@@ -597,6 +657,7 @@ namespace OptiscalerClient.Views
                 {
                     foreach (var game in savedGames)
                     {
+                        game.IsCompatibleWithOptiscaler = _compatibilityService.IsCompatible(game.Name);
                         try { _analyzerService.AnalyzeGame(game); }
                         catch { }
 
@@ -609,69 +670,129 @@ namespace OptiscalerClient.Views
                         }
                     }
 
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (_lstGames != null)
-                        {
-                            _lstGames.ItemsSource = null;
-                            _lstGames.ItemsSource = _games;
-                        }
-                        _persistenceService.SaveGames(_games);
-                    });
+                    // Save the updated analysis results back to disk silently
+                    _persistenceService.SaveGames(_allGames);
                 });
             }
 
             return savedGames.Count > 0;
         }
 
-        private async void BtnScan_Click(object sender, RoutedEventArgs e)
+        private async void BtnScan_Click(object? sender, RoutedEventArgs e)
         {
             if (_btnScan != null) _btnScan.IsEnabled = false;
             if (_txtStatus != null) _txtStatus.Text = GetResourceString("TxtScanningShort", "Scanning for games...");
             if (_overlayScanning != null) _overlayScanning.IsVisible = true;
-            StartScanDotAnimation();
 
             try
             {
-                List<Game> scanResults;
-                if (OperatingSystem.IsWindows() && _scannerService != null)
-                {
-                    scanResults = await _scannerService.ScanAllGamesAsync(_componentService.Config.ScanSources);
-                }
-                else
-                {
-                    scanResults = new List<Game>();
-                }
-                var manualGames = _games.Where(g => g.Platform == GamePlatform.Manual).ToList();
+                // **ULTRA-SMOOTH DISCOVERY**: We offload EVERYTHING to background threads.
+                // UI thread only handles the dot animation and final collection edits.
+                
+                var confirmedPaths = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                _games.Clear();
-
-                foreach (var manualGame in manualGames)
-                {
-                    _analyzerService.AnalyzeGame(manualGame);
-                    _games.Add(manualGame);
-                }
-
-                foreach (var scannedGame in scanResults)
-                {
-                    if (!_games.Any(g => g.InstallPath.Equals(scannedGame.InstallPath, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        if (string.IsNullOrEmpty(scannedGame.CoverImageUrl))
-                        {
-                            var appIdKey = !string.IsNullOrEmpty(scannedGame.AppId) ? scannedGame.AppId : scannedGame.Name;
-                            scannedGame.CoverImageUrl = await _metadataService.FetchAndCacheCoverImageAsync(scannedGame.Name, appIdKey);
+                // ── 1. BACKGROUND DISCOVERY & ANALYSIS ──
+                var manualGames = _allGames.Where(g => g.Platform == GamePlatform.Manual).ToList();
+                var manualAnalysisTask = Task.Run(async () => {
+                    using var semaphore = new System.Threading.SemaphoreSlim(4);
+                    var tasks = manualGames.Select(async mg => {
+                        await semaphore.WaitAsync();
+                        try {
+                            _analyzerService.AnalyzeGame(mg); // Reactive update via INotifyPropertyChanged
+                            lock(confirmedPaths) confirmedPaths.Add(mg.InstallPath);
+                        } finally {
+                            semaphore.Release();
                         }
-                        _games.Add(scannedGame);
+                    });
+                    await Task.WhenAll(tasks);
+                });
+
+                var discoveryTask = Task.Run(() => _scannerService.ScanAllGamesAsync(_componentService.Config.ScanSources));
+
+                // Wait for background tasks to complete without blocking UI thread
+                await Task.WhenAll(manualAnalysisTask, discoveryTask);
+                
+                var scanResults = await discoveryTask;
+
+                // ── 2. BACKGROUND RECONCILIATION ──
+                // Determine additions and removals on a separate thread
+                var reconciliationPlan = await Task.Run(async () => {
+                    var toAdd = new List<Game>();
+                    var toRemove = new List<Game>();
+                    
+                    foreach (var scannedGame in scanResults)
+                    {
+                        var existing = _allGames.FirstOrDefault(g => g.InstallPath.Equals(scannedGame.InstallPath, StringComparison.OrdinalIgnoreCase));
+                        if (existing != null)
+                        {
+                            lock(confirmedPaths) confirmedPaths.Add(existing.InstallPath);
+                            existing.Platform = scannedGame.Platform; 
+                        }
+                        else
+                        {
+                            // Prepare cover images in background too
+                            if (string.IsNullOrEmpty(scannedGame.CoverImageUrl))
+                            {
+                                var appIdKey = !string.IsNullOrEmpty(scannedGame.AppId) ? scannedGame.AppId : scannedGame.Name;
+                                scannedGame.CoverImageUrl = await _metadataService.FetchAndCacheCoverImageAsync(scannedGame.Name, appIdKey);
+                            }
+                            scannedGame.IsCompatibleWithOptiscaler = _compatibilityService.IsCompatible(scannedGame.Name);
+                            toAdd.Add(scannedGame);
+                            lock(confirmedPaths) confirmedPaths.Add(scannedGame.InstallPath);
+                        }
+                    }
+
+                    // Identify stale games
+                    var stale = _allGames.Where(g => g.Platform != GamePlatform.Manual && !confirmedPaths.Contains(g.InstallPath)).ToList();
+                    toRemove.AddRange(stale);
+
+                    return (toAdd, toRemove);
+                });
+
+                // ── 3. FINAL UI UPDATES (Thread-Safe, Throttled & Fluid) ──
+                // Update master list first
+                foreach (var game in reconciliationPlan.toAdd) _allGames.Add(game);
+                foreach (var game in reconciliationPlan.toRemove) _allGames.Remove(game);
+                _allGames = _allGames.OrderBy(g => g.Name).ToList();
+
+                // Stream only filtered results into visibility
+                int batchSize = 5;
+                int processed = 0;
+                string? currentSearch = _txtSearch?.Text;
+
+                foreach (var game in reconciliationPlan.toAdd.OrderBy(g => g.Name))
+                {
+                    if (!PassesFilter(game, currentSearch)) continue;
+
+                    int insertIndex = 0;
+                    while (insertIndex < _games.Count && string.Compare(_games[insertIndex].Name, game.Name, StringComparison.OrdinalIgnoreCase) <= 0)
+                    {
+                        insertIndex++;
+                    }
+                    _games.Insert(insertIndex, game);
+                    processed++;
+
+                    if (processed % batchSize == 0)
+                    {
+                        await Task.Delay(12); 
                     }
                 }
 
-                _allGames = _games.ToList();
-                _persistenceService.SaveGames(_games);
-
-                if (_txtSearch != null && !string.IsNullOrEmpty(_txtSearch.Text))
+                processed = 0;
+                foreach (var game in reconciliationPlan.toRemove)
                 {
-                    ApplyFilter(_txtSearch.Text);
+                    _games.Remove(game);
+                    processed++;
+
+                    if (processed % batchSize == 0)
+                    {
+                        await Task.Delay(12);
+                    }
                 }
+
+                ApplyFilter(currentSearch);
+
+                _persistenceService.SaveGames(_allGames);
 
                 var scanCompleteFormat = GetResourceString("TxtScanCompleteFormat", "Scan complete. Total games: {0}");
                 if (_txtStatus != null) _txtStatus.Text = string.Format(scanCompleteFormat, _games.Count);
@@ -680,11 +801,9 @@ namespace OptiscalerClient.Views
             {
                 var errorFormat = GetResourceString("TxtErrorFormat", "Error: {0}");
                 if (_txtStatus != null) _txtStatus.Text = string.Format(errorFormat, ex.Message);
-                await new ConfirmDialog(this, "Error", ex.Message).ShowDialog<object>(this);
             }
             finally
             {
-                StopScanDotAnimation();
                 if (_btnScan != null) _btnScan.IsEnabled = true;
                 if (_overlayScanning != null) _overlayScanning.IsVisible = false;
             }
@@ -711,29 +830,25 @@ namespace OptiscalerClient.Views
                 {
                     var filePath = files[0].Path.LocalPath;
                     var fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
-                    var installDir = System.IO.Path.GetDirectoryName(filePath) ?? "";
-
+                    var exePath = files[0].Path.LocalPath;
                     var newGame = new Game
                     {
-                        Name = fileName,
-                        InstallPath = installDir,
-                        ExecutablePath = filePath,
+                        Name = System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(exePath)) ?? "Manual Game",
+                        ExecutablePath = exePath,
+                        InstallPath = System.IO.Path.GetDirectoryName(exePath) ?? string.Empty,
                         Platform = GamePlatform.Manual,
-                        AppId = "Manual_" + Guid.NewGuid().ToString().Substring(0, 8)
+                        AppId = "Manual_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                        IsCompatibleWithOptiscaler = _compatibilityService.IsCompatible(System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(exePath)) ?? "")
                     };
 
                     _analyzerService.AnalyzeGame(newGame);
                     newGame.CoverImageUrl = await _metadataService.FetchAndCacheCoverImageAsync(newGame.Name, newGame.AppId);
 
-                    _games.Insert(0, newGame);
-                    _allGames = _games.ToList();
-                    _persistenceService.SaveGames(_games);
-
-                    if (_lstGames != null)
-                    {
-                        _lstGames.ItemsSource = null;
-                        _lstGames.ItemsSource = _games;
-                    }
+                    _allGames.Add(newGame);
+                    _allGames = _allGames.OrderBy(g => g.Name).ToList();
+                    _persistenceService.SaveGames(_allGames);
+                    
+                    ApplyFilter(_txtSearch?.Text);
 
                     if (_txtStatus != null) _txtStatus.Text = string.Format(GetResourceString("TxtAddedRefFormat", "Added {0} manually."), newGame.Name);
                 }
@@ -783,35 +898,11 @@ namespace OptiscalerClient.Views
                     _persistenceService.SaveGames(_games);
                 }
 
-                if (_lstGames != null)
-                {
-                    _lstGames.ItemsSource = null;
-                    _lstGames.ItemsSource = _games;
-                }
+
             }
         }
 
-        private void BtnFastInstall_Loaded(object? sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.DataContext is Game game)
-            {
-                UpdateFastInstallButton(button, game);
-            }
-        }
 
-        private void UpdateFastInstallButton(Button button, Game game)
-        {
-            if (game.IsOptiscalerInstalled)
-            {
-                button.Content = "🗑️ Quick Uninstall";
-                button.Foreground = this.FindResource("BrAccentWarm") as IBrush ?? Brushes.Orange;
-            }
-            else
-            {
-                button.Content = "✦ Quick Install";
-                button.Foreground = this.FindResource("BrAccent") as IBrush ?? Brushes.Purple;
-            }
-        }
 
         private async void BtnFastInstall_Click(object? sender, RoutedEventArgs e)
         {
@@ -826,18 +917,12 @@ namespace OptiscalerClient.Views
                         var installService = new GameInstallationService();
                         installService.UninstallOptiScaler(selectedGame);
                         
-                        // Update game status
-                        selectedGame.IsOptiscalerInstalled = false;
-                        selectedGame.OptiscalerVersion = null;
+                        // Update game status via analysis to be 100% sure
+                        _analyzerService.AnalyzeGame(selectedGame);
                         
-                        // Refresh UI
-                        if (_lstGames != null)
-                        {
-                            _lstGames.ItemsSource = null;
-                            _lstGames.ItemsSource = _games;
-                        }
+
                         
-                        _persistenceService.SaveGames(_games);
+                        _persistenceService.SaveGames(_allGames);
                     }
                     else
                     {
@@ -879,12 +964,27 @@ namespace OptiscalerClient.Views
                             var downloadDialog = new ConfirmDialog(
                                 this,
                                 "Downloading OptiScaler",
-                                $"Downloading OptiScaler {versionToInstall}...\nPlease wait.",
-                                isAlert: true
+                                $"Downloading OptiScaler {versionToInstall}...\n\nPlease wait.",
+                                isAlert: true,
+                                hideButtons: true
                             );
                             
+                            // Activate the progress bar before showing
+                            downloadDialog.ShowProgress();
+                            
+                            // Establish a thread-safe progress bridge
+                            var progress = new Progress<double>(p => 
+                            {
+                                downloadDialog.UpdateProgress(p);
+                            });
+
+                            var statusText = new Progress<string>(s => 
+                            {
+                                downloadDialog.UpdateMessage($"{s}\n\nPlease wait.");
+                            });
+                            
                             // Start download in background
-                            var downloadTask = _componentService.DownloadOptiScalerAsync(versionToInstall);
+                            var downloadTask = _componentService.DownloadOptiScalerAsync(versionToInstall, progress, statusText);
                             
                             // Show dialog without blocking
                             var dialogTask = downloadDialog.ShowDialog<bool>(this);
@@ -933,14 +1033,9 @@ namespace OptiscalerClient.Views
                         selectedGame.IsOptiscalerInstalled = true;
                         selectedGame.OptiscalerVersion = versionToInstall;
                         
-                        // Refresh UI
-                        if (_lstGames != null)
-                        {
-                            _lstGames.ItemsSource = null;
-                            _lstGames.ItemsSource = _games;
-                        }
+
                         
-                        _persistenceService.SaveGames(_games);
+                        _persistenceService.SaveGames(_allGames);
                     }
                 }
                 catch (Exception ex)
@@ -969,7 +1064,8 @@ namespace OptiscalerClient.Views
                 if (result)
                 {
                     _games.Remove(game);
-                    _persistenceService.SaveGames(_games);
+                    _allGames.Remove(game);
+                    _persistenceService.SaveGames(_allGames);
                 }
             }
         }
@@ -990,7 +1086,7 @@ namespace OptiscalerClient.Views
                     _txtGpuInfo!.Text = GetResourceString("TxtDefaultGpu", "Detecting GPU...");
                     gpu = await Task.Run(() =>
                     {
-                        if (OperatingSystem.IsWindows() && _gpuService != null)
+                        if (_gpuService != null)
                         {
                             try
                             {
@@ -1047,41 +1143,7 @@ namespace OptiscalerClient.Views
             }
         }
 
-        private void StartScanDotAnimation()
-        {
-            var dot1 = this.FindControl<Ellipse>("ScanDot1");
-            var dot2 = this.FindControl<Ellipse>("ScanDot2");
-            var dot3 = this.FindControl<Ellipse>("ScanDot3");
-            if (dot1 == null || dot2 == null || dot3 == null) return;
 
-            var t1 = new Avalonia.Media.TranslateTransform();
-            var t2 = new Avalonia.Media.TranslateTransform();
-            var t3 = new Avalonia.Media.TranslateTransform();
-            dot1.RenderTransform = t1;
-            dot2.RenderTransform = t2;
-            dot3.RenderTransform = t3;
-
-            const double amplitude = 10;
-            const double step = 0.25;
-            const double phaseOffset = Math.PI * 2 / 3;
-
-            _scanDotPhase = 0;
-            _scanDotTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
-            _scanDotTimer.Tick += (s, e) =>
-            {
-                _scanDotPhase += step;
-                t1.Y = -amplitude * Math.Max(0, Math.Sin(_scanDotPhase));
-                t2.Y = -amplitude * Math.Max(0, Math.Sin(_scanDotPhase + phaseOffset));
-                t3.Y = -amplitude * Math.Max(0, Math.Sin(_scanDotPhase + phaseOffset * 2));
-            };
-            _scanDotTimer.Start();
-        }
-
-        private void StopScanDotAnimation()
-        {
-            _scanDotTimer?.Stop();
-            _scanDotTimer = null;
-        }
 
         #region Window State Persistence
 

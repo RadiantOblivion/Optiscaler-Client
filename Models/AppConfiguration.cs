@@ -41,7 +41,8 @@ namespace OptiscalerClient.Models
         public bool Debug { get; set; } = false;
         public bool AutoScan { get; set; } = true;
         public bool AnimationsEnabled { get; set; } = true;
-        public bool ShowBetaVersions { get; set; } = true;
+        public bool ShowBetaVersions { get; set; } = false;
+        public bool ShowCompatibleOnly { get; set; } = true;
         
         // Window state persistence
         public double WindowWidth { get; set; } = 1200;
@@ -109,5 +110,14 @@ namespace OptiscalerClient.Models
     {
         public DateTime LastUpdated { get; set; } = DateTime.MinValue;
         public List<ExtrasReleaseEntry> Releases { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Local cache of the OptiScaler compatibility list fetched from the wiki.
+    /// </summary>
+    public class CompatibilityListCache
+    {
+        public DateTime LastUpdated { get; set; } = DateTime.MinValue;
+        public List<string> Games { get; set; } = new();
     }
 }

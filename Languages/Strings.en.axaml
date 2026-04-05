@@ -7,7 +7,7 @@
     <x:String x:Key="TxtAppPrefs">App Preferences</x:String>
     <x:String x:Key="TxtCacheMgmt">Local cache management</x:String>
     <x:String x:Key="TxtCacheDesc">View and delete downloaded OptiScaler versions from your local storage to free up space.</x:String>
-    <x:String x:Key="TxtManage">&#xE8B7;  Manage</x:String>
+    <x:String x:Key="TxtManage">Manage</x:String>
     <x:String x:Key="TxtLanguage">Application Language</x:String>
     <x:String x:Key="TxtLanguageDesc">Change the user interface language.</x:String>
     <x:String x:Key="TxtClose">Close</x:String>
@@ -29,15 +29,17 @@
 
     <!-- MainWindow -->
     <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
-    <x:String x:Key="TxtBtnScan">⟳  Scan Games</x:String>
-    <x:String x:Key="TxtBtnAddManual">＋  Add Manually</x:String>
-    <x:String x:Key="TxtBtnBulkInstall">⚡  Bulk Install</x:String>
+    <x:String x:Key="TxtBtnScan">Scan Games</x:String>
+    <x:String x:Key="TxtBtnAddManual">Add Manually</x:String>
+    <x:String x:Key="TxtBtnBulkInstall">Bulk Install</x:String>
     <x:String x:Key="TxtTipSettings">Settings</x:String>
     <x:String x:Key="TxtTipComponent">Component versions</x:String>
-    <x:String x:Key="TxtUpdateNukem">↑  Update NukemFG</x:String>
+    <x:String x:Key="TxtUpdateNukem">Update NukemFG</x:String>
     <x:String x:Key="TxtTipUpdateNukem">New NukemFG version available. Click to provide the updated DLL.</x:String>
     <x:String x:Key="TxtDefaultGpu">Detecting GPU…</x:String>
     <x:String x:Key="TxtManageGame">Manage</x:String>
+    <x:String x:Key="TxtQuickInstall">Quick Install</x:String>
+    <x:String x:Key="TxtQuickUninstall">Quick Uninstall</x:String>
     <x:String x:Key="TxtStatusReady">Ready</x:String>
     <x:String x:Key="TxtScanningTitle">Scanning games...</x:String>
     <x:String x:Key="TxtScanningDesc">Looking for games across all platforms...</x:String>
@@ -51,7 +53,7 @@
     <x:String x:Key="TxtLocalVersions">Local Versions</x:String>
     <x:String x:Key="TxtManageCacheDesc">Manage downloaded OptiScaler cache</x:String>
     <x:String x:Key="TxtDownloadedVersions">Downloaded OptiScaler Versions:</x:String>
-    <x:String x:Key="TxtDeleteIcon">🗑️ Delete</x:String>
+    <x:String x:Key="TxtDeleteIcon">Delete</x:String>
     <x:String x:Key="TxtNoVersions">No versions currently downloaded.</x:String>
     <x:String x:Key="TxtToastSuccess">Success</x:String>
     <x:String x:Key="TxtConfirmDelTitle">Confirm Deletion</x:String>
@@ -69,24 +71,24 @@
     <!-- ComponentInfoWindow -->
     <x:String x:Key="TxtComponentTitle">Component Versions</x:String>
     <x:String x:Key="TxtComponentDesc">Installed versions of OptiScaler toolkit</x:String>
-    <x:String x:Key="TxtBtnGuide">📖 Guide</x:String>
+    <x:String x:Key="TxtBtnGuide">Guide</x:String>
     <x:String x:Key="TxtUpdateAvail">Update available</x:String>
     <x:String x:Key="TxtAppVersionLbl">App Version</x:String>
 
     <!-- ManageGameWindow -->
     <x:String x:Key="TxtManageGameWindow">Manage Game</x:String>
-    <x:String x:Key="TxtOpenFolder">📂  Open Folder</x:String>
+    <x:String x:Key="TxtOpenFolder">Open Folder</x:String>
     <x:String x:Key="TxtOptiStatus">OptiScaler Status</x:String>
     <x:String x:Key="TxtDetectedComponents">Detected Components</x:String>
     <x:String x:Key="TxtConfirmUninstallTitle">Confirm Uninstall</x:String>
     <x:String x:Key="TxtConfirmUninstallMsg">Are you sure you want to uninstall OptiScaler?&#x0a;Only backed-up original files will be restored.</x:String>
-    <x:String x:Key="TxtUninstall">✕ Uninstall</x:String>
+    <x:String x:Key="TxtUninstall">Uninstall</x:String>
     <x:String x:Key="TxtVersionLbl">Version:</x:String>
     <x:String x:Key="TxtInjectionLbl">Injection:</x:String>
-    <x:String x:Key="TxtInstallOpti">✦ Auto Install</x:String>
-    <x:String x:Key="TxtBtnManualInstall">✦ Manual Install</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑ Auto Update / Reinstall</x:String>
-    <x:String x:Key="TxtUpdateOptiManual">↑ Manual Update / Reinstall</x:String>
+    <x:String x:Key="TxtInstallOpti">Auto Install</x:String>
+    <x:String x:Key="TxtBtnManualInstall">Manual Install</x:String>
+    <x:String x:Key="TxtUpdateOpti">Auto Update / Reinstall</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">Manual Update / Reinstall</x:String>
     <x:String x:Key="TxtFakenvapiTip">Required for AMD/Intel GPUs to enable DLSS FG with Nukem mod</x:String>
     <x:String x:Key="TxtNukemTip">Nukem's DLSSG-to-FSR3 mod for Frame Generation</x:String>
     <x:String x:Key="TxtFakenvapiHelpTip">Tricks the game into detecting an NVIDIA graphics card, allowing you to bypass hardware restrictions and enable DLSS technologies on AMD or Intel GPUs.</x:String>
@@ -116,7 +118,7 @@ This version is unavailable for download. Check your internet connection and try
     <x:String x:Key="TxtDownloadFrom">Download from: </x:String>
     <x:String x:Key="TxtReqFileLbl">Required file: </x:String>
     <x:String x:Key="TxtBrowse">Browse…</x:String>
-    <x:String x:Key="TxtConfirmBtn">✓ Confirm</x:String>
+    <x:String x:Key="TxtConfirmBtn">Confirm</x:String>
     
     <x:String x:Key="TxtManualUpdateTitle">🔄 Manual Update Available</x:String>
     <x:String x:Key="TxtManualUpdateInst">A new version of NukemFG is available on Nexus Mods.&#x0a;Please download the updated file from the link below and select the DLL (or ZIP):</x:String>
@@ -198,4 +200,11 @@ This version is unavailable for download. Check your internet connection and try
     <x:String x:Key="TxtNoGames">No Games</x:String>
     <x:String x:Key="TxtNoGamesFound">No games found. Please scan for games first.</x:String>
 
+    <!-- Compatibility -->
+    <x:String x:Key="TxtCompatibilityFilter">Compatibility Filter</x:String>
+    <x:String x:Key="TxtCompatibilityFilterDesc">Show only games verified as compatible in the official OptiScaler wiki.</x:String>
+    <x:String x:Key="TxtRefreshWikiData">Refresh Wiki Data</x:String>
+    <x:String x:Key="TxtRefreshWikiDataDesc">Update the local compatibility list from GitHub wiki.</x:String>
+    <x:String x:Key="TxtRefresh">Refresh</x:String>
+    <x:String x:Key="TxtCompatibleBadge">Compatible</x:String>
 </ResourceDictionary>

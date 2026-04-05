@@ -6,7 +6,6 @@ using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
-[SupportedOSPlatform("windows")]
 public class EaScanner : IGameScanner
 {
     private readonly string[] REGISTRY_PATHS = new[]
@@ -18,6 +17,7 @@ public class EaScanner : IGameScanner
     public List<Game> Scan()
     {
         var games = new List<Game>();
+        if (!System.OperatingSystem.IsWindows()) return games;
 
         try
         {

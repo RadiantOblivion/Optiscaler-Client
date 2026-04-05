@@ -6,8 +6,6 @@ using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
-[SupportedOSPlatform("windows")]
-
 public class GogScanner : IGameScanner
 {
     private const string REGISTRY_PATH = @"SOFTWARE\WOW6432Node\GOG.com\Games";
@@ -15,6 +13,7 @@ public class GogScanner : IGameScanner
     public List<Game> Scan()
     {
         var games = new List<Game>();
+        if (!System.OperatingSystem.IsWindows()) return games;
 
         try
         {

@@ -9,6 +9,8 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
+using FluentIcons.Common;
+using Ic = FluentIcons.Avalonia;
 
 namespace OptiscalerClient.Views
 {
@@ -19,7 +21,7 @@ namespace OptiscalerClient.Views
             InitializeComponent();
         }
 
-        public ConfirmDialog(Window? owner, string title, string message, bool isAlert = false)
+        public ConfirmDialog(Window? owner, string title, string message, bool isAlert = false, bool hideButtons = false)
         {
             InitializeComponent();
             
@@ -45,7 +47,7 @@ namespace OptiscalerClient.Views
             var txtMessage = this.FindControl<TextBlock>("TxtMessage");
             var btnCancel = this.FindControl<Button>("BtnCancel");
             var btnConfirm = this.FindControl<Button>("BtnConfirm");
-            var txtIcon = this.FindControl<TextBlock>("TxtIcon");
+            var txtIcon = this.FindControl<Ic.SymbolIcon>("TxtIcon");
             var titleBar = this.FindControl<Border>("TitleBar");
 
             if (txtTitle != null) txtTitle.Text = title;
@@ -65,7 +67,7 @@ namespace OptiscalerClient.Views
                 if (btnCancel != null) btnCancel.IsVisible = false;
                 if (txtIcon != null)
                 {
-                    txtIcon.Text = "\uE783"; // Warning icon
+                    txtIcon.Symbol = Symbol.Warning;
                     txtIcon.Foreground = Application.Current?.FindResource("BrAccentWarm") as IBrush ?? Brushes.Orange;
                 }
 
@@ -78,9 +80,15 @@ namespace OptiscalerClient.Views
             {
                 if (txtIcon != null)
                 {
-                    txtIcon.Text = "\uE9CE"; // Question icon
+                    txtIcon.Symbol = Symbol.Question;
                     txtIcon.Foreground = Application.Current?.FindResource("BrAccentPrimary") as IBrush ?? Brushes.DeepSkyBlue;
                 }
+            }
+
+            if (hideButtons)
+            {
+                if (btnCancel != null) btnCancel.IsVisible = false;
+                if (btnConfirm != null) btnConfirm.IsVisible = false;
             }
 
             this.Opened += (s, e) =>
@@ -98,6 +106,39 @@ namespace OptiscalerClient.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        public void ShowProgress(bool isIndeterminate = false)
+        {
+            var progressBar = this.FindControl<ProgressBar>("ProgressBar");
+            if (progressBar != null)
+            {
+                progressBar.IsVisible = true;
+                progressBar.IsIndeterminate = isIndeterminate;
+            }
+        }
+
+        public void UpdateProgress(double percentage)
+        {
+            var progressBar = this.FindControl<ProgressBar>("ProgressBar");
+            if (progressBar != null)
+            {
+                // Ensure thread safety when updating from background
+                Dispatcher.UIThread.Post(() => {
+                    progressBar.Value = percentage;
+                });
+            }
+        }
+
+        public void UpdateMessage(string message)
+        {
+            var txtMessage = this.FindControl<TextBlock>("TxtMessage");
+            if (txtMessage != null)
+            {
+                Dispatcher.UIThread.Post(() => {
+                    txtMessage.Text = message;
+                });
+            }
         }
 
         private bool _isAnimatingClose = false;

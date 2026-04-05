@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OptiscalerClient"
@@ -19,9 +20,10 @@
         <converters:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
         <converters:BoolToVisibilityConverter  x:Key="BoolToVisibilityConverter"/>
         <converters:BitmapValueConverter       x:Key="BitmapValueConverter"/>
-
-
-        </Window.Resources>
+        <converters:BoolToIconConverter        x:Key="BoolToIconConverter"/>
+        <converters:BoolToStatusTextConverter  x:Key="BoolToStatusTextConverter"/>
+        <converters:BoolToAccentColorConverter x:Key="BoolToAccentColorConverter"/>
+    </Window.Resources>
     
     <Window.Styles>
         <Style Selector="RadioButton.NavBtnStyle">
@@ -31,14 +33,13 @@
             <Setter Property="Height" Value="48"/>
             <Setter Property="Width" Value="48"/>
             <Setter Property="Margin" Value="0,4"/>
-            <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI"/>
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="Template">
                 <ControlTemplate>
                     <Border Background="{TemplateBinding Background}" CornerRadius="8">
                         <Grid>
                             <Border Name="Indicator" Width="3" Height="24" HorizontalAlignment="Left" VerticalAlignment="Center" Background="{StaticResource BrAccent}" IsVisible="False" CornerRadius="1.5" Margin="2,0,0,0"/>
-                            <TextBlock Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip.Tip="{TemplateBinding ToolTip.Tip}"/>
+                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip.Tip="{TemplateBinding ToolTip.Tip}" TextElement.FontSize="{TemplateBinding FontSize}" TextElement.Foreground="{TemplateBinding Foreground}" />
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -55,9 +56,90 @@
             <Setter Property="Foreground" Value="{StaticResource BrTextPrimary}"/>
             <Setter Property="Background" Value="{StaticResource BrBgCard}"/>
         </Style>
+        <Style Selector="Grid#MainRoot">
+            <Setter Property="Opacity" Value="0" />
+            <Style.Animations>
+                <Animation Duration="0:0:0.6" Easing="CubicEaseOut" FillMode="Forward">
+                    <KeyFrame KeyTime="0:0:0">
+                        <Setter Property="Opacity" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.6">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <!-- SCANNING DOTS ANIMATION -->
+        <Style Selector="Ellipse.ScanDot.Dot1">
+            <Style.Animations>
+                <Animation Duration="0:0:1.2" IterationCount="Infinite" Easing="SineEaseInOut" Delay="0:0:0.0">
+                    <KeyFrame KeyTime="0:0:0.0">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.4">
+                        <Setter Property="(TranslateTransform.Y)" Value="-12"/>
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.8">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:1.2">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        <Style Selector="Ellipse.ScanDot.Dot2">
+            <Style.Animations>
+                <Animation Duration="0:0:1.2" IterationCount="Infinite" Easing="SineEaseInOut" Delay="0:0:0.2">
+                    <KeyFrame KeyTime="0:0:0.0">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.4">
+                        <Setter Property="(TranslateTransform.Y)" Value="-12"/>
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.8">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:1.2">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+        <Style Selector="Ellipse.ScanDot.Dot3">
+            <Style.Animations>
+                <Animation Duration="0:0:1.2" IterationCount="Infinite" Easing="SineEaseInOut" Delay="0:0:0.4">
+                    <KeyFrame KeyTime="0:0:0.0">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.4">
+                        <Setter Property="(TranslateTransform.Y)" Value="-12"/>
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:0.8">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                    <KeyFrame KeyTime="0:0:1.2">
+                        <Setter Property="(TranslateTransform.Y)" Value="0"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
     </Window.Styles>
 
-    <Grid>
+    <Grid Name="MainRoot">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="68"/> <!-- Sidebar -->
             <ColumnDefinition Width="*"/>  <!-- Main Content Area -->
@@ -70,13 +152,19 @@
                 <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
                     <Image Source="avares://OptiscalerClient/assets/icon.png" Width="32" Height="32" Margin="0,0,0,24" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                     
-                    <RadioButton Name="NavGames" GroupName="SidebarNav" Classes="NavBtnStyle" Content="&#xE7FC;" ToolTip.Tip="Games" IsChecked="True" Click="NavGames_Click"/>
+                    <RadioButton Name="NavGames" GroupName="SidebarNav" Classes="NavBtnStyle" ToolTip.Tip="Games" IsChecked="True" Click="NavGames_Click">
+                        <ic:SymbolIcon Symbol="Games" />
+                    </RadioButton>
                 </StackPanel>
 
                 <!-- Bottom actions: Settings, Help -->
                 <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                    <RadioButton Name="NavHelp" GroupName="SidebarNav" Classes="NavBtnStyle" Content="&#xE897;" ToolTip.Tip="{DynamicResource TxtAboutTitle}" Click="NavHelp_Click"/>
-                    <RadioButton Name="NavSettings" GroupName="SidebarNav" Classes="NavBtnStyle" Content="&#xE713;" ToolTip.Tip="{DynamicResource TxtSettingsTitle}" Click="NavSettings_Click"/>
+                    <RadioButton Name="NavHelp" GroupName="SidebarNav" Classes="NavBtnStyle" ToolTip.Tip="{DynamicResource TxtAboutTitle}" Click="NavHelp_Click">
+                        <ic:SymbolIcon Symbol="QuestionCircle" />
+                    </RadioButton>
+                    <RadioButton Name="NavSettings" GroupName="SidebarNav" Classes="NavBtnStyle" ToolTip.Tip="{DynamicResource TxtSettingsTitle}" Click="NavSettings_Click">
+                        <ic:SymbolIcon Symbol="Settings" />
+                    </RadioButton>
                 </StackPanel>
             </Grid>
         </Border>
@@ -116,24 +204,36 @@
                          <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                              <!-- Action buttons -->
                              <Button Name="BtnScan"
-                                     Content="{DynamicResource TxtBtnScan}"
                                      Classes="BtnBase"
                                      Padding="14,7"
                                      Margin="0,0,10,0"
-                                     Click="BtnScan_Click"/>
-         
+                                     Click="BtnScan_Click">
+                                 <StackPanel Orientation="Horizontal" Spacing="6">
+                                     <ic:SymbolIcon Symbol="ArrowSync" FontSize="14" VerticalAlignment="Center"/>
+                                     <TextBlock Text="{DynamicResource TxtBtnScan}" VerticalAlignment="Center"/>
+                                 </StackPanel>
+                             </Button>
+
                              <Button Name="BtnAddManual"
-                                     Content="{DynamicResource TxtBtnAddManual}"
                                      Classes="BtnBase"
                                      Padding="14,7"
                                      Margin="0,0,10,0"
-                                     Click="BtnAddManual_Click"/>
-         
+                                     Click="BtnAddManual_Click">
+                                 <StackPanel Orientation="Horizontal" Spacing="6">
+                                     <ic:SymbolIcon Symbol="Add" FontSize="14" VerticalAlignment="Center"/>
+                                     <TextBlock Text="{DynamicResource TxtBtnAddManual}" VerticalAlignment="Center"/>
+                                 </StackPanel>
+                             </Button>
+
                              <Button Name="BtnBulkInstall"
-                                     Content="{DynamicResource TxtBtnBulkInstall}"
                                      Classes="BtnBase"
                                      Padding="14,7"
-                                     Click="BtnBulkInstall_Click"/>
+                                     Click="BtnBulkInstall_Click">
+                                 <StackPanel Orientation="Horizontal" Spacing="6">
+                                     <ic:SymbolIcon Symbol="Flash" FontSize="14" VerticalAlignment="Center"/>
+                                     <TextBlock Text="{DynamicResource TxtBtnBulkInstall}" VerticalAlignment="Center"/>
+                                 </StackPanel>
+                             </Button>
                          </StackPanel>
 
                          <!-- Middle: Search Bar -->
@@ -155,9 +255,8 @@
                                      </Style>
                                  </TextBox.Styles>
                              </TextBox>
-                             <TextBlock IsHitTestVisible="False"
-                                        Text="&#xE721;"
-                                        FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI"
+                             <ic:SymbolIcon IsHitTestVisible="False"
+                                        Symbol="Search"
                                         Foreground="{StaticResource BrTextSecondary}"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left"
@@ -189,29 +288,30 @@
                  </Border>
 
                  <!-- Game List -->
-                 <ScrollViewer Name="GameListScrollViewer"
-                               Grid.Row="1"
-                               VerticalScrollBarVisibility="Auto"
-                               HorizontalScrollBarVisibility="Disabled"
-                               PointerWheelChanged="GameListScrollViewer_PointerWheelChanged">
-                     <ListBox Name="LstGames"
-                              Margin="12"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                          <ListBox.Styles>
-                              <Style Selector="ListBoxItem">
-                                  <Setter Property="Padding" Value="0,0,0,8"/>
-                                  <Setter Property="Background" Value="Transparent"/>
-                              </Style>
-                              <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                  <Setter Property="Background" Value="Transparent"/>
-                              </Style>
-                              <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-                                  <Setter Property="Background" Value="Transparent"/>
-                              </Style>
-                          </ListBox.Styles>
+                 <ListBox Name="LstGames"
+                          Grid.Row="1"
+                          Margin="12"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                     <ListBox.ItemsPanel>
+                         <ItemsPanelTemplate>
+                             <VirtualizingStackPanel/>
+                         </ItemsPanelTemplate>
+                     </ListBox.ItemsPanel>
+                     <ListBox.Styles>
+                         <Style Selector="ListBoxItem">
+                             <Setter Property="Padding" Value="0,0,0,8"/>
+                             <Setter Property="Background" Value="Transparent"/>
+                         </Style>
+                         <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                             <Setter Property="Background" Value="Transparent"/>
+                         </Style>
+                         <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+                             <Setter Property="Background" Value="Transparent"/>
+                         </Style>
+                     </ListBox.Styles>
                          
          
                          <ListBox.ItemTemplate>
@@ -296,6 +396,23 @@
                                                             FontWeight="SemiBold"
                                                             Foreground="{StaticResource BrTextPrimary}"
                                                             VerticalAlignment="Center"/>
+
+                                                 <!-- Compatible Badge -->
+                                                 <Border Background="#1A2E2E"
+                                                         BorderBrush="#2D5A5A"
+                                                         BorderThickness="1"
+                                                         CornerRadius="4" 
+                                                         Padding="6,2" Margin="8,0,0,0"
+                                                         VerticalAlignment="Center"
+                                                         IsVisible="{Binding IsCompatibleWithOptiscaler, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                     <StackPanel Orientation="Horizontal" Spacing="4">
+                                                         <ic:SymbolIcon Symbol="CheckmarkCircle" FontSize="10" Foreground="#7FD4D4"/>
+                                                         <TextBlock Text="{DynamicResource TxtCompatibleBadge}"
+                                                                    Foreground="#7FD4D4"
+                                                                    FontSize="10"
+                                                                    FontWeight="SemiBold"/>
+                                                     </StackPanel>
+                                                 </Border>
                                              </StackPanel>
          
                                              <!-- Badges row -->
@@ -365,9 +482,7 @@
          
                                          <!-- Actions -->
                                          <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                             <Button Content="&#xE74D;"
-                                                     FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI"
-                                                     Foreground="{StaticResource BrTextSecondary}"
+                                             <Button Foreground="{StaticResource BrTextSecondary}"
                                                      Background="Transparent"
                                                      BorderThickness="0"
                                                      FontSize="16"
@@ -376,6 +491,7 @@
                                                      ToolTip.Tip="{DynamicResource TxtRemoveGameTip}"
                                                      IsVisible="{Binding IsManual, Converter={StaticResource BoolToVisibilityConverter}}"
                                                      Click="BtnRemoveGame_Click">
+                                                 <ic:SymbolIcon Symbol="Delete" />
                                                  <Button.Styles>
                                                      <Style Selector="Button:pointerover">
                                                          <Setter Property="Background" Value="#1AFFFFFF"/>
@@ -384,26 +500,42 @@
                                                  </Button.Styles>
                                              </Button>
                                              <Button Name="BtnFastInstall"
-                                                    Classes="BtnBase"
-                                                    Padding="16,8"
-                                                    Margin="0,0,8,0"
-                                                    VerticalAlignment="Center"
-                                                    Foreground="{StaticResource BrAccent}"
-                                                    Content="✦ Fast Install"
-                                                    Click="BtnFastInstall_Click"
-                                                    Loaded="BtnFastInstall_Loaded"/>
-                                             <Button Content="{DynamicResource TxtManageGame}"
-                                                     Classes="BtnBase"
-                                                     Padding="20,8"
-                                                     VerticalAlignment="Center"
-                                                     Click="BtnManage_Click"/>
+                                                      Classes="BtnBase"
+                                                      Width="160"
+                                                      Padding="16,8"
+                                                      Margin="0,0,8,0"
+                                                      VerticalAlignment="Center"
+                                                      Click="BtnFastInstall_Click">
+                                                  <!-- Reactive Button Content -->
+                                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                                      <ic:SymbolIcon Symbol="{Binding IsOptiscalerInstalled, Converter={StaticResource BoolToIconConverter}}" 
+                                                                     FontSize="14" 
+                                                                     VerticalAlignment="Center"/>
+                                                      <TextBlock Text="{Binding IsOptiscalerInstalled, Converter={StaticResource BoolToStatusTextConverter}}" 
+                                                                 VerticalAlignment="Center"/>
+                                                  </StackPanel>
+                                                  <Button.Styles>
+                                                      <Style Selector="Button">
+                                                          <Setter Property="Foreground" Value="{Binding IsOptiscalerInstalled, Converter={StaticResource BoolToAccentColorConverter}}"/>
+                                                      </Style>
+                                                  </Button.Styles>
+                                              </Button>
+                                             <Button Classes="BtnBase"
+                                                      Width="120"
+                                                      Padding="16,8"
+                                                      VerticalAlignment="Center"
+                                                      Click="BtnManage_Click">
+                                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                                      <ic:SymbolIcon Symbol="Settings" FontSize="14"/>
+                                                      <TextBlock Text="{DynamicResource TxtManageGame}"/>
+                                                  </StackPanel>
+                                              </Button>
                                          </StackPanel>
                                      </Grid>
                                  </Border>
                              </DataTemplate>
                          </ListBox.ItemTemplate>
                      </ListBox>
-                 </ScrollViewer>
 
                  <!-- Status Bar -->
                  <Border Grid.Row="2"
@@ -518,12 +650,16 @@
                              </StackPanel>
                              
                              <Button Name="BtnManageCache"
-                                     Grid.Column="1"
-                                     Content="{DynamicResource TxtManage}"
-                                     Classes="BtnBase"
-                                     Padding="16,8"
-                                     VerticalAlignment="Center"
-                                     Click="BtnManageCache_Click"/>
+                                      Grid.Column="1"
+                                      Classes="BtnBase"
+                                      Padding="16,8"
+                                      VerticalAlignment="Center"
+                                      Click="BtnManageCache_Click">
+                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                      <ic:SymbolIcon Symbol="Database" FontSize="14"/>
+                                      <TextBlock Text="{DynamicResource TxtManage}"/>
+                                  </StackPanel>
+                              </Button>
                          </Grid>
                      </Border>
          
@@ -552,12 +688,16 @@
                              </StackPanel>
                              
                              <Button Name="BtnManageScanSources"
-                                     Grid.Column="1"
-                                     Content="{DynamicResource TxtManage}"
-                                     Classes="BtnBase"
-                                     Padding="16,8"
-                                     VerticalAlignment="Center"
-                                     Click="BtnManageScanSources_Click"/>
+                                      Grid.Column="1"
+                                      Classes="BtnBase"
+                                      Padding="16,8"
+                                      VerticalAlignment="Center"
+                                      Click="BtnManageScanSources_Click">
+                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                      <ic:SymbolIcon Symbol="FolderOpen" FontSize="14"/>
+                                      <TextBlock Text="{DynamicResource TxtManage}"/>
+                                  </StackPanel>
+                              </Button>
                          </Grid>
                      </Border>
 
@@ -687,8 +827,80 @@
                                            IsCheckedChanged="TglAnimations_IsCheckedChanged"/>
                          </Grid>
                      </Border>
- 
-                     </StackPanel>
+   
+                    <!-- Compatibility Filter -->
+                    <Border Background="{StaticResource BrBgCard}"
+                            BorderBrush="{StaticResource BrBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource RadiusLarge}"
+                            Padding="20,16"
+                            Margin="0,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource TxtCompatibilityFilter}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource BrTextPrimary}"/>
+                                <TextBlock Text="{DynamicResource TxtCompatibilityFilterDesc}"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,16,0"
+                                           FontSize="{StaticResource FontSizeCaption}"/>
+                            </StackPanel>
+                            
+                            <ToggleSwitch Name="TglCompatibleOnly"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          OnContent="" OffContent=""
+                                          IsChecked="True"
+                                          IsCheckedChanged="TglCompatibleOnly_IsCheckedChanged"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Refresh Compatibility List -->
+                    <Border Background="{StaticResource BrBgCard}"
+                            BorderBrush="{StaticResource BrBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource RadiusLarge}"
+                            Padding="20,16"
+                            Margin="0,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource TxtRefreshWikiData}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource BrTextPrimary}"/>
+                                <TextBlock Name="TxtCompatibilityStatus" 
+                                           Text="{DynamicResource TxtRefreshWikiDataDesc}"
+                                           Foreground="{StaticResource BrTextSecondary}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,4,16,0"
+                                           FontSize="{StaticResource FontSizeCaption}"/>
+                            </StackPanel>
+                            
+                            <Button Name="BtnRefreshCompatibility"
+                                     Grid.Column="1"
+                                     Classes="BtnBase"
+                                     Padding="12,6"
+                                     VerticalAlignment="Center"
+                                     Click="BtnRefreshCompatibility_Click">
+                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                      <ic:SymbolIcon Symbol="ArrowCounterclockwise" FontSize="14"/>
+                                      <TextBlock Text="{DynamicResource TxtRefresh}"/>
+                                  </StackPanel>
+                              </Button>
+                        </Grid>
+                    </Border>
+
+                      </StackPanel>
                  </ScrollViewer>
              </Grid>
 
@@ -724,14 +936,18 @@
              
                          <!-- GUIDE SECTION -->
                          <TextBlock Text="{DynamicResource TxtGuideTitle}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource BrTextPrimary}" Margin="0,0,0,12"/>
-                         <Button Content="{DynamicResource TxtBtnGuide}" 
-                                 Name="BtnGuide2" 
-                                 Click="BtnGuide_Click2" 
-                                 Classes="BtnBase" 
-                                 Padding="16,12" 
-                                 HorizontalAlignment="Left" 
-                                 Width="150" 
-                                 Margin="0,0,0,32"/>
+                         <Button Name="BtnGuide2" 
+                                  Click="BtnGuide_Click2" 
+                                  Classes="BtnBase" 
+                                  Padding="16,12" 
+                                  HorizontalAlignment="Left" 
+                                  Width="150" 
+                                  Margin="0,0,0,32">
+                              <StackPanel Orientation="Horizontal" Spacing="10">
+                                  <ic:SymbolIcon Symbol="Book"/>
+                                  <TextBlock Text="{DynamicResource TxtBtnGuide}"/>
+                              </StackPanel>
+                          </Button>
              
                          <!-- ABOUT SECTION -->
                          <TextBlock Text="{DynamicResource TxtAboutTitle}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource BrTextPrimary}" Margin="0,0,0,12"/>
@@ -824,9 +1040,21 @@
                     <StackPanel>
                         <!-- Animated Dots -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,24">
-                            <Ellipse Name="ScanDot1" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0"/>
-                            <Ellipse Name="ScanDot2" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0"/>
-                            <Ellipse Name="ScanDot3" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0"/>
+                            <Ellipse Classes="ScanDot Dot1" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                            <Ellipse Classes="ScanDot Dot2" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                            <Ellipse Classes="ScanDot Dot3" Width="12" Height="12" Fill="{StaticResource BrAccent}" Margin="4,12,4,0">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource TxtScanningTitle}"
                                    FontSize="{StaticResource FontSizeSubtitle}"

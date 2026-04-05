@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia"
         x:Class="OptiscalerClient.Views.ManualDownloadDialog"
         Title="Manual Installation Required"
         Width="580"
@@ -53,15 +54,15 @@
                             </StackPanel>
                             
                             <Button Grid.Column="1"
-                                    Content="✕"
                                     Classes="BtnSecondary"
-                                    Padding="8,4"
-                                    MinWidth="32"
-                                    FontSize="14"
+                                    Width="32" Height="32"
+                                    Padding="0"
                                     Click="BtnSkip_Click"
                                     VerticalAlignment="Top"
                                     Background="Transparent"
-                                    BorderThickness="0"/>
+                                    BorderThickness="0">
+                                <ic:SymbolIcon Symbol="Dismiss" FontSize="12"/>
+                            </Button>
                         </Grid>
                         </Border>
 
@@ -84,7 +85,7 @@
                                         Cursor="Hand"
                                         PointerPressed="BtnOpenLink_Click">
                                     <Grid ColumnDefinitions="Auto, *, Auto">
-                                        <TextBlock Grid.Column="0" Text="🌐" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <ic:SymbolIcon Grid.Column="0" Symbol="Globe" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="Nexus Mods — dlssg-to-fsr3" 
                                                        FontSize="13" FontWeight="Bold" 
@@ -92,7 +93,7 @@
                                             <TextBlock Text="Download the files manually from here" 
                                                        FontSize="11" Foreground="{StaticResource BrTextSecondary}"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="2" Text="→" FontSize="18" Foreground="{StaticResource BrTextSecondary}"/>
+                                        <ic:SymbolIcon Grid.Column="2" Symbol="ArrowRight" FontSize="18" Foreground="{StaticResource BrTextSecondary}"/>
                                     </Grid>
                                 </Border>
 

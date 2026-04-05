@@ -7,7 +7,7 @@
     <x:String x:Key="TxtAppPrefs">Настройки приложения</x:String>
     <x:String x:Key="TxtCacheMgmt">Управление локальным кэшем</x:String>
     <x:String x:Key="TxtCacheDesc">Просмотр и удаление загруженных версий OptiScaler из локального хранилища для освобождения места.</x:String>
-    <x:String x:Key="TxtManage">&#xE8B7;  Управлять</x:String>
+    <x:String x:Key="TxtManage">Управлять</x:String>
     <x:String x:Key="TxtLanguage">Язык приложения</x:String>
     <x:String x:Key="TxtLanguageDesc">Изменить язык пользовательского интерфейса.</x:String>
     <x:String x:Key="TxtClose">Закрыть</x:String>
@@ -29,14 +29,16 @@
 
     <!-- MainWindow -->
     <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
-    <x:String x:Key="TxtBtnScan">⟳  Сканировать игры</x:String>
-    <x:String x:Key="TxtBtnAddManual">＋  Добавить вручную</x:String>
+    <x:String x:Key="TxtBtnScan">Сканировать игры</x:String>
+    <x:String x:Key="TxtBtnAddManual">Добавить вручную</x:String>
     <x:String x:Key="TxtTipSettings">Настройки</x:String>
     <x:String x:Key="TxtTipComponent">Версии компонентов</x:String>
-    <x:String x:Key="TxtUpdateNukem">↑  Обновить NukemFG</x:String>
+    <x:String x:Key="TxtUpdateNukem">Обновить NukemFG</x:String>
     <x:String x:Key="TxtTipUpdateNukem">Доступна новая версия NukemFG. Нажмите, чтобы предоставить обновленную DLL.</x:String>
     <x:String x:Key="TxtDefaultGpu">Обнаружение GPU…</x:String>
     <x:String x:Key="TxtManageGame">Управлять</x:String>
+    <x:String x:Key="TxtQuickInstall">Быстрая установка</x:String>
+    <x:String x:Key="TxtQuickUninstall">Быстрое удаление</x:String>
     <x:String x:Key="TxtStatusReady">Готово</x:String>
     <x:String x:Key="TxtScanningTitle">Сканирование игр...</x:String>
     <x:String x:Key="TxtScanningDesc">Поиск игр на всех платформах...</x:String>
@@ -50,7 +52,7 @@
     <x:String x:Key="TxtLocalVersions">Локальные версии</x:String>
     <x:String x:Key="TxtManageCacheDesc">Управление загруженным кэшем OptiScaler</x:String>
     <x:String x:Key="TxtDownloadedVersions">Загруженные версии OptiScaler:</x:String>
-    <x:String x:Key="TxtDeleteIcon">🗑️ Удалить</x:String>
+    <x:String x:Key="TxtDeleteIcon">Удалить</x:String>
     <x:String x:Key="TxtNoVersions">В настоящее время нет загруженных версий.</x:String>
     <x:String x:Key="TxtToastSuccess">Успешно</x:String>
     <x:String x:Key="TxtConfirmDelTitle">Подтвердить удаление</x:String>
@@ -68,24 +70,24 @@
     <!-- ComponentInfoWindow -->
     <x:String x:Key="TxtComponentTitle">Версии компонентов</x:String>
     <x:String x:Key="TxtComponentDesc">Установленные версии набора инструментов OptiScaler</x:String>
-    <x:String x:Key="TxtBtnGuide">📖 Руководство</x:String>
+    <x:String x:Key="TxtBtnGuide">Руководство</x:String>
     <x:String x:Key="TxtUpdateAvail">Доступно обновление</x:String>
     <x:String x:Key="TxtAppVersionLbl">Версия приложения</x:String>
 
     <!-- ManageGameWindow -->
     <x:String x:Key="TxtManageGameWindow">Управление игрой</x:String>
-    <x:String x:Key="TxtOpenFolder">📂  Открыть папку</x:String>
+    <x:String x:Key="TxtOpenFolder">Открыть папку</x:String>
     <x:String x:Key="TxtOptiStatus">Статус OptiScaler</x:String>
     <x:String x:Key="TxtDetectedComponents">Обнаруженные компоненты</x:String>
     <x:String x:Key="TxtConfirmUninstallTitle">Подтвердить удаление</x:String>
     <x:String x:Key="TxtConfirmUninstallMsg">Вы уверены, что хотите удалить OptiScaler?&#x0a;Будут восстановлены только оригинальные файлы из резервных копий.</x:String>
-    <x:String x:Key="TxtUninstall">✕ Удалить</x:String>
+    <x:String x:Key="TxtUninstall">Удалить</x:String>
     <x:String x:Key="TxtVersionLbl">Версия:</x:String>
     <x:String x:Key="TxtInjectionLbl">Инъекция:</x:String>
-    <x:String x:Key="TxtInstallOpti">✦ Автоматическая установка</x:String>
-    <x:String x:Key="TxtBtnManualInstall">✦ Ручная установка</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑ Автоматическое обновление / Переустановка</x:String>
-    <x:String x:Key="TxtUpdateOptiManual">↑ Ручное обновление / Переустановка</x:String>
+    <x:String x:Key="TxtInstallOpti">Автоматическая установка</x:String>
+    <x:String x:Key="TxtBtnManualInstall">Ручная установка</x:String>
+    <x:String x:Key="TxtUpdateOpti">Автоматическое обновление / Переустановка</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">Ручное обновление / Переустановка</x:String>
     <x:String x:Key="TxtFakenvapiTip">Требуется для GPU AMD/Intel для включения DLSS FG с модом Nukem</x:String>
     <x:String x:Key="TxtNukemTip">Мод Nukem DLSSG-to-FSR3 для генерации кадров</x:String>
     <x:String x:Key="TxtFakenvapiHelpTip">Обманывает игру, заставляя ее обнаруживать видеокарту NVIDIA, позволяя вам обойти аппаратные ограничения и включить технологии DLSS на GPU AMD или Intel.</x:String>
@@ -112,7 +114,7 @@
     <x:String x:Key="TxtDownloadFrom">Загрузить с: </x:String>
     <x:String x:Key="TxtReqFileLbl">Требуемый файл: </x:String>
     <x:String x:Key="TxtBrowse">Обзор…</x:String>
-    <x:String x:Key="TxtConfirmBtn">✓ Подтвердить</x:String>
+    <x:String x:Key="TxtConfirmBtn">Подтвердить</x:String>
     
     <x:String x:Key="TxtManualUpdateTitle">🔄 Доступно ручное обновление</x:String>
     <x:String x:Key="TxtManualUpdateInst">Новая версия NukemFG доступна на Nexus Mods.&#x0a;Пожалуйста, загрузите обновленный файл по ссылке ниже и выберите DLL (или ZIP):</x:String>
@@ -180,7 +182,7 @@
     <x:String x:Key="TxtNoUpdateFound">Приложение уже обновлено.</x:String>
     <x:String x:Key="TxtUpdateCheckError">Возникла проблема при проверке обновлений. Пожалуйста, попробуйте позже.</x:String>
 
-    <x:String x:Key="TxtBtnBulkInstall">⚡  Массовая установка</x:String>
+    <x:String x:Key="TxtBtnBulkInstall">Массовая установка</x:String>
 
     <!-- BulkInstallWindow -->
     <x:String x:Key="TxtBulkInstallWindow">Массовая установка OptiScaler</x:String>
@@ -188,7 +190,7 @@
     <x:String x:Key="TxtInstalled">Установлено</x:String>
     <x:String x:Key="TxtInstallationSettings">Настройки установки</x:String>
     <x:String x:Key="TxtVersion">Версия</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑  Авто Обновление / Переустановка</x:String>
+    <x:String x:Key="TxtUpdateOpti">Авто Обновление / Переустановка</x:String>
     <x:String x:Key="TxtInstallFakenvapi">Fakenvapi</x:String>
     <x:String x:Key="TxtInstallNukemFG">NukemFG</x:String>
     <x:String x:Key="TxtCreateBackup">Создать резервную копию</x:String>

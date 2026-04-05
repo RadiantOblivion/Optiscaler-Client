@@ -1,4 +1,4 @@
-﻿using OptiscalerClient.Models;
+using OptiscalerClient.Models;
 using System.Diagnostics;
 using System.IO;
 
@@ -177,12 +177,18 @@ public class GameAnalyzerService
 
                     if (Version.TryParse(parseableVerStr, out var currentVer))
                     {
-                        if (currentVer > highestVer)
+                        if (currentVer >= highestVer || bestPath == null)
                         {
                             highestVer = currentVer;
                             bestPath = file;
                             bestVerStr = versionStr; // keep original string for display
                         }
+                    }
+                    else if (bestPath == null)
+                    {
+                        // Completely unparseable version string, but we found a valid file!
+                        bestPath = file;
+                        bestVerStr = "Unknown";
                     }
                 }
             }
@@ -199,6 +205,26 @@ public class GameAnalyzerService
     {
         try
         {
+            // Cross-platform PE parsing: Native Linux/macOS .NET cannot reliably read Win32 resources from DLLs.
+            try
+            {
+                var peFile = new PeNet.PeFile(filePath);
+                var stringTable = peFile.Resources?.VsVersionInfo?.StringFileInfo?.StringTable?.FirstOrDefault();
+                
+                if (stringTable != null)
+                {
+                    if (!string.IsNullOrEmpty(stringTable.ProductVersion) && stringTable.ProductVersion != "1.0.0.0" && !stringTable.ProductVersion.StartsWith("1.0."))
+                    {
+                        return stringTable.ProductVersion.Replace(',', '.').Split(' ')[0];
+                    }
+                    if (!string.IsNullOrEmpty(stringTable.FileVersion))
+                    {
+                        return stringTable.FileVersion.Replace(',', '.').Split(' ')[0];
+                    }
+                }
+            }
+            catch { /* Fallback to OS native if PeNet traversal fails */ }
+
             var info = FileVersionInfo.GetVersionInfo(filePath);
 
             // ProductVersion is usually more accurate for libraries like DLSS (e.g. "3.7.10.0")

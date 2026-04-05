@@ -35,6 +35,8 @@
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+    <PackageReference Include="FluentIcons.Avalonia" Version="2.0.321" />
+    <PackageReference Include="PeNet" Version="6.0.0" />
     <PackageReference Include="SharpCompress" Version="0.44.5" />
     <PackageReference Include="System.Management" Version="10.0.0" />
   </ItemGroup>

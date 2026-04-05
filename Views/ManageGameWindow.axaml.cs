@@ -23,7 +23,6 @@ namespace OptiscalerClient.Views
     public partial class ManageGameWindow : Window
     {
         private readonly Game _game;
-        private readonly IGpuDetectionService _gpuService;
         private HashSet<string> _betaVersions = new();
 
         public bool NeedsScan { get; private set; }
@@ -37,8 +36,7 @@ namespace OptiscalerClient.Views
         public ManageGameWindow()
         {
             InitializeComponent();
-            _game = null!;
-            _gpuService = null!;
+            _betaVersions = new();
         }
 
         public ManageGameWindow(Window owner, Game game)
@@ -60,15 +58,9 @@ namespace OptiscalerClient.Views
                 this.Position = new PixelPoint((int)Math.Max(0, x), (int)Math.Max(0, y));
             }
 
-            if (OperatingSystem.IsWindows())
-            {
-                _gpuService = new WindowsGpuDetectionService();
-            }
-            else
-            {
-                _gpuService = null!;
-            }
-
+            // GPU is fetched from the static cache — no blocking detection here.
+            // The cache is pre-warmed by MainWindow at startup.
+            
             SetupUI();
             
             // Re-bind TitleBar dragging and Close button
@@ -78,7 +70,7 @@ namespace OptiscalerClient.Views
                 titleBar.PointerPressed += (s, e) => this.BeginMoveDrag(e);
             }
 
-            this.Opened += (s, e) =>
+            this.Opened += async (s, e) =>
             {
                 this.Opacity = 1;
                 var rootPanel = this.FindControl<Panel>("RootPanel");
@@ -87,9 +79,12 @@ namespace OptiscalerClient.Views
                     AnimationHelper.SetupPanelTransition(rootPanel);
                     rootPanel.Opacity = 1;
                 }
-            };
 
-            _ = LoadVersionsAsync();
+                // Defer version network load until after the window is fully visible and animated in.
+                // This prevents the half-opacity freeze caused by the network call racing the animation.
+                await Task.Delay(50);
+                _ = LoadVersionsAsync();
+            };
         }
 
         private static ComboBoxItem BuildVersionItem(string ver, bool isBeta, bool isLatest)
@@ -253,20 +248,16 @@ namespace OptiscalerClient.Views
                 cmb.Items.Add(new ComboBoxItem { Content = stack, Tag = ver });
             }
 
-            // Determine default selection
+            // Use cached GPU — instant, no lspci/glxinfo on UI thread
             bool isRdna4 = false;
-            if (OperatingSystem.IsWindows() && _gpuService != null)
+            try
             {
-                try
-                {
-                    var gpu = _gpuService.GetDiscreteGPU() ?? _gpuService.GetPrimaryGPU();
-                    // RDNA 4 = Radeon RX 9000 series (GPU name contains "RX 9" or similar)
-                    isRdna4 = gpu != null && gpu.Vendor == GpuVendor.AMD &&
-                              (gpu.Name.Contains(" 9", StringComparison.OrdinalIgnoreCase) ||
-                               gpu.Name.Contains("RX 9", StringComparison.OrdinalIgnoreCase));
-                }
-                catch { /* silent */ }
+                var gpu = GpuDetectionServiceFactory.GetCachedGpu();
+                isRdna4 = gpu != null && gpu.Vendor == GpuVendor.AMD &&
+                          (gpu.Name.Contains(" 9", StringComparison.OrdinalIgnoreCase) ||
+                           gpu.Name.Contains("RX 9", StringComparison.OrdinalIgnoreCase));
             }
+            catch { /* silent */ }
 
             // Determine target index
             int targetIndex     = 0; // Default to None (index 0)
@@ -420,8 +411,8 @@ namespace OptiscalerClient.Views
                     return;
                 }
 
-                // Robust way on Windows
-                Process.Start("explorer.exe", $"\"{dirToOpen}\"");
+                // Robust way on Windows and Linux
+                ProcessHelper.OpenFolder(dirToOpen);
             }
             catch (Exception ex)
             {
@@ -918,11 +909,8 @@ namespace OptiscalerClient.Views
 
         private void ConfigureAdditionalComponents()
         {
-            GpuInfo? gpu = null;
-            if (OperatingSystem.IsWindows() && _gpuService != null)
-            {
-                gpu = _gpuService.GetDiscreteGPU() ?? _gpuService.GetPrimaryGPU();
-            }
+            // Use cached GPU — instant, no process spawning on UI thread
+            GpuInfo? gpu = GpuDetectionServiceFactory.GetCachedGpu();
             var chkInstallFakenvapi = this.FindControl<CheckBox>("ChkInstallFakenvapi");
             var chkInstallNukemFG = this.FindControl<CheckBox>("ChkInstallNukemFG");
 

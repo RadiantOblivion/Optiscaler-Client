@@ -6,8 +6,6 @@ using System.Runtime.Versioning;
 
 namespace OptiscalerClient.Services;
 
-[SupportedOSPlatform("windows")]
-
 public class UbisoftScanner : IGameScanner
 {
     private const string UNINSTALL_PATH = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
@@ -15,6 +13,7 @@ public class UbisoftScanner : IGameScanner
     public List<Game> Scan()
     {
         var games = new List<Game>();
+        if (!System.OperatingSystem.IsWindows()) return games;
 
         try
         {

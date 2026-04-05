@@ -7,7 +7,7 @@
     <x:String x:Key="TxtAppPrefs">アプリ設定</x:String>
     <x:String x:Key="TxtCacheMgmt">ローカルキャッシュ管理</x:String>
     <x:String x:Key="TxtCacheDesc">ダウンロードしたOptiScalerバージョンをローカルストレージから表示・削除してスペースを解放します。</x:String>
-    <x:String x:Key="TxtManage">&#xE8B7;  管理</x:String>
+    <x:String x:Key="TxtManage">管理</x:String>
     <x:String x:Key="TxtLanguage">アプリケーション言語</x:String>
     <x:String x:Key="TxtLanguageDesc">ユーザーインターフェースの言語を変更します。</x:String>
     <x:String x:Key="TxtClose">閉じる</x:String>
@@ -29,14 +29,16 @@
 
     <!-- MainWindow -->
     <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
-    <x:String x:Key="TxtBtnScan">⟳  ゲームをスキャン</x:String>
-    <x:String x:Key="TxtBtnAddManual">＋  手動で追加</x:String>
+    <x:String x:Key="TxtBtnScan">ゲームをスキャン</x:String>
+    <x:String x:Key="TxtBtnAddManual">手動で追加</x:String>
     <x:String x:Key="TxtTipSettings">設定</x:String>
     <x:String x:Key="TxtTipComponent">コンポーネントバージョン</x:String>
-    <x:String x:Key="TxtUpdateNukem">↑  NukemFGを更新</x:String>
+    <x:String x:Key="TxtUpdateNukem">NukemFGを更新</x:String>
     <x:String x:Key="TxtTipUpdateNukem">新しいNukemFGバージョンが利用可能です。更新されたDLLを提供するためにクリックしてください。</x:String>
     <x:String x:Key="TxtDefaultGpu">GPUを検出中…</x:String>
     <x:String x:Key="TxtManageGame">管理</x:String>
+    <x:String x:Key="TxtQuickInstall">クイックインストール</x:String>
+    <x:String x:Key="TxtQuickUninstall">クイックアンインストール</x:String>
     <x:String x:Key="TxtStatusReady">準備完了</x:String>
     <x:String x:Key="TxtScanningTitle">ゲームをスキャン中...</x:String>
     <x:String x:Key="TxtScanningDesc">すべてのプラットフォームでゲームを検索中...</x:String>
@@ -50,7 +52,7 @@
     <x:String x:Key="TxtLocalVersions">ローカルバージョン</x:String>
     <x:String x:Key="TxtManageCacheDesc">ダウンロードしたOptiScalerキャッシュを管理</x:String>
     <x:String x:Key="TxtDownloadedVersions">ダウンロードしたOptiScalerバージョン：</x:String>
-    <x:String x:Key="TxtDeleteIcon">🗑️ 削除</x:String>
+    <x:String x:Key="TxtDeleteIcon">削除</x:String>
     <x:String x:Key="TxtNoVersions">現在ダウンロードされているバージョンはありません。</x:String>
     <x:String x:Key="TxtToastSuccess">成功</x:String>
     <x:String x:Key="TxtConfirmDelTitle">削除を確認</x:String>
@@ -68,24 +70,24 @@
     <!-- ComponentInfoWindow -->
     <x:String x:Key="TxtComponentTitle">コンポーネントバージョン</x:String>
     <x:String x:Key="TxtComponentDesc">インストールされているOptiScalerツールキットのバージョン</x:String>
-    <x:String x:Key="TxtBtnGuide">📖 ガイド</x:String>
+    <x:String x:Key="TxtBtnGuide">ガイド</x:String>
     <x:String x:Key="TxtUpdateAvail">更新利用可能</x:String>
     <x:String x:Key="TxtAppVersionLbl">アプリバージョン</x:String>
 
     <!-- ManageGameWindow -->
     <x:String x:Key="TxtManageGameWindow">ゲームを管理</x:String>
-    <x:String x:Key="TxtOpenFolder">📂  フォルダを開く</x:String>
+    <x:String x:Key="TxtOpenFolder">フォルダを開く</x:String>
     <x:String x:Key="TxtOptiStatus">OptiScalerステータス</x:String>
     <x:String x:Key="TxtDetectedComponents">検出されたコンポーネント</x:String>
     <x:String x:Key="TxtConfirmUninstallTitle">アンインストールを確認</x:String>
     <x:String x:Key="TxtConfirmUninstallMsg">OptiScalerをアンインストールしてもよろしいですか？&#x0a;バックアップされた元のファイルのみが復元されます。</x:String>
-    <x:String x:Key="TxtUninstall">✕ アンインストール</x:String>
+    <x:String x:Key="TxtUninstall">アンインストール</x:String>
     <x:String x:Key="TxtVersionLbl">バージョン：</x:String>
     <x:String x:Key="TxtInjectionLbl">インジェクション：</x:String>
-    <x:String x:Key="TxtInstallOpti">✦ 自動インストール</x:String>
-    <x:String x:Key="TxtBtnManualInstall">✦ 手動インストール</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑ 自動更新 / 再インストール</x:String>
-    <x:String x:Key="TxtUpdateOptiManual">↑ 手動更新 / 再インストール</x:String>
+    <x:String x:Key="TxtInstallOpti">自動インストール</x:String>
+    <x:String x:Key="TxtBtnManualInstall">手動インストール</x:String>
+    <x:String x:Key="TxtUpdateOpti">自動更新 / 再インストール</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">手動更新 / 再インストール</x:String>
     <x:String x:Key="TxtFakenvapiTip">AMD/Intel GPUでDLSS FGを有効にするためにNukem modで必須</x:String>
     <x:String x:Key="TxtNukemTip">フレーム生成のためのNukemのDLSSG-to-FSR3 mod</x:String>
     <x:String x:Key="TxtFakenvapiHelpTip">ゲームをだましてNVIDIAグラフィックカードを検出させ、ハードウェア制限を回避してAMDまたはIntel GPUでDLSS技術を有効にできるようにします。</x:String>
@@ -112,7 +114,7 @@
     <x:String x:Key="TxtDownloadFrom">ダウンロード元： </x:String>
     <x:String x:Key="TxtReqFileLbl">必要なファイル： </x:String>
     <x:String x:Key="TxtBrowse">参照…</x:String>
-    <x:String x:Key="TxtConfirmBtn">✓ 確認</x:String>
+    <x:String x:Key="TxtConfirmBtn">確認</x:String>
     
     <x:String x:Key="TxtManualUpdateTitle">🔄 手動更新利用可能</x:String>
     <x:String x:Key="TxtManualUpdateInst">NukemFGの新しいバージョンがNexus Modsで利用可能です。&#x0a;以下のリンクから更新されたファイルをダウンロードし、DLL（またはZIP）を選択してください：</x:String>
@@ -180,7 +182,7 @@
     <x:String x:Key="TxtNoUpdateFound">アプリケーションはすでに最新です。</x:String>
     <x:String x:Key="TxtUpdateCheckError">更新の確認中に問題が発生しました。後でもう一度お試しください。</x:String>
 
-    <x:String x:Key="TxtBtnBulkInstall">⚡  一括インストール</x:String>
+    <x:String x:Key="TxtBtnBulkInstall">一括インストール</x:String>
 
     <!-- BulkInstallWindow -->
     <x:String x:Key="TxtBulkInstallWindow">OptiScaler 一括インストール</x:String>

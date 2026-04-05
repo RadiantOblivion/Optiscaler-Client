@@ -150,12 +150,17 @@ namespace OptiscalerClient.Views
 
             var btnDelete = new Button
             {
-                Content = Application.Current?.FindResource("TxtDeletePlain") as string ?? "Delete",
                 Classes = { "BtnSecondary" },
                 Padding = new Thickness(12, 4),
                 FontSize = 11,
                 Tag = new VersionDeleteInfo { Version = version, IsExtras = isExtras }
             };
+
+            var btnStack = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 6 };
+            btnStack.Children.Add(new FluentIcons.Avalonia.SymbolIcon { Symbol = FluentIcons.Common.Symbol.Delete, FontSize = 12 });
+            btnStack.Children.Add(new TextBlock { Text = Application.Current?.FindResource("TxtDeletePlain") as string ?? "Delete", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+            
+            btnDelete.Content = btnStack;
             btnDelete.Click += BtnDelete_Click;
 
             grid.Children.Add(btnDelete);

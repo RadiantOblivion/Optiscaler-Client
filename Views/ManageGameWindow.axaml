@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OptiscalerClient"
@@ -66,12 +67,16 @@
 
                         <Button Name="BtnOpenFolder"
                                 Grid.Column="1"
-                                Content="{DynamicResource TxtOpenFolder}"
                                 Classes="BtnBase"
                                 Padding="12,7"
                                 Margin="0,0,10,0"
                                 VerticalAlignment="Center"
-                                Click="BtnOpenFolder_Click"/>
+                                Click="BtnOpenFolder_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ic:SymbolIcon Symbol="FolderOpen" FontSize="14"/>
+                                <TextBlock Text="{DynamicResource TxtOpenFolder}"/>
+                            </StackPanel>
+                        </Button>
                         
                         <!-- Close button -->
                         <Button Name="BtnClose"
@@ -83,8 +88,7 @@
                                 BorderThickness="0"
                                 VerticalAlignment="Center"
                                 Click="BtnClose_Click">
-                            <TextBlock Text="&#xE711;"
-                                       FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI"
+                            <ic:SymbolIcon Symbol="Dismiss"
                                        FontSize="12"/>
                         </Button>
                     </Grid>
@@ -346,11 +350,15 @@
                             </StackPanel>
                             <Button Grid.Column="1"
                                     Name="BtnUninstall"
-                                    Content="{DynamicResource TxtUninstall}"
                                     Classes="BtnDanger"
                                     Padding="18,8"
                                     IsVisible="False"
-                                    Click="BtnUninstall_Click"/>
+                                    Click="BtnUninstall_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ic:SymbolIcon Symbol="Dismiss" FontSize="14"/>
+                                    <TextBlock Text="{DynamicResource TxtUninstall}"/>
+                                </StackPanel>
+                            </Button>
                         </Grid>
 
                         <!-- Row 3, Col 0: FSR4 INT8 version selector -->
@@ -387,16 +395,24 @@
                                     HorizontalAlignment="Right"
                                     Name="InstallBtnGroup">
                             <Button Name="BtnInstallManual"
-                                    Content="{DynamicResource TxtBtnManualInstall}"
                                     Classes="BtnSuccess"
                                     Padding="18,8"
                                     Margin="0,0,10,0"
-                                    Click="BtnInstallManual_Click"/>
+                                    Click="BtnInstallManual_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ic:SymbolIcon Symbol="Flash" FontSize="14"/>
+                                    <TextBlock Text="{DynamicResource TxtBtnManualInstall}"/>
+                                </StackPanel>
+                            </Button>
                             <Button Name="BtnInstall"
-                                    Content="{DynamicResource TxtInstallOpti}"
                                     Classes="BtnSuccess"
                                     Padding="18,8"
-                                    Click="BtnInstall_Click"/>
+                                    Click="BtnInstall_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ic:SymbolIcon Symbol="Add" FontSize="14"/>
+                                    <TextBlock Text="{DynamicResource TxtInstallOpti}"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>

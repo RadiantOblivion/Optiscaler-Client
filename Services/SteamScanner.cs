@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 
 namespace OptiscalerClient.Services;
 
-[SupportedOSPlatform("windows")]
 public class SteamScanner : IGameScanner
 {
     private const string REGISTRY_PATH = @"SOFTWARE\Valve\Steam";
@@ -54,17 +53,39 @@ public class SteamScanner : IGameScanner
 
     private string? GetSteamInstallPath()
     {
-        try
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
         {
-            // Try 32-bit registry view first (Steam is usually 32-bit app)
-            using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-            using var key = baseKey.OpenSubKey(REGISTRY_PATH);
-            return key?.GetValue("InstallPath") as string;
+            try
+            {
+                // Try 32-bit registry view first (Steam is usually 32-bit app)
+                using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+                using var key = baseKey.OpenSubKey(REGISTRY_PATH);
+                return key?.GetValue("InstallPath") as string;
+            }
+            catch 
+            {
+                return null; 
+            }
         }
-        catch 
+        else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
         {
-            return null; 
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var pathsToTry = new[]
+            {
+                Path.Combine(home, ".local", "share", "Steam"),
+                Path.Combine(home, ".steam", "steam"),
+                Path.Combine(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam")
+            };
+
+            foreach (var path in pathsToTry)
+            {
+                if (Directory.Exists(path))
+                    return path;
+            }
+            return null;
         }
+
+        return null;
     }
 
     private List<string> GetLibraryFolders(string steamPath)

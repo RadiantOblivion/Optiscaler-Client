@@ -7,7 +7,7 @@
     <x:String x:Key="TxtAppPrefs">應用程式偏好設定</x:String>
     <x:String x:Key="TxtCacheMgmt">本機快取管理</x:String>
     <x:String x:Key="TxtCacheDesc">檢視並刪除本機儲存中已下載的OptiScaler版本以釋放空間。</x:String>
-    <x:String x:Key="TxtManage">&#xE8B7;  管理</x:String>
+    <x:String x:Key="TxtManage">管理</x:String>
     <x:String x:Key="TxtLanguage">應用程式語言</x:String>
     <x:String x:Key="TxtLanguageDesc">變更使用者介面語言。</x:String>
     <x:String x:Key="TxtClose">關閉</x:String>
@@ -29,14 +29,16 @@
 
     <!-- MainWindow -->
     <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
-    <x:String x:Key="TxtBtnScan">⟳  掃描遊戲</x:String>
-    <x:String x:Key="TxtBtnAddManual">＋  手動新增</x:String>
+    <x:String x:Key="TxtBtnScan">掃描遊戲</x:String>
+    <x:String x:Key="TxtBtnAddManual">手動新增</x:String>
     <x:String x:Key="TxtTipSettings">設定</x:String>
     <x:String x:Key="TxtTipComponent">元件版本</x:String>
-    <x:String x:Key="TxtUpdateNukem">↑  更新NukemFG</x:String>
+    <x:String x:Key="TxtUpdateNukem">更新NukemFG</x:String>
     <x:String x:Key="TxtTipUpdateNukem">新的NukemFG版本可用。點擊提供更新的DLL。</x:String>
     <x:String x:Key="TxtDefaultGpu">偵測GPU中…</x:String>
     <x:String x:Key="TxtManageGame">管理</x:String>
+    <x:String x:Key="TxtQuickInstall">快速安裝</x:String>
+    <x:String x:Key="TxtQuickUninstall">快速卸載</x:String>
     <x:String x:Key="TxtStatusReady">就緒</x:String>
     <x:String x:Key="TxtScanningTitle">掃描遊戲中...</x:String>
     <x:String x:Key="TxtScanningDesc">在所有平台上尋找遊戲...</x:String>
@@ -50,7 +52,7 @@
     <x:String x:Key="TxtLocalVersions">本機版本</x:String>
     <x:String x:Key="TxtManageCacheDesc">管理已下載的OptiScaler快取</x:String>
     <x:String x:Key="TxtDownloadedVersions">已下載的OptiScaler版本：</x:String>
-    <x:String x:Key="TxtDeleteIcon">🗑️ 刪除</x:String>
+    <x:String x:Key="TxtDeleteIcon">刪除</x:String>
     <x:String x:Key="TxtNoVersions">目前沒有下載的版本。</x:String>
     <x:String x:Key="TxtToastSuccess">成功</x:String>
     <x:String x:Key="TxtConfirmDelTitle">確認刪除</x:String>
@@ -68,24 +70,24 @@
     <!-- ComponentInfoWindow -->
     <x:String x:Key="TxtComponentTitle">元件版本</x:String>
     <x:String x:Key="TxtComponentDesc">已安裝的OptiScaler工具組版本</x:String>
-    <x:String x:Key="TxtBtnGuide">📖 指南</x:String>
+    <x:String x:Key="TxtBtnGuide">指南</x:String>
     <x:String x:Key="TxtUpdateAvail">更新可用</x:String>
     <x:String x:Key="TxtAppVersionLbl">應用程式版本</x:String>
 
     <!-- ManageGameWindow -->
     <x:String x:Key="TxtManageGameWindow">管理遊戲</x:String>
-    <x:String x:Key="TxtOpenFolder">📂  開啟資料夾</x:String>
+    <x:String x:Key="TxtOpenFolder">開啟資料夾</x:String>
     <x:String x:Key="TxtOptiStatus">OptiScaler狀態</x:String>
     <x:String x:Key="TxtDetectedComponents">偵測到的元件</x:String>
     <x:String x:Key="TxtConfirmUninstallTitle">確認解除安裝</x:String>
     <x:String x:Key="TxtConfirmUninstallMsg">您確定要解除安裝OptiScaler嗎？&#x0a;只有備份的原始檔案將被還原。</x:String>
-    <x:String x:Key="TxtUninstall">✕ 解除安裝</x:String>
+    <x:String x:Key="TxtUninstall">解除安裝</x:String>
     <x:String x:Key="TxtVersionLbl">版本：</x:String>
     <x:String x:Key="TxtInjectionLbl">注入：</x:String>
-    <x:String x:Key="TxtInstallOpti">✦ 自動安裝</x:String>
-    <x:String x:Key="TxtBtnManualInstall">✦ 手動安裝</x:String>
-    <x:String x:Key="TxtUpdateOpti">↑ 自動更新 / 重新安裝</x:String>
-    <x:String x:Key="TxtUpdateOptiManual">↑ 手動更新 / 重新安裝</x:String>
+    <x:String x:Key="TxtInstallOpti">自動安裝</x:String>
+    <x:String x:Key="TxtBtnManualInstall">手動安裝</x:String>
+    <x:String x:Key="TxtUpdateOpti">自動更新 / 重新安裝</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">手動更新 / 重新安裝</x:String>
     <x:String x:Key="TxtFakenvapiTip">AMD/Intel GPU啟用DLSS FG與Nukem模組所需</x:String>
     <x:String x:Key="TxtNukemTip">Nukem的DLSSG-to-FSR3模組用於幀生成</x:String>
     <x:String x:Key="TxtFakenvapiHelpTip">欺騙遊戲偵測NVIDIA顯卡，允許您繞過硬體限制並在AMD或Intel GPU上啟用DLSS技術。</x:String>
@@ -112,7 +114,7 @@
     <x:String x:Key="TxtDownloadFrom">下載自： </x:String>
     <x:String x:Key="TxtReqFileLbl">所需檔案： </x:String>
     <x:String x:Key="TxtBrowse">瀏覽…</x:String>
-    <x:String x:Key="TxtConfirmBtn">✓ 確認</x:String>
+    <x:String x:Key="TxtConfirmBtn">確認</x:String>
     
     <x:String x:Key="TxtManualUpdateTitle">🔄 手動更新可用</x:String>
     <x:String x:Key="TxtManualUpdateInst">NukemFG的新版本在Nexus Mods上可用。&#x0a;請從下面的連結下載更新的檔案並選擇DLL（或ZIP）：</x:String>
@@ -180,7 +182,7 @@
     <x:String x:Key="TxtNoUpdateFound">應用程式已是最新版本。</x:String>
     <x:String x:Key="TxtUpdateCheckError">檢查更新時出現問題。請稍後再試。</x:String>
 
-    <x:String x:Key="TxtBtnBulkInstall">⚡  批量安裝</x:String>
+    <x:String x:Key="TxtBtnBulkInstall">批量安裝</x:String>
 
     <!-- BulkInstallWindow -->
     <x:String x:Key="TxtBulkInstallWindow">OptiScaler 批量安裝</x:String>

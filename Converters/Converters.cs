@@ -1,8 +1,12 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using FluentIcons.Common;
 using System;
 using System.Globalization;
 using System.IO;
-using Avalonia.Data.Converters;
-using Avalonia.Media.Imaging;
 
 namespace OptiscalerClient.Converters;
 
@@ -67,3 +71,46 @@ public class BitmapValueConverter : IValueConverter
     }
 }
 
+public class BoolToIconConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isInstalled = value is bool b && b;
+        return isInstalled ? Symbol.Delete : Symbol.Sparkle;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class BoolToStatusTextConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isInstalled = value is bool b && b;
+        string key = isInstalled ? "TxtQuickUninstall" : "TxtQuickInstall";
+        string defaultText = isInstalled ? "Quick Uninstall" : "Quick Install";
+
+        if (Application.Current?.TryFindResource(key, out var resource) == true && resource is string s)
+            return s;
+
+        return defaultText;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class BoolToAccentColorConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isInstalled = value is bool b && b;
+        string key = isInstalled ? "BrAccentWarm" : "BrAccent";
+
+        if (Application.Current?.TryFindResource(key, out var resource) == true)
+            return resource;
+
+        return isInstalled ? Brushes.Orange : Brushes.Purple;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
