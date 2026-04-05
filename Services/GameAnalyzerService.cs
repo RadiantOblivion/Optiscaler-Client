@@ -50,145 +50,153 @@ public class GameAnalyzerService
         game.XessVersion = null;
         game.XessPath = null;
         game.IsOptiscalerInstalled = false;
-        game.OptiscalerVersion = null; // Will be repopulated from manifest or log
+        game.OptiscalerVersion = null;
+
+        var discoveredFiles = new DiscoveredFiles();
+        
+        // Single Pass Discovery
+        DiscoverFiles(game.InstallPath, discoveredFiles, 0);
 
         HashSet<string> ignoredFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // ── Detect OptiScaler ──────────────────────────────────────────────────
         try
         {
-            var options = new EnumerationOptions
+            // ── Priority 1: manifest ────────────────────────────────────────────
+            if (discoveredFiles.Manifests.Count > 0)
             {
-                RecurseSubdirectories = true,
-                IgnoreInaccessible = true,
-                MatchCasing = MatchCasing.CaseInsensitive
-            };
-
-            // ── Detect OptiScaler ──────────────────────────────────────────────────
-            // Do this first so we can ignore its installed files when looking for native DLLs
-            try
-            {
-                // ── Priority 1: manifest ────────────────────────────────────────────
-                var manifestFiles = Directory.GetFiles(game.InstallPath, "optiscaler_manifest.json", options);
-                if (manifestFiles.Length > 0)
+                try
                 {
-                    try
+                    var manifestJson = File.ReadAllText(discoveredFiles.Manifests[0]);
+                    var manifest = System.Text.Json.JsonSerializer.Deserialize<Models.InstallationManifest>(manifestJson);
+                    if (manifest != null)
                     {
-                        var manifestJson = File.ReadAllText(manifestFiles[0]);
-                        var manifest = System.Text.Json.JsonSerializer.Deserialize<Models.InstallationManifest>(manifestJson);
-                        if (manifest != null)
+                        game.IsOptiscalerInstalled = true;
+                        if (!string.IsNullOrEmpty(manifest.OptiscalerVersion))
+                            game.OptiscalerVersion = manifest.OptiscalerVersion;
+
+                        string originDir = string.IsNullOrEmpty(manifest.InstalledGameDirectory)
+                            ? Path.GetDirectoryName(Path.GetDirectoryName(discoveredFiles.Manifests[0]))!
+                            : manifest.InstalledGameDirectory;
+
+                        if (!string.IsNullOrEmpty(originDir))
                         {
-                            game.IsOptiscalerInstalled = true;
-                            if (!string.IsNullOrEmpty(manifest.OptiscalerVersion))
-                                game.OptiscalerVersion = manifest.OptiscalerVersion;
-
-                            // Determine absolute game directory to construct absolute paths
-                            string originDir = string.IsNullOrEmpty(manifest.InstalledGameDirectory)
-                                ? Path.GetDirectoryName(Path.GetDirectoryName(manifestFiles[0]))!
-                                : manifest.InstalledGameDirectory;
-
-                            if (!string.IsNullOrEmpty(originDir))
+                            foreach (var relFile in manifest.InstalledFiles)
                             {
-                                foreach (var relFile in manifest.InstalledFiles)
-                                {
-                                    ignoredFiles.Add(Path.GetFullPath(Path.Combine(originDir, relFile)));
-                                }
+                                ignoredFiles.Add(Path.GetFullPath(Path.Combine(originDir, relFile)));
                             }
                         }
                     }
-                    catch { /* Corrupt manifest — fall through to next priority */ }
                 }
+                catch { }
+            }
 
-                // ── Priority 2: runtime log (overrides if it has richer version info) ──
-                if (!game.IsOptiscalerInstalled || string.IsNullOrEmpty(game.OptiscalerVersion))
+            // ── Priority 2: runtime log ──────────────────────────────────────────
+            if (!game.IsOptiscalerInstalled || string.IsNullOrEmpty(game.OptiscalerVersion))
+            {
+                if (discoveredFiles.Logs.Count > 0)
                 {
                     try
                     {
-                        var logs = Directory.GetFiles(game.InstallPath, "optiscaler.log", options);
-                        if (logs.Length > 0)
+                        foreach (var line in File.ReadLines(discoveredFiles.Logs[0]).Take(10))
                         {
-                            // Example log line: "[2024-...] [Init] OptiScaler v0.7.0-rc1"
-                            foreach (var line in File.ReadLines(logs[0]).Take(10))
+                            if (line.Contains("OptiScaler v", StringComparison.OrdinalIgnoreCase))
                             {
-                                if (line.Contains("OptiScaler v", StringComparison.OrdinalIgnoreCase))
+                                var idx = line.IndexOf("OptiScaler v", StringComparison.OrdinalIgnoreCase);
+                                if (idx != -1)
                                 {
-                                    var idx = line.IndexOf("OptiScaler v", StringComparison.OrdinalIgnoreCase);
-                                    if (idx != -1)
+                                    var verPart = line.Substring(idx + 12).Trim();
+                                    var endIdx = verPart.IndexOfAny(new[] { ' ', '\t', '\r', '\n' });
+                                    if (endIdx != -1) verPart = verPart.Substring(0, endIdx);
+                                    if (!string.IsNullOrEmpty(verPart))
                                     {
-                                        var verPart = line.Substring(idx + 12).Trim();
-                                        var endIdx = verPart.IndexOfAny(new[] { ' ', '\t', '\r', '\n' });
-                                        if (endIdx != -1) verPart = verPart.Substring(0, endIdx);
-                                        if (!string.IsNullOrEmpty(verPart))
-                                        {
-                                            game.IsOptiscalerInstalled = true;
-                                            game.OptiscalerVersion = verPart;
-                                        }
-                                        break;
+                                        game.IsOptiscalerInstalled = true;
+                                        game.OptiscalerVersion = verPart;
                                     }
+                                    break;
                                 }
                             }
                         }
                     }
                     catch { }
                 }
-
-                // ── Priority 3: OptiScaler.ini presence (no version — last resort) ──
-                if (!game.IsOptiscalerInstalled)
-                {
-                    var iniFiles = Directory.GetFiles(game.InstallPath, "OptiScaler.ini", options);
-                    if (iniFiles.Length > 0)
-                        game.IsOptiscalerInstalled = true;
-                }
             }
-            catch { /* Ignore OptiScaler detection errors */ }
 
-            // Efficiently search ONLY for the specific files we care about
-            // This avoids listing thousands of DLLs
-
-            // DLSS
-            FindBestVersion(game, game.InstallPath, _dlssNames, options, ignoredFiles, (g, path, ver) =>
+            // ── Priority 3: OptiScaler.ini ───────────────────────────────────────
+            if (!game.IsOptiscalerInstalled && discoveredFiles.Inis.Count > 0)
             {
-                g.DlssPath = path;
-                g.DlssVersion = ver;
-            });
-
-            // DLSS Frame Gen
-            FindBestVersion(game, game.InstallPath, _dlssFrameGenNames, options, ignoredFiles, (g, path, ver) => { g.DlssFrameGenPath = path; g.DlssFrameGenVersion = ver; });
-
-            // FSR
-            FindBestVersion(game, game.InstallPath, _fsrNames, options, ignoredFiles, (g, path, ver) => { g.FsrPath = path; g.FsrVersion = ver; });
-
-            // XeSS
-            FindBestVersion(game, game.InstallPath, _xessNames, options, ignoredFiles, (g, path, ver) => { g.XessPath = path; g.XessVersion = ver; });
-
+                game.IsOptiscalerInstalled = true;
+            }
         }
-        catch { /* General error */ }
+        catch { }
+
+        // ── Process DLLs ───────────────────────────────────────────────────────
+        
+        // DLSS
+        ProcessBestVersion(game, discoveredFiles.Dlls, _dlssNames, ignoredFiles, (g, path, ver) => { g.DlssPath = path; g.DlssVersion = ver; });
+        // DLSS Frame Gen
+        ProcessBestVersion(game, discoveredFiles.Dlls, _dlssFrameGenNames, ignoredFiles, (g, path, ver) => { g.DlssFrameGenPath = path; g.DlssFrameGenVersion = ver; });
+        // FSR
+        ProcessBestVersion(game, discoveredFiles.Dlls, _fsrNames, ignoredFiles, (g, path, ver) => { g.FsrPath = path; g.FsrVersion = ver; });
+        // XeSS
+        ProcessBestVersion(game, discoveredFiles.Dlls, _xessNames, ignoredFiles, (g, path, ver) => { g.XessPath = path; g.XessVersion = ver; });
     }
 
-    private void FindBestVersion(Game game, string path, string[] filePatterns, EnumerationOptions options, HashSet<string> ignoredFiles, Action<Game, string, string> updateAction)
+    private void DiscoverFiles(string path, DiscoveredFiles results, int depth)
+    {
+        if (depth > 5) return; // Safeguard
+
+        try
+        {
+            foreach (var file in Directory.EnumerateFiles(path, "*.*", SearchOption.TopDirectoryOnly))
+            {
+                var fileName = Path.GetFileName(file).ToLower();
+                
+                if (fileName == "optiscaler_manifest.json") results.Manifests.Add(file);
+                else if (fileName == "optiscaler.log") results.Logs.Add(file);
+                else if (fileName == "optiscaler.ini") results.Inis.Add(file);
+                else if (fileName.EndsWith(".dll"))
+                {
+                    if (!results.Dlls.ContainsKey(fileName)) results.Dlls[fileName] = new List<string>();
+                    results.Dlls[fileName].Add(file);
+                }
+            }
+
+            foreach (var dir in Directory.EnumerateDirectories(path))
+            {
+                var dirName = Path.GetFileName(dir).ToLower();
+                
+                // Smart Exclusions: Skip folders that never contain binaries or upscaler DLLs
+                if (dirName.StartsWith(".") || dirName == "data" || dirName == "content" || 
+                    dirName == "resources" || dirName == "shadercache" || dirName == "_commonredist" ||
+                    dirName == "textures" || dirName == "movies" || dirName == "ui")
+                    continue;
+
+                DiscoverFiles(dir, results, depth + 1);
+            }
+        }
+        catch { }
+    }
+
+    private void ProcessBestVersion(Game game, Dictionary<string, List<string>> discoveredDlls, string[] targetDllNames, HashSet<string> ignoredFiles, Action<Game, string, string> updateAction)
     {
         var highestVer = new Version(0, 0);
         string? bestPath = null;
         string? bestVerStr = null;
 
-        foreach (var pattern in filePatterns)
+        foreach (var dllName in targetDllNames)
         {
-            try
+            if (discoveredDlls.TryGetValue(dllName.ToLower(), out var files))
             {
-                var files = Directory.GetFiles(path, pattern, options);
                 foreach (var file in files)
                 {
                     if (ignoredFiles.Contains(Path.GetFullPath(file))) continue;
 
                     var versionStr = GetFileVersion(file);
-
-                    // Clean up version string if it contains "FSR ", e.g. "FSR 3.1.4"
                     string parseableVerStr = versionStr;
                     if (parseableVerStr.StartsWith("FSR ", StringComparison.OrdinalIgnoreCase))
-                    {
                         parseableVerStr = parseableVerStr.Substring(4).Trim();
-                    }
-
-                    // Also take only the first component if there are spaces, e.g. "3.1.0 (release)"
+                    
                     parseableVerStr = parseableVerStr.Split(' ')[0];
 
                     if (Version.TryParse(parseableVerStr, out var currentVer))
@@ -197,18 +205,16 @@ public class GameAnalyzerService
                         {
                             highestVer = currentVer;
                             bestPath = file;
-                            bestVerStr = versionStr; // keep original string for display
+                            bestVerStr = versionStr;
                         }
                     }
                     else if (bestPath == null)
                     {
-                        // Completely unparseable version string, but we found a valid file!
                         bestPath = file;
                         bestVerStr = "Unknown";
                     }
                 }
             }
-            catch { /* Ignore individual search errors */ }
         }
 
         if (bestPath != null && bestVerStr != null)
@@ -216,6 +222,15 @@ public class GameAnalyzerService
             updateAction(game, bestPath, bestVerStr);
         }
     }
+
+    private class DiscoveredFiles
+    {
+        public List<string> Manifests { get; } = new();
+        public List<string> Logs { get; } = new();
+        public List<string> Inis { get; } = new();
+        public Dictionary<string, List<string>> Dlls { get; } = new(StringComparer.OrdinalIgnoreCase);
+    }
+
 
     private string GetFileVersion(string filePath)
     {

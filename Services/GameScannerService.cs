@@ -114,26 +114,19 @@ public class GameScannerService
             {
                 try
                 {
-                    // Find .exe files with EnumerateFiles
-                    foreach (var exePath in Directory.EnumerateFiles(gameFolder, "*.exe", SearchOption.AllDirectories))
+                    // Find .exe files with a limit on depth to avoid scanning thousands of files
+                    // Heuristic: Most games have their main exe in the root or a subfolder like 'bin'
+                    var foundExe = FindMainExecutable(gameFolder);
+                    if (!string.IsNullOrEmpty(foundExe))
                     {
-                        var exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
-                        if (exeName.Contains("unins") || exeName.Contains("setup") || 
-                            exeName.Contains("installer") || exeName.Contains("crash") ||
-                            exeName.Contains("launcher") && !exeName.Contains("game"))
-                        {
-                            continue;
-                        }
-
                         games.Add(new Game
                         {
                             Name = Path.GetFileName(gameFolder),
-                            ExecutablePath = exePath,
+                            ExecutablePath = foundExe,
                             InstallPath = gameFolder,
                             Platform = GamePlatform.Custom,
                             AppId = "Custom_" + Path.GetFileName(gameFolder)
                         });
-                        break; // Only one exe per folder
                     }
                 }
                 catch { }
@@ -142,4 +135,53 @@ public class GameScannerService
         catch (Exception ex) { DebugWindow.Log($"[Scanner] Custom folder error: {ex.Message}"); }
         return games;
     }
+
+    private string? FindMainExecutable(string folderPath, int maxDepth = 2)
+    {
+        try
+        {
+            // 1st priority: Root folder .exe files
+            var rootExes = Directory.EnumerateFiles(folderPath, "*.exe", SearchOption.TopDirectoryOnly);
+            foreach (var exe in rootExes)
+            {
+                if (IsValidGameExe(exe)) return exe;
+            }
+
+            if (maxDepth <= 0) return null;
+
+            // 2nd priority: Subdirectories (limited depth)
+            foreach (var subDir in Directory.EnumerateDirectories(folderPath))
+            {
+                var dirName = Path.GetFileName(subDir).ToLower();
+                // Exclude large irrelevant folders
+                if (dirName.StartsWith(".") || dirName == "data" || dirName == "content" || 
+                    dirName == "_commonredist" || dirName == "engine" || dirName == "resources")
+                    continue;
+
+                try
+                {
+                    var exe = FindMainExecutable(subDir, maxDepth - 1);
+                    if (exe != null) return exe;
+                }
+                catch { }
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
+    private bool IsValidGameExe(string exePath)
+    {
+        var exeName = Path.GetFileNameWithoutExtension(exePath).ToLower();
+        if (exeName.Contains("unins") || exeName.Contains("setup") || 
+            exeName.Contains("installer") || exeName.Contains("crash") ||
+            exeName.Contains("unitycrashhandler") || exeName.Contains("easyanticheat") ||
+            (exeName.Contains("launcher") && !exeName.Contains("game")))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }
