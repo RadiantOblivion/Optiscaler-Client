@@ -1,0 +1,201 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <x:String x:Key="TxtSettingsTitle">Настройки</x:String>
+    <x:String x:Key="TxtSettingsDesc">Управление предпочтениями приложения</x:String>
+    <x:String x:Key="TxtAppPrefs">Настройки приложения</x:String>
+    <x:String x:Key="TxtCacheMgmt">Управление локальным кэшем</x:String>
+    <x:String x:Key="TxtCacheDesc">Просмотр и удаление загруженных версий OptiScaler из локального хранилища для освобождения места.</x:String>
+    <x:String x:Key="TxtManage">Управлять</x:String>
+    <x:String x:Key="TxtLanguage">Язык приложения</x:String>
+    <x:String x:Key="TxtLanguageDesc">Изменить язык пользовательского интерфейса.</x:String>
+    <x:String x:Key="TxtClose">Закрыть</x:String>
+    <x:String x:Key="TxtGotIt">Понятно</x:String>
+    <x:String x:Key="TxtAppRepoTitle">Репозиторий приложения</x:String>
+    <x:String x:Key="TxtAppRepoDesc">Целевой репозиторий GitHub для обновлений и обратной связи (Владелец/ИмяРепозитория).</x:String>
+    <!-- Guide Window -->
+    <x:String x:Key="TxtGuideTitle">Руководство</x:String>
+    <x:String x:Key="TxtGuideHeader">Как использовать Optiscaler Client</x:String>
+    <x:String x:Key="TxtGuideHeaderDesc">Простые шаги для улучшения ваших игр</x:String>
+    <x:String x:Key="TxtGuideStep1Title">1. Найдите свои игры</x:String>
+    <x:String x:Key="TxtGuideStep1Desc">Нажмите кнопку 'Сканировать игры', чтобы приложение автоматически нашло установленные игры из Steam, Epic, GOG или Xbox. Проверьте кнопку 'Добавить вручную', если у вас есть отдельная игра.</x:String>
+    <x:String x:Key="TxtGuideStep2Title">2. Управление игрой</x:String>
+    <x:String x:Key="TxtGuideStep2Desc">Рядом с вашей игрой в списке нажмите 'Управлять'. Откроется окно, позволяющее установить или обновить мод OptiScaler для этой конкретной игры.</x:String>
+    <x:String x:Key="TxtGuideStep3Title">3. Установить OptiScaler</x:String>
+    <x:String x:Key="TxtGuideStep3Desc">В окне управления выберите вашу версию OptiScaler и опции. Используйте 'Автоматическая установка' для быстрой настройки. Если автоматическая установка не удалась или не нашла правильный исполняемый файл (.exe), используйте 'Ручная установка' для выбора исполняемого файла игры самостоятельно.</x:String>
+    <x:String x:Key="TxtGuideStep4Title">4. Играть в игру</x:String>
+    <x:String x:Key="TxtGuideStep4Desc">После установки запустите вашу игру нормально. Внутри игры откройте меню OptiScaler, используя клавишу 'Insert', чтобы настроить ваши параметры!</x:String>
+
+    <!-- MainWindow -->
+    <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
+    <x:String x:Key="TxtBtnScan">Сканировать игры</x:String>
+    <x:String x:Key="TxtBtnAddManual">Добавить вручную</x:String>
+    <x:String x:Key="TxtTipSettings">Настройки</x:String>
+    <x:String x:Key="TxtTipComponent">Версии компонентов</x:String>
+    <x:String x:Key="TxtUpdateNukem">Обновить NukemFG</x:String>
+    <x:String x:Key="TxtTipUpdateNukem">Доступна новая версия NukemFG. Нажмите, чтобы предоставить обновленную DLL.</x:String>
+    <x:String x:Key="TxtDefaultGpu">Обнаружение GPU…</x:String>
+    <x:String x:Key="TxtManageGame">Управлять</x:String>
+    <x:String x:Key="TxtQuickInstall">Быстрая установка</x:String>
+    <x:String x:Key="TxtQuickUninstall">Быстрое удаление</x:String>
+    <x:String x:Key="TxtStatusReady">Готово</x:String>
+    <x:String x:Key="TxtScanningTitle">Сканирование игр...</x:String>
+    <x:String x:Key="TxtScanningDesc">Поиск игр на всех платформах...</x:String>
+    <x:String x:Key="TxtSearchGames">Поиск игр...</x:String>
+    <x:String x:Key="TxtRemoveGameTip">Удалить игру, добавленную вручную</x:String>
+    <x:String x:Key="TxtRemoveGameTitle">Удалить игру</x:String>
+    <x:String x:Key="TxtRemoveGameConfirm">Вы уверены, что хотите удалить '{0}' из списка?</x:String>
+
+    <!-- ManageCacheWindow -->
+    <x:String x:Key="TxtManageCacheTitle">Управление локальными версиями</x:String>
+    <x:String x:Key="TxtLocalVersions">Локальные версии</x:String>
+    <x:String x:Key="TxtManageCacheDesc">Управление загруженным кэшем OptiScaler</x:String>
+    <x:String x:Key="TxtDownloadedVersions">Загруженные версии OptiScaler:</x:String>
+    <x:String x:Key="TxtDeleteIcon">Удалить</x:String>
+    <x:String x:Key="TxtNoVersions">В настоящее время нет загруженных версий.</x:String>
+    <x:String x:Key="TxtToastSuccess">Успешно</x:String>
+    <x:String x:Key="TxtConfirmDelTitle">Подтвердить удаление</x:String>
+    <x:String x:Key="TxtConfirmDelMsg">Вы уверены, что хотите удалить эту версию?</x:String>
+    <x:String x:Key="TxtCancel">Отмена</x:String>
+    <x:String x:Key="TxtDeletePlain">Удалить</x:String>
+    <x:String x:Key="TxtConfirmDelFormat">Вы уверены, что хотите удалить OptiScaler v{0} из локального хранилища?</x:String>
+    <x:String x:Key="TxtDeletedSuccessFormat">OptiScaler v{0} успешно удален.</x:String>
+    <x:String x:Key="TxtFailedDeleteFormat">Не удалось удалить версию: {0}</x:String>
+    <x:String x:Key="TxtError">Ошибка</x:String>
+    <x:String x:Key="TxtCurrentSelection">Текущий выбор</x:String>
+    <x:String x:Key="TxtVersionStored">1 версия хранится локально.</x:String>
+    <x:String x:Key="TxtVersionsStored">{0} версий хранится локально.</x:String>
+
+    <!-- ComponentInfoWindow -->
+    <x:String x:Key="TxtComponentTitle">Версии компонентов</x:String>
+    <x:String x:Key="TxtComponentDesc">Установленные версии набора инструментов OptiScaler</x:String>
+    <x:String x:Key="TxtBtnGuide">Руководство</x:String>
+    <x:String x:Key="TxtUpdateAvail">Доступно обновление</x:String>
+    <x:String x:Key="TxtAppVersionLbl">Версия приложения</x:String>
+
+    <!-- ManageGameWindow -->
+    <x:String x:Key="TxtManageGameWindow">Управление игрой</x:String>
+    <x:String x:Key="TxtOpenFolder">Открыть папку</x:String>
+    <x:String x:Key="TxtOptiStatus">Статус OptiScaler</x:String>
+    <x:String x:Key="TxtDetectedComponents">Обнаруженные компоненты</x:String>
+    <x:String x:Key="TxtConfirmUninstallTitle">Подтвердить удаление</x:String>
+    <x:String x:Key="TxtConfirmUninstallMsg">Вы уверены, что хотите удалить OptiScaler?&#x0a;Будут восстановлены только оригинальные файлы из резервных копий.</x:String>
+    <x:String x:Key="TxtUninstall">Удалить</x:String>
+    <x:String x:Key="TxtVersionLbl">Версия:</x:String>
+    <x:String x:Key="TxtInjectionLbl">Инъекция:</x:String>
+    <x:String x:Key="TxtInstallOpti">Автоматическая установка</x:String>
+    <x:String x:Key="TxtBtnManualInstall">Ручная установка</x:String>
+    <x:String x:Key="TxtUpdateOpti">Автоматическое обновление / Переустановка</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">Ручное обновление / Переустановка</x:String>
+    <x:String x:Key="TxtFakenvapiTip">Требуется для GPU AMD/Intel для включения DLSS FG с модом Nukem</x:String>
+    <x:String x:Key="TxtNukemTip">Мод Nukem DLSSG-to-FSR3 для генерации кадров</x:String>
+    <x:String x:Key="TxtFakenvapiHelpTip">Обманывает игру, заставляя ее обнаруживать видеокарту NVIDIA, позволяя вам обойти аппаратные ограничения и включить технологии DLSS на GPU AMD или Intel.</x:String>
+    <x:String x:Key="TxtNukemHelpTip">Мод от Nukem, который заменяет нативную генерацию кадров DLSS на генерацию кадров AMD FSR 3, включая генерацию кадров на любом совместимом GPU.</x:String>
+
+    <x:String x:Key="TxtTooltipOptiScalerVersion">Выберите конкретную версию OptiScaler, которую вы хотите установить для этой игры.</x:String>
+    <x:String x:Key="TxtTooltipInjectionMethod">Определяет способ загрузки OptiScaler. Распространенные варианты — dxgi.dll или version.dll, в зависимости от совместимости игры.</x:String>
+    <x:String x:Key="TxtTooltipFsr4Int8">Внедряет DLL мода FSR 4 INT8. Это позволяет видеокартам, отличным от RDNA 4, использовать функции FSR 4. Выберите «Нет», если у вас видеокарта серии RX 9000 (RDNA 4).</x:String>
+
+    <x:String x:Key="TxtOptiInstalled">OptiScaler установлен</x:String>
+    <x:String x:Key="TxtOptiNotInstalled">Не установлен</x:String>
+    <x:String x:Key="TxtNoOptiDetected">Версия не обнаружена</x:String>
+    <x:String x:Key="TxtOptiLatest"> (Последняя)</x:String>
+    <x:String x:Key="TxtInstallingFormat">Загрузка OptiScaler v{0}... {1}%</x:String>
+    <x:String x:Key="TxtExtractingFormat">Извлечение и установка v{0}...</x:String>
+    <x:String x:Key="TxtInstallSuccessFormat">{0} успешно установлен!</x:String>
+    <x:String x:Key="TxtDownloadErrorPrefix">Не удалось загрузить OptiScaler: {0}</x:String>
+    <x:String x:Key="TxtOptiUninstallSuccess">OptiScaler успешно удален.</x:String>
+    <x:String x:Key="TxtOptiUninstallFail">Удаление не удалось: {0}</x:String>
+    <x:String x:Key="TxtInstallSuccessTitle">Установка успешна</x:String>
+
+    <!-- ManualDownloadDialog -->
+    <x:String x:Key="TxtManualTitle">Требуется ручной файл</x:String>
+    <x:String x:Key="TxtDownloadFrom">Загрузить с: </x:String>
+    <x:String x:Key="TxtReqFileLbl">Требуемый файл: </x:String>
+    <x:String x:Key="TxtBrowse">Обзор…</x:String>
+    <x:String x:Key="TxtConfirmBtn">Подтвердить</x:String>
+    
+    <x:String x:Key="TxtManualUpdateTitle"> Доступно ручное обновление</x:String>
+    <x:String x:Key="TxtManualUpdateInst">Новая версия NukemFG доступна на Nexus Mods.&#x0a;Пожалуйста, загрузите обновленный файл по ссылке ниже и выберите DLL (или ZIP):</x:String>
+    <x:String x:Key="TxtManualUpdateHint">Нажмите 'Обзор', чтобы выбрать DLL, ZIP или папку с обновленным файлом.</x:String>
+    <x:String x:Key="TxtBtnUpdate">Обновить</x:String>
+    <x:String x:Key="TxtBtnLater">Позже</x:String>
+
+    <!-- Help View Strings -->
+    <x:String x:Key="TxtAboutTitle">О программе</x:String>
+    <x:String x:Key="TxtFeedbackTitle">Обратная связь</x:String>
+    <x:String x:Key="TxtFeedbackDesc">Если вы хотите запросить функции или сообщить об ошибках, пожалуйста, откройте issue в репозитории GitHub.</x:String>
+    <x:String x:Key="TxtBuildDateLbl">Дата последней сборки</x:String>
+    <x:String x:Key="TxtCheckUpdatesBtn">Проверить обновления</x:String>
+    <x:String x:Key="TxtGithubBtn">Репозиторий GitHub</x:String>
+
+    <x:String x:Key="TxtManualReqTitle"> Требуется ручной файл</x:String>
+    <x:String x:Key="TxtManualReqInst">NukemFG не может быть загружен автоматически.&#x0a;Пожалуйста, загрузите файл с Nexus Mods и выберите DLL (или ZIP) ниже:</x:String>
+    <x:String x:Key="TxtManualReqHint">Нажмите 'Обзор', чтобы выбрать DLL напрямую, ZIP или извлеченную папку.</x:String>
+    <x:String x:Key="TxtBtnConfirm">Подтвердить</x:String>
+    <x:String x:Key="TxtBtnSkip">Пропустить</x:String>
+
+    <!-- CodeBehind additions -->
+    <x:String x:Key="TxtCheckingUpdates">Проверка обновлений…</x:String>
+    <x:String x:Key="TxtReady">Готово</x:String>
+    <x:String x:Key="TxtNukemUpdateSuccess">NukemFG успешно обновлен.</x:String>
+    <x:String x:Key="TxtActualizacionTitle">Обновление</x:String>
+    <x:String x:Key="TxtLoadedGamesFormat">Загружено {0} игр.</x:String>
+    <x:String x:Key="TxtScanningShort">Сканирование игр...</x:String>
+    <x:String x:Key="TxtScanCompleteFormat">Сканирование завершено. Всего игр: {0}</x:String>
+    <x:String x:Key="TxtErrorFormat">Ошибка: {0}</x:String>
+    <x:String x:Key="TxtSelectExe">Выбрать исполняемый файл игры</x:String>
+    <x:String x:Key="TxtGameDuplicate">Эта игра уже в списке.</x:String>
+    <x:String x:Key="TxtDuplicateTitle">Дубликат игры</x:String>
+    <x:String x:Key="TxtAddedRefFormat">{0} добавлен вручную.</x:String>
+    <x:String x:Key="TxtNoGpu"> GPU не обнаружен</x:String>
+    <x:String x:Key="TxtNoGpuTip">GPU не был обнаружен в этой системе</x:String>
+    <x:String x:Key="TxtGpuFail"> Сбой обнаружения GPU</x:String>
+    <x:String x:Key="TxtGpuFailTipFormat">Ошибка обнаружения GPU: {0}</x:String>
+    <x:String x:Key="TxtAutoScan">Автосканирование при запуске</x:String>
+    <x:String x:Key="TxtAutoScanDesc">Автоматически сканировать игры, если список пуст при запуске.</x:String>
+    <x:String x:Key="TxtAnimations">Включить анимации</x:String>
+    <x:String x:Key="TxtAnimationsDesc">Включить плавные переходы и анимации во всем интерфейсе</x:String>
+    <x:String x:Key="TxtBetaVersions">Показывать бета-версии</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">Включить бета-версии OptiScaler в селектор. Бета-версии могут быть нестабильны.</x:String>
+
+    <!-- Scan Sources -->
+    <x:String x:Key="TxtManageScanSources">Управление источниками сканирования</x:String>
+    <x:String x:Key="TxtManageScanSourcesDesc">Настройте, какие платформы и папки сканировать для игр</x:String>
+    <x:String x:Key="TxtDefaultSources">Источники по умолчанию</x:String>
+    <x:String x:Key="TxtCustomFolders">Пользовательские папки</x:String>
+    <x:String x:Key="TxtAddFolder">+ Добавить папку</x:String>
+    <x:String x:Key="TxtNoCustomFolders">Пользовательские папки еще не добавлены.</x:String>
+    <x:String x:Key="TxtRemove">Удалить</x:String>
+    <x:String x:Key="TxtSave">Сохранить</x:String>
+    <x:String x:Key="TxtScanSources">Источники сканирования</x:String>
+    <x:String x:Key="TxtScanSourcesDesc">Управление платформами и пользовательскими папками для сканирования</x:String>
+
+    <!-- App Update -->
+    <x:String x:Key="TxtUpdateAvailableTitle">Доступно обновление</x:String>
+    <x:String x:Key="TxtUpdateAvailableMsg">Доступна новая версия Optiscaler Client (v{0}).&#x0a;Хотите загрузить и установить ее сейчас?</x:String>
+    <x:String x:Key="TxtUpdatingApp">Обновление приложения...</x:String>
+    <x:String x:Key="TxtUpdateReady">Обновление готово</x:String>
+    <x:String x:Key="TxtUpdateReadyMsg">Обновление загружено. Приложение теперь перезапустится для завершения установки.</x:String>
+    <x:String x:Key="TxtUpdateError">Ошибка обновления</x:String>
+    <x:String x:Key="TxtNoUpdateFound">Приложение уже обновлено.</x:String>
+    <x:String x:Key="TxtUpdateCheckError">Возникла проблема при проверке обновлений. Пожалуйста, попробуйте позже.</x:String>
+
+    <x:String x:Key="TxtBtnBulkInstall">Массовая установка</x:String>
+
+    <!-- BulkInstallWindow -->
+    <x:String x:Key="TxtBulkInstallWindow">Массовая установка OptiScaler</x:String>
+    <x:String x:Key="TxtSelectAll">Выбрать все</x:String>
+    <x:String x:Key="TxtInstalled">Установлено</x:String>
+    <x:String x:Key="TxtInstallationSettings">Настройки установки</x:String>
+    <x:String x:Key="TxtVersion">Версия</x:String>
+    <x:String x:Key="TxtUpdateOpti">Авто Обновление / Переустановка</x:String>
+    <x:String x:Key="TxtInstallFakenvapi">Fakenvapi</x:String>
+    <x:String x:Key="TxtInstallNukemFG">NukemFG</x:String>
+    <x:String x:Key="TxtCreateBackup">Создать резервную копию</x:String>
+    <x:String x:Key="TxtInstallSelected">Установить выбранные</x:String>
+    <x:String x:Key="TxtNoGames">Нет игр</x:String>
+    <x:String x:Key="TxtNoGamesFound">Игры не найдены. Сначала выполните сканирование.</x:String>
+
+</ResourceDictionary>

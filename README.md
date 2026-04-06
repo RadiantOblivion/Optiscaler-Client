@@ -1,11 +1,11 @@
-# ✦ OptiScaler Client
+# OptiScaler Client
 
-[![GitHub Release](https://img.shields.io/github/v/release/RadiantOblivion/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/RadiantOblivion/Optiscaler-Client/releases/tag/v1.5.1)
+[![GitHub Release](https://img.shields.io/github/v/release/RadiantOblivion/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/RadiantOblivion/Optiscaler-Client/releases/tag/v1.5.2)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-yellow.svg?style=flat-square)](LICENSE)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://www.linux.org)
 
-> **⚠️ Disclaimer:** This is **not** an official OptiScaler project. I am not affiliated with the OptiScaler team. This is a personal project developed without any commercial purpose. Anyone is free to try and use this software at their own risk.
+> **Disclaimer:** This is **not** an official OptiScaler project. I am not affiliated with the OptiScaler team. This is a personal project developed without any commercial purpose. Anyone is free to try and use this software at their own risk.
 
 **OptiScaler Client** is a modern, high-performance cross-platform desktop utility designed to simplify the installation, management, and update of the **OptiScaler** mod across your entire game library. Built with **C#** and **Avalonia UI**, it provides a premium, native experience on both **Windows** and **Linux** (including Steam Deck).
 
@@ -13,21 +13,16 @@
 
 ## Screenshots
 
-* Main window
+<details>
+<summary><strong>Click to view screenshots</strong></summary>
 
-<img width="1266" height="752" alt="1 0 3_A" src="https://github.com/user-attachments/assets/09b0706a-e047-485c-9ac7-0847d80a3fc5" />
+<img width="1280" height="720" alt="Screenshot 1" src="frontend/assets/screenshots/1.png" />
+<img width="1280" height="720" alt="Screenshot 2" src="frontend/assets/screenshots/2.png" />
+<img width="1280" height="720" alt="Screenshot 3" src="frontend/assets/screenshots/3.png" />
 
-* Game management
+</details>
 
-<img width="1266" height="751" alt="1 0 3_B" src="https://github.com/user-attachments/assets/b4c86a32-13df-4ae2-921e-b89aacb7dfa1" />
-
-* Main window after installation
-
-<img width="1266" height="752" alt="1 0 3_C" src="https://github.com/user-attachments/assets/e88307c8-13af-4401-90a0-a6daaf8a4977" />
-
----
-
-## 🚀 Key Features
+## Key Features
 
 *   **Auto-Scanner**: Deeply scans Steam, Epic Games, GOG, EA, Ubisoft, Battle.net, and Xbox libraries to find your games instantly.
 *   **One-Click Install**: Automatically downloads and configures the latest OptiScaler versions for specific titles.
@@ -40,7 +35,7 @@
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 Follow these simple steps to enhance your games:
 
@@ -51,14 +46,14 @@ Follow these simple steps to enhance your games:
 
 ---
 
-## 🛠️ Installation & Requirements
+## Installation & Requirements
 
-### 🪟 Windows
+### Windows
 1.  Download the latest `OptiscalerClient-windows-x64.zip` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/releases) page.
 2.  Extract and run `OptiscalerClient.exe`.
 3.  **Requirements**: Windows 10/11. The app is self-contained (no .NET runtime installation required).
 
-### 🐧 Linux
+### Linux
 
 #### Steam Deck / Ubuntu / Fedora
 1.  Download the latest `OptiscalerClient-linux-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/releases) page.
@@ -68,13 +63,13 @@ OR
 4. Run `chmod +x install.sh && ./install.sh` to install the app to your applications menu.
 
 #### Arch
-1.  Download the latest `OptiscalerClient-arch-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/releases) page.
+1.  Download the latest `OptiscalerClient-linux-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/releases) page.
 2.  Extract PKGBUILD.
 3.  Run `makepkg -si`.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! If you'd like to improve OptiScaler Client:
 
@@ -86,7 +81,7 @@ We welcome contributions! If you'd like to improve OptiScaler Client:
 
 ---
 
-## 📄 License & Acknowledgments
+## License & Acknowledgments
 
 ### License
 
@@ -97,6 +92,7 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
 ### Acknowledgments & Third-Party Software
 
 *   **Special thanks and deep respect to the OptiScaler development team** for creating and maintaining this incredible software that enhances gaming experiences for countless users worldwide.
+*   **[Optiscaler-Client](https://github.com/Agustinm28/Optiscaler-Client)**: The original application that makes it easier to install and manage OptiScaler.
 *   **[OptiScaler](https://github.com/optiscaler/OptiScaler)**: The core upscaling technology that makes this possible.
 *   **[fakenvapi](https://github.com/optiscaler/fakenvapi)**: Essential compatibility layer developed by the OptiScaler team.
 *   **[NukemFG (DLSSG-to-FSR3)](https://github.com/Nukem9/dlssg-to-fsr3)**: Frame Generation bridge by Nukem.
@@ -106,5 +102,5 @@ This client application is merely a frontend interface to help users more easily
 ---
 
 <p align="center">
-  Developed with ❤️
+  Developed with 
 </p>

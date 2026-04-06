@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.RadiantOblivion.OptiscalerClient</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>OptiScaler Client</name>
+  <summary>Simplify installation &amp; management of OptiScaler across your games</summary>
+  <description>
+    <p>
+      OptiScaler Client is a modern, high-performance utility designed to simplify the installation, 
+      management, and update of the OptiScaler mod. It provides a native, premium experience 
+      for gamers looking to enhance their titles with advanced upscaling technologies.
+    </p>
+    <ul>
+      <li>Auto-Scanner for Steam, Epic, GOG, and more.</li>
+      <li>One-Click installation for OptiScaler versions.</li>
+      <li>Deep-Clean uninstall to safely remove files.</li>
+      <li>Full localization support.</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.RadiantOblivion.OptiscalerClient.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main window displaying game library.</caption>
+      <image>https://github.com/user-attachments/assets/09b0706a-e047-485c-9ac7-0847d80a3fc5</image>
+    </screenshot>
+    <screenshot>
+      <caption>Game management dashboard.</caption>
+      <image>https://github.com/user-attachments/assets/b4c86a32-13df-4ae2-921e-b89aacb7dfa1</image>
+    </screenshot>
+    <screenshot>
+      <caption>Post-installation status.</caption>
+      <image>https://github.com/user-attachments/assets/e88307c8-13af-4401-90a0-a6daaf8a4977</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://github.com/RadiantOblivion/Optiscaler-Client</url>
+  <url type="bugtracker">https://github.com/RadiantOblivion/Optiscaler-Client/issues</url>
+  <content_rating type="oars-1.1" />
+  <categories>
+    <category>Game</category>
+    <category>Settings</category>
+  </categories>
+  <releases>
+    <release version="1.5.2" date="2026-04-06" />
+  </releases>
+</component>

@@ -1,0 +1,293 @@
+using System.Management;
+using Microsoft.Win32;
+using System.Runtime.Versioning;
+
+namespace OptiscalerClient.Services
+{
+
+
+    /// <summary>
+    /// Service to detect GPU information using WMI
+    /// </summary>
+    [SupportedOSPlatform("windows")]
+    public class WindowsGpuDetectionService : IGpuDetectionService
+    {
+        /// <summary>
+        /// Detects all GPUs in the system
+        /// </summary>
+        public GpuInfo[] DetectGPUs()
+        {
+            try
+            {
+                var gpus = new System.Collections.Generic.List<GpuInfo>();
+
+                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController"))
+                {
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        var gpu = new GpuInfo();
+
+                        // Get GPU name
+                        gpu.Name = obj["Name"]?.ToString() ?? "Unknown GPU";
+
+                        // Detect vendor from name
+                        gpu.Vendor = DetectVendorFromName(gpu.Name);
+
+                        // Get driver version
+                        gpu.DriverVersion = obj["DriverVersion"]?.ToString() ?? "Unknown";
+
+                        // Get video memory (in bytes) using WMI + registry fallback.
+                        gpu.VideoMemoryBytes = GetBestVideoMemoryBytes(obj, gpu.Name);
+
+                        gpus.Add(gpu);
+                    }
+                }
+
+                return gpus.ToArray();
+            }
+            catch
+            {
+                return Array.Empty<GpuInfo>();
+            }
+        }
+
+        /// <summary>
+        /// Gets the primary (first) GPU
+        /// </summary>
+        public GpuInfo? GetPrimaryGPU()
+        {
+            var gpus = DetectGPUs();
+            return gpus.Length > 0 ? gpus[0] : null;
+        }
+
+        /// <summary>
+        /// Gets the most powerful discrete GPU (prefers NVIDIA > AMD > Intel)
+        /// </summary>
+        public GpuInfo? GetDiscreteGPU()
+        {
+            var gpus = DetectGPUs();
+
+            // Filter out integrated GPUs (usually have less VRAM)
+            var discreteGpus = gpus.Where(g => g.VideoMemoryBytes > 2L * 1024 * 1024 * 1024).ToArray(); // > 2GB
+
+            if (discreteGpus.Length == 0)
+                return gpus.Length > 0 ? gpus[0] : null;
+
+            // Prefer NVIDIA, then AMD, then Intel
+            var nvidia = discreteGpus.FirstOrDefault(g => g.Vendor == GpuVendor.NVIDIA);
+            if (nvidia != null) return nvidia;
+
+            var amd = discreteGpus.FirstOrDefault(g => g.Vendor == GpuVendor.AMD);
+            if (amd != null) return amd;
+
+            var intel = discreteGpus.FirstOrDefault(g => g.Vendor == GpuVendor.Intel);
+            if (intel != null) return intel;
+
+            return discreteGpus[0];
+        }
+
+        /// <summary>
+        /// Detects GPU vendor from the GPU name string
+        /// </summary>
+        private GpuVendor DetectVendorFromName(string gpuName)
+        {
+            if (string.IsNullOrEmpty(gpuName))
+                return GpuVendor.Unknown;
+
+            var nameLower = gpuName.ToLowerInvariant();
+
+            // NVIDIA detection
+            if (nameLower.Contains("nvidia") ||
+                nameLower.Contains("geforce") ||
+                nameLower.Contains("quadro") ||
+                nameLower.Contains("tesla") ||
+                nameLower.Contains("rtx") ||
+                nameLower.Contains("gtx"))
+            {
+                return GpuVendor.NVIDIA;
+            }
+
+            // AMD detection
+            if (nameLower.Contains("amd") ||
+                nameLower.Contains("radeon") ||
+                nameLower.Contains("rx ") ||
+                nameLower.Contains("vega") ||
+                nameLower.Contains("navi"))
+            {
+                return GpuVendor.AMD;
+            }
+
+            // Intel detection
+            if (nameLower.Contains("intel") ||
+                nameLower.Contains("iris") ||
+                nameLower.Contains("uhd graphics") ||
+                nameLower.Contains("hd graphics") ||
+                nameLower.Contains("arc"))
+            {
+                return GpuVendor.Intel;
+            }
+
+            return GpuVendor.Unknown;
+        }
+
+        /// <summary>
+        /// Checks if the system has a specific GPU vendor
+        /// </summary>
+        public bool HasGPU(GpuVendor vendor)
+        {
+            var gpus = DetectGPUs();
+            return gpus.Any(g => g.Vendor == vendor);
+        }
+
+        /// <summary>
+        /// Gets a user-friendly description of the GPU setup
+        /// </summary>
+        public string GetGPUDescription()
+        {
+            var gpus = DetectGPUs();
+
+            if (gpus.Length == 0)
+                return "No GPU detected";
+
+            if (gpus.Length == 1)
+                return $"{GetVendorIcon(gpus[0].Vendor)} {gpus[0].Name}";
+
+            // Multiple GPUs
+            var discrete = GetDiscreteGPU();
+            if (discrete != null)
+                return $"{GetVendorIcon(discrete.Vendor)} {discrete.Name} (+{gpus.Length - 1} more)";
+
+            return $"{gpus.Length} GPUs detected";
+        }
+
+        /// <summary>
+        /// Gets the best available video memory in bytes for a given GPU
+        /// </summary>
+        private ulong GetBestVideoMemoryBytes(ManagementObject gpuObject, string gpuName)
+        {
+            var adapterRamBytes = TryGetAdapterRam(gpuObject);
+            var registryBytes = TryGetVideoMemoryFromRegistry(gpuName);
+
+            if (adapterRamBytes == 0)
+                return registryBytes;
+
+            if (registryBytes == 0)
+                return adapterRamBytes;
+
+            // Some systems cap AdapterRAM around ~4 GB for larger cards.
+            return Math.Max(adapterRamBytes, registryBytes);
+        }
+
+        private ulong TryGetAdapterRam(ManagementObject gpuObject)
+        {
+            try
+            {
+                if (gpuObject["AdapterRAM"] == null)
+                    return 0;
+
+                return Convert.ToUInt64(gpuObject["AdapterRAM"]);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private ulong TryGetVideoMemoryFromRegistry(string gpuName)
+        {
+            try
+            {
+                using var videoRoot = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Video");
+                if (videoRoot == null)
+                    return 0;
+
+                foreach (var adapterGuid in videoRoot.GetSubKeyNames())
+                {
+                    using var adapterKey = videoRoot.OpenSubKey(adapterGuid);
+                    if (adapterKey == null)
+                        continue;
+
+                    foreach (var childName in adapterKey.GetSubKeyNames())
+                    {
+                        if (!childName.StartsWith("0", StringComparison.Ordinal))
+                            continue;
+
+                        using var settingsKey = adapterKey.OpenSubKey(childName);
+                        if (settingsKey == null)
+                            continue;
+
+                        var adapterString = settingsKey.GetValue("HardwareInformation.AdapterString")?.ToString();
+                        var driverDesc = settingsKey.GetValue("DriverDesc")?.ToString();
+
+                        if (!IsGpuNameMatch(gpuName, adapterString, driverDesc))
+                            continue;
+
+                        var value = settingsKey.GetValue("HardwareInformation.qwMemorySize");
+                        var bytes = TryConvertRegistryMemoryValue(value);
+                        if (bytes > 0)
+                            return bytes;
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore registry read errors and fallback to WMI value.
+            }
+
+            return 0;
+        }
+
+        private bool IsGpuNameMatch(string gpuName, string? adapterString, string? driverDesc)
+        {
+            if (string.IsNullOrWhiteSpace(gpuName))
+                return true;
+
+            return ContainsIgnoreCase(gpuName, adapterString)
+                || ContainsIgnoreCase(gpuName, driverDesc)
+                || ContainsIgnoreCase(adapterString, gpuName)
+                || ContainsIgnoreCase(driverDesc, gpuName);
+        }
+
+        private bool ContainsIgnoreCase(string? left, string? right)
+        {
+            if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+                return false;
+
+            return left.IndexOf(right, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private ulong TryConvertRegistryMemoryValue(object? value)
+        {
+            try
+            {
+                return value switch
+                {
+                    ulong u => u,
+                    long l when l > 0 => (ulong)l,
+                    uint ui => ui,
+                    int i when i > 0 => (ulong)i,
+                    byte[] bytes when bytes.Length >= 8 => BitConverter.ToUInt64(bytes, 0),
+                    _ => 0
+                };
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets an emoji/icon for the GPU vendor
+        /// </summary>
+        private string GetVendorIcon(GpuVendor vendor)
+        {
+            return vendor switch
+            {
+                GpuVendor.NVIDIA => "",
+                GpuVendor.AMD => "",
+                GpuVendor.Intel => "",
+                _ => ""
+            };
+        }
+    }
+}

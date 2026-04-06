@@ -1,0 +1,200 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <x:String x:Key="TxtSettingsTitle">Ayarlar</x:String>
+    <x:String x:Key="TxtSettingsDesc">Uygulama tercihlerini yönet</x:String>
+    <x:String x:Key="TxtAppPrefs">Uygulama Tercihleri</x:String>
+    <x:String x:Key="TxtCacheMgmt">Yerel Önbellek Yönetimi</x:String>
+    <x:String x:Key="TxtCacheDesc">Yerel depolamadan indirilen OptiScaler sürümlerini görüntüle ve silerek alan boşalt.</x:String>
+    <x:String x:Key="TxtManage">Yönet</x:String>
+    <x:String x:Key="TxtLanguage">Uygulama Dili</x:String>
+    <x:String x:Key="TxtLanguageDesc">Kullanıcı arayüzü dilini değiştir.</x:String>
+    <x:String x:Key="TxtClose">Kapat</x:String>
+    <x:String x:Key="TxtGotIt">Anladım</x:String>
+    <x:String x:Key="TxtAppRepoTitle">Uygulama Deposu</x:String>
+    <x:String x:Key="TxtAppRepoDesc">Güncellemeler ve geri bildirim için hedef GitHub deposu (Sahip/DepoAdı).</x:String>
+    <!-- Guide Window -->
+    <x:String x:Key="TxtGuideTitle">Kılavuz</x:String>
+    <x:String x:Key="TxtGuideHeader">Optiscaler Client Nasıl Kullanılır</x:String>
+    <x:String x:Key="TxtGuideHeaderDesc">Oyunlarınızı geliştirmek için basit adımlar</x:String>
+    <x:String x:Key="TxtGuideStep1Title">1. Oyunlarınızı Bulun</x:String>
+    <x:String x:Key="TxtGuideStep1Desc">'Oyunları Tara' düğmesine tıklayarak uygulamanın Steam, Epic, GOG veya Xbox'tan yüklenen oyunları otomatik olarak bulmasını sağlayın. Bağımsız bir oyununuz varsa 'Manuel Ekle' düğmesini işaretleyin.</x:String>
+    <x:String x:Key="TxtGuideStep2Title">2. Oyunu Yönet</x:String>
+    <x:String x:Key="TxtGuideStep2Desc">Listedeki oyununuzun yanında 'Yönet' öğesine tıklayın. Bu özel oyun için OptiScaler modunu yüklemenize veya güncellemenize izin veren bir pencere açılacaktır.</x:String>
+    <x:String x:Key="TxtGuideStep3Title">3. OptiScaler Yükleyin</x:String>
+    <x:String x:Key="TxtGuideStep3Desc">Yönetim penceresi içinde OptiScaler sürümünüzü ve seçeneklerinizi seçin. Hızlı kurulum için 'Otomatik Yükle' kullanın. Otomatik yükleme başarısız olursa veya doğru yürütülebilir dosyayı (.exe) bulamazsa, oyunun yürütülebilir dosyasını kendiniz seçmek için 'Manuel Yükle' kullanın.</x:String>
+    <x:String x:Key="TxtGuideStep4Title">4. Oyunu Oynayın</x:String>
+    <x:String x:Key="TxtGuideStep4Desc">Yüklemeden sonra oyununuzu normal şekilde başlatın. Oyun içinde 'Insert' tuşunu kullanarak OptiScaler menüsünü açın ve ayarlarınızı ayarlayın!</x:String>
+
+    <!-- MainWindow -->
+    <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
+    <x:String x:Key="TxtBtnScan">Oyunları Tara</x:String>
+    <x:String x:Key="TxtBtnAddManual">Manuel Ekle</x:String>
+    <x:String x:Key="TxtTipSettings">Ayarlar</x:String>
+    <x:String x:Key="TxtTipComponent">Bileşen Sürümleri</x:String>
+    <x:String x:Key="TxtUpdateNukem">NukemFG'yi Güncelle</x:String>
+    <x:String x:Key="TxtTipUpdateNukem">Yeni NukemFG sürümü mevcut. Güncellenmiş DLL'yi sağlamak için tıklayın.</x:String>
+    <x:String x:Key="TxtDefaultGpu">GPU algılanıyor…</x:String>
+    <x:String x:Key="TxtManageGame">Yönet</x:String>
+    <x:String x:Key="TxtQuickInstall">Hızlı Kurulum</x:String>
+    <x:String x:Key="TxtQuickUninstall">Hızlı Kaldırma</x:String>
+    <x:String x:Key="TxtStatusReady">Hazır</x:String>
+    <x:String x:Key="TxtScanningTitle">Oyunlar taranıyor...</x:String>
+    <x:String x:Key="TxtScanningDesc">Tüm platformlarda oyunlar aranıyor...</x:String>
+    <x:String x:Key="TxtSearchGames">Oyun ara...</x:String>
+    <x:String x:Key="TxtRemoveGameTip">Manuel eklenen oyunu kaldır</x:String>
+    <x:String x:Key="TxtRemoveGameTitle">Oyunu Kaldır</x:String>
+    <x:String x:Key="TxtRemoveGameConfirm">'{0}' öğesini listeden kaldırmak istediğinizden emin misiniz?</x:String>
+
+    <!-- ManageCacheWindow -->
+    <x:String x:Key="TxtManageCacheTitle">Yerel Sürümleri Yönet</x:String>
+    <x:String x:Key="TxtLocalVersions">Yerel Sürümler</x:String>
+    <x:String x:Key="TxtManageCacheDesc">İndirilen OptiScaler önbelleğini yönet</x:String>
+    <x:String x:Key="TxtDownloadedVersions">İndirilen OptiScaler Sürümleri:</x:String>
+    <x:String x:Key="TxtDeleteIcon">Sil</x:String>
+    <x:String x:Key="TxtNoVersions">Şu anda indirilen sürüm yok.</x:String>
+    <x:String x:Key="TxtToastSuccess">Başarılı</x:String>
+    <x:String x:Key="TxtConfirmDelTitle">Silme İşlemini Onayla</x:String>
+    <x:String x:Key="TxtConfirmDelMsg">Bu sürümü silmek istediğinizden emin misiniz?</x:String>
+    <x:String x:Key="TxtCancel">İptal</x:String>
+    <x:String x:Key="TxtDeletePlain">Sil</x:String>
+    <x:String x:Key="TxtConfirmDelFormat">OptiScaler v{0} öğesini yerel depolamadan silmek istediğinizden emin misiniz?</x:String>
+    <x:String x:Key="TxtDeletedSuccessFormat">OptiScaler v{0} başarıyla silindi.</x:String>
+    <x:String x:Key="TxtFailedDeleteFormat">Sürüm silinemedi: {0}</x:String>
+    <x:String x:Key="TxtError">Hata</x:String>
+    <x:String x:Key="TxtCurrentSelection">Şu anki seçim</x:String>
+    <x:String x:Key="TxtVersionStored">1 sürüm yerel olarak depolandı.</x:String>
+    <x:String x:Key="TxtVersionsStored">{0} sürüm yerel olarak depolandı.</x:String>
+
+    <!-- ComponentInfoWindow -->
+    <x:String x:Key="TxtComponentTitle">Bileşen Sürümleri</x:String>
+    <x:String x:Key="TxtComponentDesc">Yüklenen OptiScaler araç seti sürümleri</x:String>
+    <x:String x:Key="TxtBtnGuide">Kılavuz</x:String>
+    <x:String x:Key="TxtUpdateAvail">Güncelleme Mevcut</x:String>
+    <x:String x:Key="TxtAppVersionLbl">Uygulama Sürümü</x:String>
+
+    <!-- ManageGameWindow -->
+    <x:String x:Key="TxtManageGameWindow">Oyunu Yönet</x:String>
+    <x:String x:Key="TxtOpenFolder">Klasör Aç</x:String>
+    <x:String x:Key="TxtOptiStatus">OptiScaler Durumu</x:String>
+    <x:String x:Key="TxtDetectedComponents">Algılanan Bileşenler</x:String>
+    <x:String x:Key="TxtConfirmUninstallTitle">Kaldırma İşlemini Onayla</x:String>
+    <x:String x:Key="TxtConfirmUninstallMsg">OptiScaler'ı kaldırmak istediğinizden emin misiniz?&#x0a;Yalnızca yedeklenen orijinal dosyalar geri yüklenecektir.</x:String>
+    <x:String x:Key="TxtUninstall">Kaldır</x:String>
+    <x:String x:Key="TxtVersionLbl">Sürüm:</x:String>
+    <x:String x:Key="TxtInjectionLbl">Enjeksiyon:</x:String>
+    <x:String x:Key="TxtInstallOpti">Otomatik Yükle</x:String>
+    <x:String x:Key="TxtBtnManualInstall">Manuel Yükle</x:String>
+    <x:String x:Key="TxtUpdateOpti">Otomatik Güncelleme / Yeniden Yükle</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">Manuel Güncelleme / Yeniden Yükle</x:String>
+    <x:String x:Key="TxtFakenvapiTip">Nukem modu ile DLSS FG'yi etkinleştirmek için AMD/Intel GPU'lar gerekli</x:String>
+    <x:String x:Key="TxtNukemTip">Kare oluşturma için Nukem'in DLSSG-to-FSR3 modu</x:String>
+    <x:String x:Key="TxtFakenvapiHelpTip">Oyunu kandırarak NVIDIA grafik kartı algılamasını sağlar, donanım kısıtlamalarını atlatmanıza ve AMD veya Intel GPU'larda DLSS teknolojilerini etkinleştirmenize olanak tanır.</x:String>
+    <x:String x:Key="TxtNukemHelpTip">Nukem tarafından yapılan bir mod, yerel DLSS kare oluşturmayı AMD FSR 3 kare oluşturma ile değiştirerek, uyumlu herhangi bir GPU'da kare oluşturmayı etkinleştirir.</x:String>
+
+    <x:String x:Key="TxtTooltipOptiScalerVersion">Bu oyun için yüklemek istediğiniz belirli OptiScaler sürümünü seçin.</x:String>
+    <x:String x:Key="TxtTooltipInjectionMethod">OptiScaler'ın nasıl yüklendiğini belirler. Oyun uyumluluğuna bağlı olarak yaygın seçenekler dxgi.dll veya version.dll'dir.</x:String>
+    <x:String x:Key="TxtTooltipFsr4Int8">FSR 4 INT8 mod DLL'sini enjekte eder. Bu, RDNA 4 olmayan GPU'ların FSR 4 özelliklerini kullanmasına olanak tanır. RX 9000 serisi (RDNA 4) bir GPU'nuz varsa 'Yok'u seçin.</x:String>
+
+    <x:String x:Key="TxtOptiInstalled">OptiScaler Yüklü</x:String>
+    <x:String x:Key="TxtOptiNotInstalled">Yüklü Değil</x:String>
+    <x:String x:Key="TxtNoOptiDetected">Sürüm algılanmadı</x:String>
+    <x:String x:Key="TxtOptiLatest"> (En Son)</x:String>
+    <x:String x:Key="TxtInstallingFormat">OptiScaler v{0} indiriliyor... {1}%</x:String>
+    <x:String x:Key="TxtExtractingFormat">v{0} çıkarılıp yükleniyor...</x:String>
+    <x:String x:Key="TxtInstallSuccessFormat">{0} başarıyla yüklendi!</x:String>
+    <x:String x:Key="TxtDownloadErrorPrefix">OptiScaler indirilemedi: {0}</x:String>
+    <x:String x:Key="TxtOptiUninstallSuccess">OptiScaler başarıyla kaldırıldı.</x:String>
+    <x:String x:Key="TxtOptiUninstallFail">Kaldırma başarısız: {0}</x:String>
+    <x:String x:Key="TxtInstallSuccessTitle">Yükleme Başarılı</x:String>
+
+    <!-- ManualDownloadDialog -->
+    <x:String x:Key="TxtManualTitle">Manuel Dosya Gerekli</x:String>
+    <x:String x:Key="TxtDownloadFrom">Şuradan indir: </x:String>
+    <x:String x:Key="TxtReqFileLbl">Gerekli dosya: </x:String>
+    <x:String x:Key="TxtBrowse">Gözat…</x:String>
+    <x:String x:Key="TxtConfirmBtn">Onayla</x:String>
+    
+    <x:String x:Key="TxtManualUpdateTitle"> Manuel Güncelleme Mevcut</x:String>
+    <x:String x:Key="TxtManualUpdateInst">NukemFG'nin yeni bir sürümü Nexus Mods'ta mevcut.&#x0a;Lütfen aşağıdaki linkten güncellenmiş dosyayı indirin ve DLL'yi (veya ZIP'i) seçin:</x:String>
+    <x:String x:Key="TxtManualUpdateHint">'Gözat' düğmesine tıklayarak güncellenmiş dosyalı DLL, ZIP veya klasörü seçin.</x:String>
+    <x:String x:Key="TxtBtnUpdate">Güncelle</x:String>
+    <x:String x:Key="TxtBtnLater">Sonra</x:String>
+
+    <!-- Help View Strings -->
+    <x:String x:Key="TxtAboutTitle">Hakkında</x:String>
+    <x:String x:Key="TxtFeedbackTitle">Geri Bildirim</x:String>
+    <x:String x:Key="TxtFeedbackDesc">Özellik istemek veya hata bildirmek isterseniz, lütfen GitHub deposunda bir issue açın.</x:String>
+    <x:String x:Key="TxtBuildDateLbl">Son Derleme Tarihi</x:String>
+    <x:String x:Key="TxtCheckUpdatesBtn">Güncellemeleri kontrol et</x:String>
+    <x:String x:Key="TxtGithubBtn">GitHub Deposu</x:String>
+
+    <x:String x:Key="TxtManualReqTitle"> Manuel Dosya Gerekli</x:String>
+    <x:String x:Key="TxtManualReqInst">NukemFG otomatik olarak indirilemez.&#x0a;Lütfen Nexus Mods'tan dosyayı indirin ve aşağıdaki DLL'yi (veya ZIP'i) seçin:</x:String>
+    <x:String x:Key="TxtManualReqHint">'Gözat' düğmesine tıklayarak doğrudan DLL'yi, ZIP'i veya çıkarılan klasörü seçin.</x:String>
+    <x:String x:Key="TxtBtnConfirm">Onayla</x:String>
+    <x:String x:Key="TxtBtnSkip">Atla</x:String>
+
+    <!-- CodeBehind additions -->
+    <x:String x:Key="TxtCheckingUpdates">Güncellemeler kontrol ediliyor…</x:String>
+    <x:String x:Key="TxtReady">Hazır</x:String>
+    <x:String x:Key="TxtNukemUpdateSuccess">NukemFG başarıyla güncellendi.</x:String>
+    <x:String x:Key="TxtActualizacionTitle">Güncelleme</x:String>
+    <x:String x:Key="TxtLoadedGamesFormat">{0} oyun yüklendi.</x:String>
+    <x:String x:Key="TxtScanningShort">Oyunlar taranıyor...</x:String>
+    <x:String x:Key="TxtScanCompleteFormat">Tarama tamamlandı. Toplam oyun: {0}</x:String>
+    <x:String x:Key="TxtErrorFormat">Hata: {0}</x:String>
+    <x:String x:Key="TxtSelectExe">Oyun Yürütülebilir Dosyasını Seç</x:String>
+    <x:String x:Key="TxtGameDuplicate">Bu oyun zaten listede.</x:String>
+    <x:String x:Key="TxtDuplicateTitle">Yinelenen Oyun</x:String>
+    <x:String x:Key="TxtAddedRefFormat">{0} manuel olarak eklendi.</x:String>
+    <x:String x:Key="TxtNoGpu"> GPU algılanmadı</x:String>
+    <x:String x:Key="TxtNoGpuTip">Bu sistemde GPU algılanmadı</x:String>
+    <x:String x:Key="TxtGpuFail"> GPU algılama başarısız</x:String>
+    <x:String x:Key="TxtGpuFailTipFormat">GPU algılama hatası: {0}</x:String>
+    <x:String x:Key="TxtAutoScan">Başlangıçta Otomatik Tara</x:String>
+    <x:String x:Key="TxtAutoScanDesc">Başlangıçta liste boşsa otomatik olarak oyunları tara.</x:String>
+    <x:String x:Key="TxtAnimations">Animasyonları etkinleştir</x:String>
+    <x:String x:Key="TxtAnimationsDesc">Arayüz genelinde yumuşak geçişler ve animasyonları etkinleştir</x:String>
+    <x:String x:Key="TxtBetaVersions">Beta sürümlerini göster</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">Sürüm seçicide OptiScaler beta sürümlerini dahil et. Betalar kararsız olabilir.</x:String>
+
+    <!-- Scan Sources -->
+    <x:String x:Key="TxtManageScanSources">Tarama kaynaklarını yönet</x:String>
+    <x:String x:Key="TxtManageScanSourcesDesc">Oyunlar için hangi platformların ve klasörlerin taranacağını yapılandır</x:String>
+    <x:String x:Key="TxtDefaultSources">Varsayılan kaynaklar</x:String>
+    <x:String x:Key="TxtCustomFolders">Özel klasörler</x:String>
+    <x:String x:Key="TxtAddFolder">+ Klasör ekle</x:String>
+    <x:String x:Key="TxtNoCustomFolders">Henüz özel klasör eklenmedi.</x:String>
+    <x:String x:Key="TxtRemove">Kaldır</x:String>
+    <x:String x:Key="TxtSave">Kaydet</x:String>
+    <x:String x:Key="TxtScanSources">Tarama kaynakları</x:String>
+    <x:String x:Key="TxtScanSourcesDesc">Taranacak platformları ve özel klasörleri yönet</x:String>
+
+    <!-- App Update -->
+    <x:String x:Key="TxtUpdateAvailableTitle">Güncelleme Mevcut</x:String>
+    <x:String x:Key="TxtUpdateAvailableMsg">Optiscaler Client'ın yeni bir sürümü mevcut (v{0}).&#x0a;Şimdi indirmek ve yüklemek ister misiniz?</x:String>
+    <x:String x:Key="TxtUpdatingApp">Uygulama güncelleniyor...</x:String>
+    <x:String x:Key="TxtUpdateReady">Güncelleme Hazır</x:String>
+    <x:String x:Key="TxtUpdateReadyMsg">Güncelleme indirildi. Uygulama şimdi kurulumu tamamlamak için yeniden başlayacak.</x:String>
+    <x:String x:Key="TxtUpdateError">Güncelleme Hatası</x:String>
+    <x:String x:Key="TxtNoUpdateFound">Uygulama zaten güncel.</x:String>
+    <x:String x:Key="TxtUpdateCheckError">Güncellemeler kontrol edilirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</x:String>
+
+    <x:String x:Key="TxtBtnBulkInstall">Toplu Yükleme</x:String>
+
+    <!-- BulkInstallWindow -->
+    <x:String x:Key="TxtBulkInstallWindow">OptiScaler Toplu Yükleme</x:String>
+    <x:String x:Key="TxtSelectAll">Tümünü Seç</x:String>
+    <x:String x:Key="TxtInstalled">Yüklendi</x:String>
+    <x:String x:Key="TxtInstallationSettings">Kurulum Ayarları</x:String>
+    <x:String x:Key="TxtVersion">Sürüm</x:String>
+    <x:String x:Key="TxtInstallFakenvapi">Fakenvapi</x:String>
+    <x:String x:Key="TxtInstallNukemFG">NukemFG</x:String>
+    <x:String x:Key="TxtCreateBackup">Yedek oluştur</x:String>
+    <x:String x:Key="TxtInstallSelected">Seçilenleri Yükle</x:String>
+    <x:String x:Key="TxtNoGames">Oyun Yok</x:String>
+    <x:String x:Key="TxtNoGamesFound">Oyun bulunamadı. Lütfen önce oyunları tarayın.</x:String>
+
+</ResourceDictionary>

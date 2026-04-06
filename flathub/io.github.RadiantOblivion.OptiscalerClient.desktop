@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OptiScaler Client
+Comment=Manage OptiScaler installations for your games
+Exec=OptiscalerClient
+Icon=io.github.RadiantOblivion.OptiscalerClient
+Terminal=false
+Categories=Game;Settings;
+Keywords=OptiScaler;Upscaling;DLSS;FSR;XeSS;
+StartupNotify=true
+X-Flatpak=io.github.RadiantOblivion.OptiscalerClient

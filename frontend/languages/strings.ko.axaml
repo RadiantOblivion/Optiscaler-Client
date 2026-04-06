@@ -1,0 +1,200 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <x:String x:Key="TxtSettingsTitle">설정</x:String>
+    <x:String x:Key="TxtSettingsDesc">응용 프로그램 기본 설정 관리</x:String>
+    <x:String x:Key="TxtAppPrefs">응용 프로그램 기본 설정</x:String>
+    <x:String x:Key="TxtCacheMgmt">로컬 캐시 관리</x:String>
+    <x:String x:Key="TxtCacheDesc">다운로드한 OptiScaler 버전을 로컬 저장소에서 보기 및 삭제하여 공간을 확보합니다.</x:String>
+    <x:String x:Key="TxtManage">관리</x:String>
+    <x:String x:Key="TxtLanguage">응용 프로그램 언어</x:String>
+    <x:String x:Key="TxtLanguageDesc">사용자 인터페이스 언어를 변경합니다.</x:String>
+    <x:String x:Key="TxtClose">닫기</x:String>
+    <x:String x:Key="TxtGotIt">알겠습니다</x:String>
+    <x:String x:Key="TxtAppRepoTitle">응용 프로그램 저장소</x:String>
+    <x:String x:Key="TxtAppRepoDesc">업데이트 및 피드백을 위한 대상 GitHub 저장소 (소유자/저장소 이름).</x:String>
+    <!-- Guide Window -->
+    <x:String x:Key="TxtGuideTitle">가이드</x:String>
+    <x:String x:Key="TxtGuideHeader">Optiscaler Client 사용 방법</x:String>
+    <x:String x:Key="TxtGuideHeaderDesc">게임을 향상시키는 간단한 단계</x:String>
+    <x:String x:Key="TxtGuideStep1Title">1. 게임 찾기</x:String>
+    <x:String x:Key="TxtGuideStep1Desc">'게임 스캔' 버튼을 클릭하여 응용 프로그램이 Steam, Epic, GOG 또는 Xbox에서 설치된 게임을 자동으로 찾도록 하세요. 독립 실행형 게임이 있는 경우 '수동으로 추가' 버튼을 확인하세요.</x:String>
+    <x:String x:Key="TxtGuideStep2Title">2. 게임 관리</x:String>
+    <x:String x:Key="TxtGuideStep2Desc">목록에서 게임 옆에 있는 '관리'를 클릭하세요. 해당 특정 게임에 대한 OptiScaler 모드를 설치하거나 업데이트할 수 있는 창이 열립니다.</x:String>
+    <x:String x:Key="TxtGuideStep3Title">3. OptiScaler 설치</x:String>
+    <x:String x:Key="TxtGuideStep3Desc">관리 창 내에서 OptiScaler 버전과 옵션을 선택하세요. 빠른 설정을 위해 '자동 설치'를 사용하세요. 자동 설치가 실패하거나 올바른 실행 파일(.exe)을 찾을 수 없는 경우 '수동 설치'를 사용하여 게임 실행 파일을 직접 선택하세요.</x:String>
+    <x:String x:Key="TxtGuideStep4Title">4. 게임 플레이</x:String>
+    <x:String x:Key="TxtGuideStep4Desc">설치 후 게임을 정상적으로 시작하세요. 게임 내에서 'Insert' 키를 사용하여 OptiScaler 메뉴를 열고 설정을 조정하세요!</x:String>
+
+    <!-- MainWindow -->
+    <x:String x:Key="TxtAppTitle">Optiscaler Client</x:String>
+    <x:String x:Key="TxtBtnScan">게임 스캔</x:String>
+    <x:String x:Key="TxtBtnAddManual">수동으로 추가</x:String>
+    <x:String x:Key="TxtTipSettings">설정</x:String>
+    <x:String x:Key="TxtTipComponent">구성 요소 버전</x:String>
+    <x:String x:Key="TxtUpdateNukem">NukemFG 업데이트</x:String>
+    <x:String x:Key="TxtTipUpdateNukem">새로운 NukemFG 버전을 사용할 수 있습니다. 업데이트된 DLL을 제공하려면 클릭하세요.</x:String>
+    <x:String x:Key="TxtDefaultGpu">GPU 감지 중…</x:String>
+    <x:String x:Key="TxtManageGame">관리</x:String>
+    <x:String x:Key="TxtQuickInstall">빠른 설치</x:String>
+    <x:String x:Key="TxtQuickUninstall">빠른 제거</x:String>
+    <x:String x:Key="TxtStatusReady">준비 완료</x:String>
+    <x:String x:Key="TxtScanningTitle">게임 스캔 중...</x:String>
+    <x:String x:Key="TxtScanningDesc">모든 플랫폼에서 게임 검색 중...</x:String>
+    <x:String x:Key="TxtSearchGames">게임 검색...</x:String>
+    <x:String x:Key="TxtRemoveGameTip">수동으로 추가된 게임 제거</x:String>
+    <x:String x:Key="TxtRemoveGameTitle">게임 제거</x:String>
+    <x:String x:Key="TxtRemoveGameConfirm">목록에서 '{0}'을(를) 제거하시겠습니까?</x:String>
+
+    <!-- ManageCacheWindow -->
+    <x:String x:Key="TxtManageCacheTitle">로컬 버전 관리</x:String>
+    <x:String x:Key="TxtLocalVersions">로컬 버전</x:String>
+    <x:String x:Key="TxtManageCacheDesc">다운로드한 OptiScaler 캐시 관리</x:String>
+    <x:String x:Key="TxtDownloadedVersions">다운로드한 OptiScaler 버전:</x:String>
+    <x:String x:Key="TxtDeleteIcon">삭제</x:String>
+    <x:String x:Key="TxtNoVersions">현재 다운로드된 버전이 없습니다.</x:String>
+    <x:String x:Key="TxtToastSuccess">성공</x:String>
+    <x:String x:Key="TxtConfirmDelTitle">삭제 확인</x:String>
+    <x:String x:Key="TxtConfirmDelMsg">이 버전을 삭제하시겠습니까?</x:String>
+    <x:String x:Key="TxtCancel">취소</x:String>
+    <x:String x:Key="TxtDeletePlain">삭제</x:String>
+    <x:String x:Key="TxtConfirmDelFormat">로컬 저장소에서 OptiScaler v{0}을(를) 삭제하시겠습니까?</x:String>
+    <x:String x:Key="TxtDeletedSuccessFormat">OptiScaler v{0}이(가) 성공적으로 삭제되었습니다.</x:String>
+    <x:String x:Key="TxtFailedDeleteFormat">버전 삭제 실패: {0}</x:String>
+    <x:String x:Key="TxtError">오류</x:String>
+    <x:String x:Key="TxtCurrentSelection">현재 선택</x:String>
+    <x:String x:Key="TxtVersionStored">1개 버전이 로컬에 저장되었습니다.</x:String>
+    <x:String x:Key="TxtVersionsStored">{0}개 버전이 로컬에 저장되었습니다.</x:String>
+
+    <!-- ComponentInfoWindow -->
+    <x:String x:Key="TxtComponentTitle">구성 요소 버전</x:String>
+    <x:String x:Key="TxtComponentDesc">설치된 OptiScaler 툴킷 버전</x:String>
+    <x:String x:Key="TxtBtnGuide">가이드</x:String>
+    <x:String x:Key="TxtUpdateAvail">업데이트 가능</x:String>
+    <x:String x:Key="TxtAppVersionLbl">응용 프로그램 버전</x:String>
+
+    <!-- ManageGameWindow -->
+    <x:String x:Key="TxtManageGameWindow">게임 관리</x:String>
+    <x:String x:Key="TxtOpenFolder">폴더 열기</x:String>
+    <x:String x:Key="TxtOptiStatus">OptiScaler 상태</x:String>
+    <x:String x:Key="TxtDetectedComponents">감지된 구성 요소</x:String>
+    <x:String x:Key="TxtConfirmUninstallTitle">제거 확인</x:String>
+    <x:String x:Key="TxtConfirmUninstallMsg">OptiScaler를 제거하시겠습니까?&#x0a;백업된 원본 파일만 복원됩니다.</x:String>
+    <x:String x:Key="TxtUninstall">제거</x:String>
+    <x:String x:Key="TxtVersionLbl">버전:</x:String>
+    <x:String x:Key="TxtInjectionLbl">주입:</x:String>
+    <x:String x:Key="TxtInstallOpti">자동 설치</x:String>
+    <x:String x:Key="TxtBtnManualInstall">수동 설치</x:String>
+    <x:String x:Key="TxtUpdateOpti">자동 업데이트 / 재설치</x:String>
+    <x:String x:Key="TxtUpdateOptiManual">수동 업데이트 / 재설치</x:String>
+    <x:String x:Key="TxtFakenvapiTip">Nukem 모드로 DLSS FG를 활성화하기 위해 AMD/Intel GPU에 필요</x:String>
+    <x:String x:Key="TxtNukemTip">프레임 생성을 위한 Nukem의 DLSSG-to-FSR3 모드</x:String>
+    <x:String x:Key="TxtFakenvapiHelpTip">게임이 NVIDIA 그래픽 카드를 감지하도록 속여 하드웨어 제한을 우회하고 AMD 또는 Intel GPU에서 DLSS 기술을 활성화할 수 있도록 합니다.</x:String>
+    <x:String x:Key="TxtNukemHelpTip">Nukem의 모드로, 기본 DLSS 프레임 생성을 AMD FSR 3 프레임 생성으로 대체하여 호환되는 모든 GPU에서 프레임 생성을 활성화합니다.</x:String>
+
+    <x:String x:Key="TxtTooltipOptiScalerVersion">이 게임에 설치할 특정 OptiScaler 버전을 선택하세요.</x:String>
+    <x:String x:Key="TxtTooltipInjectionMethod">OptiScaler가 로드되는 방식을 결정합니다. 게임 호환성에 따라 일반적인 선택은 dxgi.dll 또는 version.dll입니다.</x:String>
+    <x:String x:Key="TxtTooltipFsr4Int8">FSR 4 INT8 모드 DLL을 주입합니다. 이를 통해 RDNA 4가 아닌 GPU에서도 FSR 4 기능을 사용할 수 있습니다. RX 9000 시리즈(RDNA 4) GPU가 있는 경우 '없음'을 선택하세요.</x:String>
+
+    <x:String x:Key="TxtOptiInstalled">OptiScaler 설치됨</x:String>
+    <x:String x:Key="TxtOptiNotInstalled">설치되지 않음</x:String>
+    <x:String x:Key="TxtNoOptiDetected">버전이 감지되지 않음</x:String>
+    <x:String x:Key="TxtOptiLatest"> (최신)</x:String>
+    <x:String x:Key="TxtInstallingFormat">OptiScaler v{0} 다운로드 중... {1}%</x:String>
+    <x:String x:Key="TxtExtractingFormat">v{0} 추출 및 설치 중...</x:String>
+    <x:String x:Key="TxtInstallSuccessFormat">{0}이(가) 성공적으로 설치되었습니다!</x:String>
+    <x:String x:Key="TxtDownloadErrorPrefix">OptiScaler 다운로드 실패: {0}</x:String>
+    <x:String x:Key="TxtOptiUninstallSuccess">OptiScaler가 성공적으로 제거되었습니다.</x:String>
+    <x:String x:Key="TxtOptiUninstallFail">제거 실패: {0}</x:String>
+    <x:String x:Key="TxtInstallSuccessTitle">설치 성공</x:String>
+
+    <!-- ManualDownloadDialog -->
+    <x:String x:Key="TxtManualTitle">수동 파일 필요</x:String>
+    <x:String x:Key="TxtDownloadFrom">다운로드 위치: </x:String>
+    <x:String x:Key="TxtReqFileLbl">필요한 파일: </x:String>
+    <x:String x:Key="TxtBrowse">찾아보기…</x:String>
+    <x:String x:Key="TxtConfirmBtn">확인</x:String>
+    
+    <x:String x:Key="TxtManualUpdateTitle"> 수동 업데이트 가능</x:String>
+    <x:String x:Key="TxtManualUpdateInst">NukemFG의 새 버전이 Nexus Mods에서 사용 가능합니다.&#x0a;아래 링크에서 업데이트된 파일을 다운로드하고 DLL(또는 ZIP)을 선택하세요:</x:String>
+    <x:String x:Key="TxtManualUpdateHint">'찾아보기'를 클릭하여 업데이트된 파일이 있는 DLL, ZIP 또는 폴더를 선택하세요.</x:String>
+    <x:String x:Key="TxtBtnUpdate">업데이트</x:String>
+    <x:String x:Key="TxtBtnLater">나중에</x:String>
+
+    <!-- Help View Strings -->
+    <x:String x:Key="TxtAboutTitle">정보</x:String>
+    <x:String x:Key="TxtFeedbackTitle">피드백</x:String>
+    <x:String x:Key="TxtFeedbackDesc">기능을 요청하거나 버그를 보고하려면 GitHub 저장소에서 issue를 열어주세요.</x:String>
+    <x:String x:Key="TxtBuildDateLbl">마지막 빌드 날짜</x:String>
+    <x:String x:Key="TxtCheckUpdatesBtn">업데이트 확인</x:String>
+    <x:String x:Key="TxtGithubBtn">GitHub 저장소</x:String>
+
+    <x:String x:Key="TxtManualReqTitle"> 수동 파일 필요</x:String>
+    <x:String x:Key="TxtManualReqInst">NukemFG는 자동으로 다운로드할 수 없습니다.&#x0a;Nexus Mods에서 파일을 다운로드하고 아래의 DLL(또는 ZIP)을 선택하세요:</x:String>
+    <x:String x:Key="TxtManualReqHint">'찾아보기'를 클릭하여 DLL을 직접, ZIP 또는 추출된 폴더를 선택하세요.</x:String>
+    <x:String x:Key="TxtBtnConfirm">확인</x:String>
+    <x:String x:Key="TxtBtnSkip">건너뛰기</x:String>
+
+    <!-- CodeBehind additions -->
+    <x:String x:Key="TxtCheckingUpdates">업데이트 확인 중…</x:String>
+    <x:String x:Key="TxtReady">준비 완료</x:String>
+    <x:String x:Key="TxtNukemUpdateSuccess">NukemFG가 성공적으로 업데이트되었습니다.</x:String>
+    <x:String x:Key="TxtActualizacionTitle">업데이트</x:String>
+    <x:String x:Key="TxtLoadedGamesFormat">{0}개 게임이 로드되었습니다.</x:String>
+    <x:String x:Key="TxtScanningShort">게임 스캔 중...</x:String>
+    <x:String x:Key="TxtScanCompleteFormat">스캔 완료. 총 게임: {0}</x:String>
+    <x:String x:Key="TxtErrorFormat">오류: {0}</x:String>
+    <x:String x:Key="TxtSelectExe">게임 실행 파일 선택</x:String>
+    <x:String x:Key="TxtGameDuplicate">이 게임은 이미 목록에 있습니다.</x:String>
+    <x:String x:Key="TxtDuplicateTitle">중복 게임</x:String>
+    <x:String x:Key="TxtAddedRefFormat">{0}이(가) 수동으로 추가되었습니다.</x:String>
+    <x:String x:Key="TxtNoGpu"> GPU 감지되지 않음</x:String>
+    <x:String x:Key="TxtNoGpuTip">이 시스템에서 GPU가 감지되지 않았습니다</x:String>
+    <x:String x:Key="TxtGpuFail"> GPU 감지 실패</x:String>
+    <x:String x:Key="TxtGpuFailTipFormat">GPU 감지 오류: {0}</x:String>
+    <x:String x:Key="TxtAutoScan">시작 시 자동 스캔</x:String>
+    <x:String x:Key="TxtAutoScanDesc">시작 시 목록이 비어 있으면 자동으로 게임을 스캔합니다.</x:String>
+    <x:String x:Key="TxtAnimations">애니메이션 활성화</x:String>
+    <x:String x:Key="TxtAnimationsDesc">전체 인터페이스에서 부드러운 전환 및 애니메이션 활성화</x:String>
+    <x:String x:Key="TxtBetaVersions">베타 버전 표시</x:String>
+    <x:String x:Key="TxtBetaVersionsDesc">선택기에 OptiScaler 베타 버전을 포함합니다. 베타는 불안정할 수 있습니다.</x:String>
+
+    <!-- Scan Sources -->
+    <x:String x:Key="TxtManageScanSources">스캔 소스 관리</x:String>
+    <x:String x:Key="TxtManageScanSourcesDesc">게임을 스캔할 플랫폼 및 폴더 구성</x:String>
+    <x:String x:Key="TxtDefaultSources">기본 소스</x:String>
+    <x:String x:Key="TxtCustomFolders">사용자 지정 폴더</x:String>
+    <x:String x:Key="TxtAddFolder">+ 폴더 추가</x:String>
+    <x:String x:Key="TxtNoCustomFolders">아직 사용자 지정 폴더가 추가되지 않았습니다.</x:String>
+    <x:String x:Key="TxtRemove">제거</x:String>
+    <x:String x:Key="TxtSave">저장</x:String>
+    <x:String x:Key="TxtScanSources">스캔 소스</x:String>
+    <x:String x:Key="TxtScanSourcesDesc">스캔할 플랫폼 및 사용자 지정 폴더 관리</x:String>
+
+    <!-- App Update -->
+    <x:String x:Key="TxtUpdateAvailableTitle">업데이트 가능</x:String>
+    <x:String x:Key="TxtUpdateAvailableMsg">Optiscaler Client의 새 버전을 사용할 수 있습니다 (v{0}).&#x0a;지금 다운로드하여 설치하시겠습니까?</x:String>
+    <x:String x:Key="TxtUpdatingApp">응용 프로그램 업데이트 중...</x:String>
+    <x:String x:Key="TxtUpdateReady">업데이트 준비 완료</x:String>
+    <x:String x:Key="TxtUpdateReadyMsg">업데이트가 다운로드되었습니다. 설치를 완료하기 위해 응용 프로그램이 지금 다시 시작됩니다.</x:String>
+    <x:String x:Key="TxtUpdateError">업데이트 오류</x:String>
+    <x:String x:Key="TxtNoUpdateFound">응용 프로그램이 이미 최신 버전입니다.</x:String>
+    <x:String x:Key="TxtUpdateCheckError">업데이트를 확인하는 데 문제가 발생했습니다. 나중에 다시 시도하세요.</x:String>
+
+    <x:String x:Key="TxtBtnBulkInstall">일괄 설치</x:String>
+
+    <!-- BulkInstallWindow -->
+    <x:String x:Key="TxtBulkInstallWindow">OptiScaler 일괄 설치</x:String>
+    <x:String x:Key="TxtSelectAll">전체 선택</x:String>
+    <x:String x:Key="TxtInstalled">설치됨</x:String>
+    <x:String x:Key="TxtInstallationSettings">설치 설정</x:String>
+    <x:String x:Key="TxtVersion">버전</x:String>
+    <x:String x:Key="TxtInstallFakenvapi">Fakenvapi</x:String>
+    <x:String x:Key="TxtInstallNukemFG">NukemFG</x:String>
+    <x:String x:Key="TxtCreateBackup">백업 만들기</x:String>
+    <x:String x:Key="TxtInstallSelected">선택 항목 설치</x:String>
+    <x:String x:Key="TxtNoGames">게임 없음</x:String>
+    <x:String x:Key="TxtNoGamesFound">게임을 찾을 수 없습니다. 먼저 게임을 스캔해 주세요.</x:String>
+
+</ResourceDictionary>

@@ -2,12 +2,12 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>1.5.0</Version>
-    <FileVersion>1.5.0.0</FileVersion>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <Version>1.5.2</Version>
+    <FileVersion>1.5.2.0</FileVersion>
+    <AssemblyVersion>1.5.2.0</AssemblyVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>assets\icon.ico</ApplicationIcon>
+    <ApplicationIcon>frontend/assets/icon.ico</ApplicationIcon>
 
     <!-- Build Optimizations -->
     <PublishSingleFile>true</PublishSingleFile>
@@ -20,14 +20,14 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
-  </PropertyGroup>
+  </PropertyGroup> 
 
   <ItemGroup>
-    <None Update="config.json">
+    <None Update="backend\config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <AvaloniaResource Include="assets\**" />
-    <AvaloniaResource Include="Languages\**" />
+    <AvaloniaResource Include="frontend\assets\**" />
+    <AvaloniaResource Include="frontend\languages\**" />
   </ItemGroup>
 
   <ItemGroup>
