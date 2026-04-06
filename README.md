@@ -1,6 +1,6 @@
 # ✦ OptiScaler Client
 
-[![GitHub Release](https://img.shields.io/github/v/release/Agustinm28/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/Agustinm28/Optiscaler-Client/releases/tag/OptiscalerClient-1.0.3.1)
+[![GitHub Release](https://img.shields.io/github/v/release/RadiantOblivion/Optiscaler-Client?style=flat-square&color=8A2BE2)](https://github.com/RadiantOblivion/Optiscaler-Client/releases/tag/v1.5.1)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-yellow.svg?style=flat-square)](LICENSE)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://www.linux.org)
@@ -54,23 +54,21 @@ Follow these simple steps to enhance your games:
 ## 🛠️ Installation & Requirements
 
 ### 🪟 Windows
-1.  Download the latest `OptiscalerClient-win-x64.zip` from the [Releases](https://github.com/Agustinm28/Optiscaler-Client/releases) page.
+1.  Download the latest `OptiscalerClient-windows-x64.zip` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/Releases) page.
 2.  Extract and run `OptiscalerClient.exe`.
 3.  **Requirements**: Windows 10/11. The app is self-contained (no .NET runtime installation required).
 
-### 🐧 Linux (Steam Deck & Desktop)
+### 🐧 Linux
 
-#### Steam Deck
-1.  Download the latest `OptiscalerClient-linux-x64.tar.gz` from the [Releases](https://github.com/Agustinm28/Optiscaler-Client/releases) page.
+#### Steam Deck / Ubuntu / Fedora
+1.  Download the latest `OptiscalerClient-linux-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/Releases) page.
 2.  Extract the contents to a folder.
 3.  Run `OptiscalerClient`. (On Steam Deck, you can add it as a Non-Steam Game for easy access).
-4.  **Requirements**: Recent Linux distribution (Arch, Ubuntu 22.04+, Fedora 38+, SteamOS 3.x).
 
-#### Desktop
-1.  Download the latest `OptiscalerClient-arch-x64.tar.gz` from the [Releases](https://github.com/Agustinm28/Optiscaler-Client/releases) page.
+#### Arch
+1.  Download the latest `OptiscalerClient-arch-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/Releases) page.
 2.  Extract PKGBUILD.
 3.  Run `makepkg -si`.
-4.  **Requirements**: Arch Linux or derivatives.
 
 ---
 
