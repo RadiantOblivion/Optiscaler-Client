@@ -126,6 +126,8 @@ namespace OptiscalerClient.Services
 
             // Load existing manifest if present to preserve chain of custody for tracked files
             var manifestPath = Path.Combine(backupDir, ManifestFileName);
+            var alreadyInstalledFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             if (File.Exists(manifestPath))
             {
                 try
@@ -134,13 +136,23 @@ namespace OptiscalerClient.Services
                     var oldManifest = JsonSerializer.Deserialize(oldManifestJson, OptimizerContext.Default.InstallationManifest);
                     if (oldManifest != null)
                     {
-                        // Preserve tracking of ALL previously installed files and directories
+                        // 1. Preserve tracking of ALL previously installed files and directories
                         // to ensure clean uninstalls of older versions.
                         foreach (var ifile in oldManifest.InstalledFiles)
+                        {
                             if (!manifest.InstalledFiles.Contains(ifile)) manifest.InstalledFiles.Add(ifile);
+                            alreadyInstalledFiles.Add(ifile);
+                        }
 
                         foreach (var idir in oldManifest.InstalledDirectories)
                             if (!manifest.InstalledDirectories.Contains(idir)) manifest.InstalledDirectories.Add(idir);
+
+                        // 2. Preserve chain of custody for BackedUpFiles.
+                        // If a file was originally backed up (it was a game file), we must keep that record.
+                        foreach (var bfile in oldManifest.BackedUpFiles)
+                        {
+                            if (!manifest.BackedUpFiles.Contains(bfile)) manifest.BackedUpFiles.Add(bfile);
+                        }
                     }
                 }
                 catch { /* Ignore corrupt manifest */ }
@@ -168,7 +180,7 @@ namespace OptiscalerClient.Services
             DebugWindow.Log($"[Install] Installing main DLL as: {injectionDllName}");
             
             // Backup and Document!
-            DocumentAndBackupFile(injectionDllName, gameDir, backupDir, manifest);
+            DocumentAndBackupFile(injectionDllName, gameDir, backupDir, manifest, alreadyInstalledFiles);
 
             // Install
             File.Copy(optiscalerMainDll, injectionDllPath, true);
@@ -195,7 +207,7 @@ namespace OptiscalerClient.Services
                 }
 
                 // Backup and Document!
-                DocumentAndBackupFile(relativePath, gameDir, backupDir, manifest);
+                DocumentAndBackupFile(relativePath, gameDir, backupDir, manifest, alreadyInstalledFiles);
 
                 // Install
                 File.Copy(sourcePath, destPath, true);
@@ -222,17 +234,8 @@ namespace OptiscalerClient.Services
                     {
                         var destPath = Path.Combine(gameDir, fileName);
 
-                        // Backup if exists
-                        if (File.Exists(destPath))
-                        {
-                            var backupPath = Path.Combine(backupDir, fileName);
-                            if (!File.Exists(backupPath))
-                            {
-                                File.Copy(destPath, backupPath);
-                                manifest.BackedUpFiles.Add(fileName);
+                                DocumentAndBackupFile(fileName, gameDir, backupDir, manifest, alreadyInstalledFiles);
                                 DebugWindow.Log($"[Install] Backed up existing Fakenvapi file: {fileName}");
-                            }
-                        }
 
                         File.Copy(sourcePath, destPath, true);
                         manifest.InstalledFiles.Add(fileName);
@@ -261,17 +264,8 @@ namespace OptiscalerClient.Services
                     {
                         var destPath = Path.Combine(gameDir, fileName);
 
-                        // Backup if exists
-                        if (File.Exists(destPath))
-                        {
-                            var backupPath = Path.Combine(backupDir, fileName);
-                            if (!File.Exists(backupPath))
-                            {
-                                File.Copy(destPath, backupPath);
-                                manifest.BackedUpFiles.Add(fileName);
+                                DocumentAndBackupFile(fileName, gameDir, backupDir, manifest, alreadyInstalledFiles);
                                 DebugWindow.Log($"[Install] Backed up existing NukemFG file: {fileName}");
-                            }
-                        }
 
                         File.Copy(sourcePath, destPath, true);
                         manifest.InstalledFiles.Add(fileName);
@@ -360,7 +354,9 @@ namespace OptiscalerClient.Services
                         {
                             try
                             {
-                                var p = Path.Combine(currentGameDir, file);
+                                // Normalize path for cross-platform compatibility (manifest might have \ or /)
+                                var normalized = file.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+                                var p = Path.Combine(currentGameDir, normalized);
                                 if (File.Exists(p)) { File.Delete(p); DebugWindow.Log($"[Uninstall] Deleted: {file}"); }
                             }
                             catch { }
@@ -371,8 +367,10 @@ namespace OptiscalerClient.Services
                         {
                             try
                             {
-                                var b = Path.Combine(backupDir, file);
-                                var d = Path.Combine(currentGameDir, file);
+                                // Normalize path for cross-platform compatibility
+                                var normalized = file.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+                                var b = Path.Combine(backupDir, normalized);
+                                var d = Path.Combine(currentGameDir, normalized);
                                 if (File.Exists(b)) { File.Copy(b, d, true); DebugWindow.Log($"[Uninstall] Restored: {file}"); }
                             }
                             catch { }
@@ -383,7 +381,9 @@ namespace OptiscalerClient.Services
                         {
                             try
                             {
-                                var p = Path.Combine(currentGameDir, dir);
+                                // Normalize path for cross-platform compatibility
+                                var normalized = dir.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+                                var p = Path.Combine(currentGameDir, normalized);
                                 if (Directory.Exists(p) && !Directory.EnumerateFileSystemEntries(p).Any()) Directory.Delete(p);
                             }
                             catch { }
@@ -428,11 +428,27 @@ namespace OptiscalerClient.Services
             }
 
             // ── Step 5: Universal Safety Net ─────────────────────────────────────
+            // These are files we are relatively confident are OptiScaler-related.
+            // NATIVE game DLLs (like libxess, amd_fidelityfx_dx12) are EXCLUDED here
+            // because deleting them could break the game if they were native.
+            // They will still be deleted if they are explicitly mentioned in the manifest.
             var safetyFiles = new[] { 
-                "OptiScaler.dll", "OptiScaler.ini", "OptiScaler.log", 
-                "dxgi.dll", "version.dll", "winmm.dll", "nvngx.dll",
-                "fakenvapi.ini", "nvapi64.dll",
-                "dlssg_to_fsr3_amd_is_better.dll", "amd_fidelityfx_upscaler_dx12.dll" 
+                "OptiScaler.dll", "OptiScaler.ini", "OptiScaler.log", "OptiScaler.pdb",
+                "dxgi.dll", "version.dll", "winmm.dll", "nvngx.dll", "nvngx_dlssg.dll",
+                "fakenvapi.ini", "nvapi64.dll", "nvapi64.log", "fakenvapi.dll", "fakenvapi.log",
+                "dlssg_to_fsr3_amd_is_better.dll", "dlssg_to_fsr3_amd_is_better.log", 
+                "amd_fidelityfx_upscaler_dx12.dll", 
+                "Streamline.log", "FSR3.log", "dxgi.log", "version.log", "winmm.log", "nvngx.log",
+                "sl.interposer.dll", "setup_linux.sh", "setup_windows.bat",
+                "!! README_EXTRACT ALL FILES TO GAME FOLDER !!.txt"
+            };
+
+            // These files are strictly PROTECTED and should never be deleted by the safety net
+            // fallback (even if no backup is found) to prevent breaking native components.
+            var protectedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+                "libxess.dll", "libxess_dx11.dll", "libxess_fg.dll", "libxell.dll",
+                "amd_fidelityfx_dx12.dll", "amd_fidelityfx_vk.dll", "amd_fidelityfx_framegeneration_dx12.dll",
+                "D3D12Core.dll", "d3d11.dll", "d3d12.dll"
             };
 
             foreach (var dir in involvedDirs)
@@ -444,13 +460,73 @@ namespace OptiscalerClient.Services
                         var p = Path.Combine(dir, fileName);
                         if (File.Exists(p)) 
                         {
-                            // Only delete if it's actually an OptiScaler file (config/log) 
-                            // OR if no backup was found (it was orphaned)
+                            if (protectedFiles.Contains(fileName)) continue;
+
+                            // OptiScaler backups are stored in a folder called "OptiScalerBackup" 
+                            // in the same directory where the DLL was installed.
                             var bPath = Path.Combine(dir, BackupFolderName, fileName);
-                            if (fileName.Contains("OptiScaler", StringComparison.OrdinalIgnoreCase) || !File.Exists(bPath))
+                            
+                            bool isWrapperDll = fileName.Equals("dxgi.dll", StringComparison.OrdinalIgnoreCase) || 
+                                               fileName.Equals("version.dll", StringComparison.OrdinalIgnoreCase) || 
+                                               fileName.Equals("winmm.dll", StringComparison.OrdinalIgnoreCase) || 
+                                               fileName.Equals("nvngx.dll", StringComparison.OrdinalIgnoreCase) ||
+                                               fileName.Equals("nvngx_dlssg.dll", StringComparison.OrdinalIgnoreCase);
+
+                            bool isBranded = fileName.Contains("OptiScaler", StringComparison.OrdinalIgnoreCase) || 
+                                            fileName.Contains("fakenvapi", StringComparison.OrdinalIgnoreCase) ||
+                                            fileName.Contains("dlssg_to_fsr3", StringComparison.OrdinalIgnoreCase);
+
+                            // SAFETY FIRST: Only delete if it's explicitly named with our branding 
+                            // OR if it's a known wrapper DLL with a CLEAR local original backup found.
+                            if (isBranded || (isWrapperDll && File.Exists(bPath)))
                             {
                                 File.Delete(p);
                                 DebugWindow.Log($"[Uninstall] SafetyNet cleaned: {fileName} in {Path.GetFileName(dir)}");
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                // Safety Net: Cleanup common folders if they are empty
+                var safetyDirs = new[] { "OptiScaler_ShaderCache", "OptiScaler_Logs", "OptiScalerBackup", "D3D12_Optiscaler", "Licenses", "DlssOverrides" };
+                foreach (var dirName in safetyDirs)
+                {
+                    try
+                    {
+                        var p = Path.Combine(dir, dirName);
+                        if (Directory.Exists(p)) 
+                        {
+                            // Recursive cleanup for these specific subfolders to catch their contents in the safety net
+                            if (dirName == "D3D12_Optiscaler" || dirName == "Licenses" || dirName == "DlssOverrides")
+                            {
+                                // Delete files in these folders that might have been added by us
+                                var subFiles = Directory.GetFiles(p, "*.*", SearchOption.TopDirectoryOnly);
+                                foreach (var subFile in subFiles)
+                                {
+                                    var sfn = Path.GetFileName(subFile);
+                                    // Always safe to delete these if they are in our subfolders
+                                    File.Delete(subFile);
+                                    DebugWindow.Log($"[Uninstall] SafetyNet removed sub-file: {sfn} from {dirName}");
+                                }
+                            }
+
+                            // Finally try to delete the folder if empty or if it's our backup folder
+                            if (!Directory.EnumerateFileSystemEntries(p).Any())
+                            {
+                                Directory.Delete(p);
+                                DebugWindow.Log($"[Uninstall] SafetyNet removed empty folder: {dirName}");
+                            }
+                            else if (dirName == "OptiScalerBackup")
+                            {
+                                // We already handled this above if a manifest was found, 
+                                // but ensure it's gone for legacy installs too.
+                                Directory.Delete(p, true);
+                            }
+                            else if (dirName == "D3D12_Optiscaler" || dirName == "Licenses" || dirName == "DlssOverrides")
+                            {
+                                // If still not empty, force it if we are sure it's ours
+                                try { Directory.Delete(p, true); DebugWindow.Log($"[Uninstall] SafetyNet force-removed folder: {dirName}"); } catch { }
                             }
                         }
                     }
@@ -727,10 +803,18 @@ namespace OptiscalerClient.Services
         /// 2. Backs up the original file if it hasn't been backed up yet.
         /// This ensures that every manifest generation (including updates) results in a complete restoration map.
         /// </summary>
-        private void DocumentAndBackupFile(string relativePath, string gameDir, string backupDir, InstallationManifest manifest)
+        private void DocumentAndBackupFile(string relativePath, string gameDir, string backupDir, InstallationManifest manifest, HashSet<string> alreadyInstalledFiles)
         {
             var fullPath = Path.Combine(gameDir, relativePath);
             
+            // If the file is already tracked as 'Installed' in the previous manifest, 
+            // DO NOT back it up. It is an OptiScaler file, not an original game file.
+            if (alreadyInstalledFiles.Contains(relativePath))
+            {
+                DebugWindow.Log($"[Backup] Skipping backup for existing OptiScaler file: {relativePath}");
+                return;
+            }
+
             // If the file doesn't exist in the game folder, there's nothing to back up.
             if (!File.Exists(fullPath)) return;
 
