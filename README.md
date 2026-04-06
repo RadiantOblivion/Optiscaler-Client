@@ -63,7 +63,9 @@ Follow these simple steps to enhance your games:
 #### Steam Deck / Ubuntu / Fedora
 1.  Download the latest `OptiscalerClient-linux-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/Releases) page.
 2.  Extract the contents to a folder.
-3.  Run `OptiscalerClient`. (On Steam Deck, you can add it as a Non-Steam Game for easy access).
+3.  Run `OptiscalerClient`. (On Steam Deck, you can add it as a Non-Steam Game for easy access). \
+OR
+4. Run `chmod +x install.sh && ./install.sh` to install the app to your applications menu.
 
 #### Arch
 1.  Download the latest `OptiscalerClient-arch-x64.tar.gz` from the [Releases](https://github.com/RadiantOblivion/Optiscaler-Client/Releases) page.
