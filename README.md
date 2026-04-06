@@ -92,8 +92,6 @@ We welcome contributions! If you'd like to improve OptiScaler Client:
 
 This program is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the [GNU General Public License](LICENSE) for more details.
 
-**Copyright (C) 2026 Agustín Montaña (Agustinm28)**
-
 ### Acknowledgments & Third-Party Software
 
 *   **Special thanks and deep respect to the OptiScaler development team** for creating and maintaining this incredible software that enhances gaming experiences for countless users worldwide.
