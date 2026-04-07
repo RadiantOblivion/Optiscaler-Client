@@ -25,19 +25,19 @@
   <screenshots>
     <screenshot type="default">
       <caption>Main window displaying game library.</caption>
-      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/1.png</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/OptiscalerClient/master/frontend/assets/screenshots/1.png</image>
     </screenshot>
     <screenshot>
       <caption>Game management dashboard.</caption>
-      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/2.png</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/OptiscalerClient/master/frontend/assets/screenshots/2.png</image>
     </screenshot>
     <screenshot>
       <caption>Post-installation status.</caption>
-      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/3.png</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/OptiscalerClient/master/frontend/assets/screenshots/3.png</image>
     </screenshot>
   </screenshots>
-  <url type="homepage">https://github.com/RadiantOblivion/Optiscaler-Client</url>
-  <url type="bugtracker">https://github.com/RadiantOblivion/Optiscaler-Client/issues</url>
+  <url type="homepage">https://github.com/RadiantOblivion/OptiscalerClient</url>
+  <url type="bugtracker">https://github.com/RadiantOblivion/OptiscalerClient/issues</url>
   <content_rating type="oars-1.1" />
   <categories>
     <category>Game</category>

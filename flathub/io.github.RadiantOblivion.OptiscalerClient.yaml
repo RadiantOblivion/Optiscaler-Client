@@ -28,11 +28,11 @@ modules:
     buildsystem: simple
     build-commands:
       # Publish the application
-      - dotnet publish OptiscalerClient.csproj -c Release -r linux-x64 --self-contained true -o /app/optiscaler-client --source nuget-sources
+      - dotnet publish OptiscalerClient.csproj -c Release -r linux-x64 --self-contained true -o /app/OptiscalerClient --source nuget-sources
       
       # Create a symlink to the binary in /app/bin
       - install -d /app/bin
-      - ln -s /app/optiscaler-client/OptiscalerClient /app/bin/OptiscalerClient
+      - ln -s /app/OptiscalerClient/OptiscalerClient /app/bin/OptiscalerClient
       
       # Install desktop file and metainfo
       - install -Dm644 flathub/io.github.RadiantOblivion.OptiscalerClient.desktop /app/share/applications/io.github.RadiantOblivion.OptiscalerClient.desktop
@@ -42,6 +42,6 @@ modules:
       - install -Dm644 flathub/io.github.RadiantOblivion.OptiscalerClient.png /app/share/icons/hicolor/512x512/apps/io.github.RadiantOblivion.OptiscalerClient.png
     sources:
       - type: archive
-        url: https://github.com/RadiantOblivion/Optiscaler-Client/archive/refs/tags/v1.5.2.zip
+        url: https://github.com/RadiantOblivion/OptiscalerClient/archive/refs/tags/v1.5.2.zip
         sha256: 1714369500556877895631254363270241355537644204692158614504790944
       - nuget-sources.json
