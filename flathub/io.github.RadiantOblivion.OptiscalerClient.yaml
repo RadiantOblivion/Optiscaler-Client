@@ -43,5 +43,5 @@ modules:
     sources:
       - type: archive
         url: https://github.com/RadiantOblivion/Optiscaler-Client/archive/refs/tags/v1.5.2.zip
-        sha256: ae29d8368d32a0e7fa976cd0cb921c0063874ca06c00a84040cc8572839d1bb0
+        sha256: 1714369500556877895631254363270241355537644204692158614504790944
       - nuget-sources.json
