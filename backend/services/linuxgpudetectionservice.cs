@@ -36,7 +36,8 @@ namespace OptiscalerClient.Services
                                 line.Contains("Display controller", StringComparison.OrdinalIgnoreCase))
                             {
                                 // lspci format: "01:00.0 VGA compatible controller: Vendor Device"
-                                // Use ": " (colon+space) to skip past the slot "01:00.0" and class label
+                                var parts = line.Split(' ', 2);
+                                var slot = parts[0]; 
                                 var sepIdx = line.LastIndexOf(": ");
                                 var rawName = sepIdx >= 0 ? line.Substring(sepIdx + 2).Trim() : line.Trim();
                                 var vendor = DetectVendorFromName(rawName);
@@ -44,6 +45,7 @@ namespace OptiscalerClient.Services
                                 gpus.Add(new GpuInfo
                                 {
                                     Name = cleanName,
+                                    PciSlot = slot,
                                     Vendor = vendor,
                                     VideoMemoryBytes = GetEstimatedMemory(vendor),
                                     DriverVersion = GetDriverVersion(vendor)
@@ -75,8 +77,8 @@ namespace OptiscalerClient.Services
         {
             if (gpus.Count == 0) return;
 
-            // --- Strategy 1: sysfs product_name (AMD/Intel with amdgpu/i915) ---
-            var sysfsNames = ReadSysfsProductNames();
+            // --- Strategy 1: sysfs product_name (Mapped by PCI Slot) ---
+            var sysfsMap = ReadSysfsProductNamesBySlot();
 
             // --- Strategy 2: glxinfo renderer string ---
             var glxNames = ReadGlxinfoNames();
@@ -89,21 +91,39 @@ namespace OptiscalerClient.Services
             {
                 var gpu = gpus[i];
 
-                // Try sysfs first (most accurate, no process needed)
-                if (i < sysfsNames.Count && !string.IsNullOrEmpty(sysfsNames[i]))
+                // 1. Try Slot Match via sysfs (Highest Trust)
+                if (gpu.PciSlot != null)
                 {
-                    gpu.Name = sysfsNames[i];
-                    continue;
+                    var normalizedSlot = NormalizePciSlot(gpu.PciSlot);
+                    if (sysfsMap.TryGetValue(normalizedSlot, out var sysfsName))
+                    {
+                        var potentialBrand = DetectVendorFromName(sysfsName);
+                        // Clean and brand the specific product name from the host driver
+                        var betterName = CleanGpuName(sysfsName);
+                        if (potentialBrand != GpuVendor.Unknown || betterName.Length > gpu.Name.Length)
+                        {
+                            gpu.Name = betterName;
+                            if (potentialBrand != GpuVendor.Unknown) gpu.Vendor = potentialBrand;
+                            continue;
+                        }
+                    }
                 }
 
-                // Try glxinfo renderer string if it looks more specific than what we have
+                // 2. Try glxinfo renderer string (High trust for active dGPU)
                 if (i < glxNames.Count && !string.IsNullOrEmpty(glxNames[i]))
                 {
-                    gpu.Name = glxNames[i];
-                    continue;
+                    var glxName = CleanGpuName(glxNames[i]);
+                    // Only overwrite if it looks substantive
+                    if (glxName.Length > 10)
+                    {
+                        gpu.Name = glxName;
+                        var potentialBrand = DetectVendorFromName(glxNames[i]);
+                        if (potentialBrand != GpuVendor.Unknown) gpu.Vendor = potentialBrand;
+                        continue;
+                    }
                 }
 
-                // Try nvidia-smi for NVIDIA GPUs
+                // 3. Try nvidia-smi for NVIDIA GPUs (Positional fallback)
                 if (gpu.Vendor == GpuVendor.NVIDIA && i < nvidiaNames.Count && !string.IsNullOrEmpty(nvidiaNames[i]))
                 {
                     gpu.Name = nvidiaNames[i];
@@ -111,32 +131,50 @@ namespace OptiscalerClient.Services
             }
         }
 
-        private List<string> ReadSysfsProductNames()
+        private string NormalizePciSlot(string slot)
         {
-            var names = new List<string>();
+            // lspci -mm might return "01:00.0" while sysfs uevent has "0000:01:00.0"
+            if (slot.Count(c => c == ':') == 1)
+                return $"0000:{slot}";
+            return slot;
+        }
+
+        private Dictionary<string, string> ReadSysfsProductNamesBySlot()
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             try
             {
-                if (!System.IO.Directory.Exists("/sys/class/drm")) return names;
+                if (!System.IO.Directory.Exists("/sys/class/drm")) return map;
 
-                // Only look at primary card entries (card0, card1, ...) not render nodes
                 var cards = System.IO.Directory.GetDirectories("/sys/class/drm", "card*")
-                    .Where(d => !System.IO.Path.GetFileName(d).Contains('-')) // skip card0-TV etc.
-                    .OrderBy(d => d)
+                    .Where(d => !System.IO.Path.GetFileName(d).Contains('-'))
                     .ToArray();
 
                 foreach (var card in cards)
                 {
+                    // Read slot from uevent: PCI_SLOT_NAME=0000:01:00.0
+                    var ueventFile = System.IO.Path.Combine(card, "device", "uevent");
                     var productFile = System.IO.Path.Combine(card, "device", "product_name");
-                    if (System.IO.File.Exists(productFile))
+                    
+                    if (System.IO.File.Exists(ueventFile))
                     {
-                        var name = System.IO.File.ReadAllText(productFile).Trim();
-                        if (!string.IsNullOrEmpty(name))
-                            names.Add(name);
+                        var uevent = System.IO.File.ReadAllText(ueventFile);
+                        var slotMatch = System.Text.RegularExpressions.Regex.Match(uevent, @"PCI_SLOT_NAME=([0-9a-fA-F:\.]+)");
+                        if (slotMatch.Success)
+                        {
+                            var slot = slotMatch.Groups[1].Value.Trim();
+                            var name = System.IO.File.Exists(productFile) 
+                                ? System.IO.File.ReadAllText(productFile).Trim() 
+                                : string.Empty;
+
+                            if (!string.IsNullOrEmpty(name))
+                                map[slot] = name;
+                        }
                     }
                 }
             }
             catch { }
-            return names;
+            return map;
         }
 
         private List<string> ReadGlxinfoNames()
@@ -157,8 +195,9 @@ namespace OptiscalerClient.Services
                         if (colonIdx < 0) continue;
                         var renderer = line.Substring(colonIdx + 1).Trim();
 
-                        // Strip internal driver detail in parentheses: "AMD Radeon RX 9070 XT (radeonsi, ...)"
-                        var parenIdx = renderer.IndexOf('(');
+                        // Preserve "AMD" or "NVIDIA" if glxinfo provides it
+                        // Strip internal driver detail in parentheses but keep everything else
+                        var parenIdx = renderer.LastIndexOf('(');
                         if (parenIdx > 0)
                             renderer = renderer.Substring(0, parenIdx).Trim();
 
@@ -299,15 +338,67 @@ namespace OptiscalerClient.Services
             if (bracketMatch.Success)
             {
                 var inside = bracketMatch.Groups[1].Value.Trim();
-                // If multiple slash-separated alternatives, take the first (most specific)
-                var firstAlt = inside.Split('/')[0].Trim();
-                if (!string.IsNullOrEmpty(firstAlt))
-                    return firstAlt;
+                
+                // Better slash handling (e.g. "Radeon RX 9070/3070 XT/GRE")
+                if (inside.Contains('/'))
+                {
+                    var parts = inside.Split('/');
+                    var firstPart = parts[0].Trim();
+                    
+                    // Look for any model suffix (like "XT", "Ti", "GRE") in any part of the group
+                    foreach (var part in parts.Skip(1))
+                    {
+                        var lastPart = part.Trim();
+                        var suffixMatch = System.Text.RegularExpressions.Regex.Match(lastPart, @"\s+([A-Z0-9\s]+)$");
+                        if (suffixMatch.Success)
+                        {
+                            var suffix = suffixMatch.Groups[1].Value.Trim();
+                            if (!firstPart.Contains(suffix, StringComparison.OrdinalIgnoreCase))
+                                firstPart = $"{firstPart} {suffix}";
+                            break;
+                        }
+                    }
+                    
+                    return EnsureVendorPrefix(firstPart, rawName);
+                }
+
+                if (!string.IsNullOrEmpty(inside))
+                    return EnsureVendorPrefix(inside, rawName);
             }
 
-            // 4. Strip any remaining leading codename before a bracketed section
-            //    e.g. "Navi 48" left over → just return as-is
-            return name;
+            // 4. Ensure we have branding even if lspci name is simple
+            return EnsureVendorPrefix(name, rawName);
+        }
+
+        private string EnsureVendorPrefix(string cleanName, string rawName)
+        {
+            var vendor = DetectVendorFromName(rawName);
+            // Fallback: if name starts with Radeon/GeForce, we know the vendor
+            if (vendor == GpuVendor.Unknown)
+            {
+                if (cleanName.Contains("Radeon", StringComparison.OrdinalIgnoreCase)) vendor = GpuVendor.AMD;
+                else if (cleanName.Contains("GeForce", StringComparison.OrdinalIgnoreCase)) vendor = GpuVendor.NVIDIA;
+                else if (cleanName.Contains("Arc", StringComparison.OrdinalIgnoreCase)) vendor = GpuVendor.Intel;
+            }
+
+            var prefix = vendor switch
+            {
+                GpuVendor.NVIDIA => "NVIDIA",
+                GpuVendor.AMD => "AMD",
+                GpuVendor.Intel => "Intel",
+                _ => ""
+            };
+
+            if (!string.IsNullOrEmpty(prefix) && !cleanName.Contains(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                // Special case for AMD Radeon
+                if (prefix == "AMD" && cleanName.StartsWith("Radeon", StringComparison.OrdinalIgnoreCase))
+                    return $"AMD {cleanName}";
+                
+                return $"{prefix} {cleanName}";
+            }
+
+            return cleanName;
         }
         
         private string GetVendorIcon(GpuVendor vendor)
@@ -366,6 +457,7 @@ namespace OptiscalerClient.Services
                 // fields: [0]=Slot [1]=Class [2]=Vendor [3]=Device ...
                 if (fields.Count < 4) continue;
 
+                var slot = fields[0];
                 var devClass = fields[1];
                 if (!gpuClasses.Any(c => devClass.Contains(c, StringComparison.OrdinalIgnoreCase))) continue;
 
@@ -378,6 +470,7 @@ namespace OptiscalerClient.Services
                 results.Add(new GpuInfo
                 {
                     Name = cleanName,
+                    PciSlot = slot,
                     Vendor = vendor,
                     VideoMemoryBytes = GetEstimatedMemory(vendor),
                     DriverVersion = GetDriverVersion(vendor)
