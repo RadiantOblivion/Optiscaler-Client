@@ -41,7 +41,7 @@ modules:
       # Install icon
       - install -Dm644 flathub/io.github.RadiantOblivion.OptiscalerClient.png /app/share/icons/hicolor/512x512/apps/io.github.RadiantOblivion.OptiscalerClient.png
     sources:
-      - type: git
-        url: https://github.com/RadiantOblivion/Optiscaler-Client.git
-        commit: 90e21b0a6079e6f69c50f3f5612e164f9e9c40b4
+      - type: archive
+        url: https://github.com/RadiantOblivion/Optiscaler-Client/archive/refs/tags/v1.5.1.zip
+        sha256: ae29d8368d32a0e7fa976cd0cb921c0063874ca06c00a84040cc8572839d1bb0
       - nuget-sources.json
