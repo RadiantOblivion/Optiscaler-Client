@@ -7,8 +7,7 @@ sdk-extensions:
 command: OptiscalerClient
 finish-args:
   - --share=ipc
-  - --socket=x11
-  - --socket=wayland
+  - --socket=x11 #Avalonia is limited to X11 for now
   - --device=dri
   - --share=network # For fetching updates
   - --filesystem=home 
@@ -42,6 +41,7 @@ modules:
       # Install icon
       - install -Dm644 flathub/io.github.RadiantOblivion.OptiscalerClient.png /app/share/icons/hicolor/512x512/apps/io.github.RadiantOblivion.OptiscalerClient.png
     sources:
-      - type: dir
-        path: ..
+      - type: git
+        url: https://github.com/RadiantOblivion/Optiscaler-Client.git
+        commit: 90e21b0a6079e6f69c50f3f5612e164f9e9c40b4
       - nuget-sources.json

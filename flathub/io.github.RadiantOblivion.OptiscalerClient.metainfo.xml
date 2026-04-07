@@ -4,12 +4,12 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>OptiScaler Client</name>
-  <summary>Simplify installation &amp; management of OptiScaler across your games</summary>
+  <summary>Install OptiScaler seamlessly</summary>
   <description>
     <p>
-      OptiScaler Client is a modern, high-performance utility designed to simplify the installation, 
-      management, and update of the OptiScaler mod. It provides a native, premium experience 
-      for gamers looking to enhance their titles with advanced upscaling technologies.
+      OptiScaler Client is a modern utility designed to simplify the installation, 
+      management, and update of the OptiScaler mod. It provides a native experience 
+      for gamers looking to enhance their titles with upscaling technologies.
     </p>
     <ul>
       <li>Auto-Scanner for Steam, Epic, GOG, and more.</li>
@@ -22,15 +22,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>Main window displaying game library.</caption>
-      <image>https://github.com/user-attachments/assets/09b0706a-e047-485c-9ac7-0847d80a3fc5</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/1.png</image>
     </screenshot>
     <screenshot>
       <caption>Game management dashboard.</caption>
-      <image>https://github.com/user-attachments/assets/b4c86a32-13df-4ae2-921e-b89aacb7dfa1</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/2.png</image>
     </screenshot>
     <screenshot>
       <caption>Post-installation status.</caption>
-      <image>https://github.com/user-attachments/assets/e88307c8-13af-4401-90a0-a6daaf8a4977</image>
+      <image>https://raw.githubusercontent.com/RadiantOblivion/Optiscaler-Client/master/frontend/assets/screenshots/3.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/RadiantOblivion/Optiscaler-Client</url>
