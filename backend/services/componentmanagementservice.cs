@@ -112,27 +112,66 @@ namespace OptiscalerClient.Services
         {
             try
             {
-                // Check local directory first (portable/dev friendly)
                 var localConfig = Path.Combine(AppContext.BaseDirectory, "config.json");
+                var defaultConfig = new AppConfiguration();
+
                 if (File.Exists(localConfig))
                 {
                     var json = File.ReadAllText(localConfig);
-                    _config = JsonSerializer.Deserialize(json, OptimizerContext.Default.AppConfiguration) ?? new();
+                    defaultConfig = JsonSerializer.Deserialize(json, OptimizerContext.Default.AppConfiguration) ?? defaultConfig;
                 }
-                else if (File.Exists(_configFile))
+
+                if (File.Exists(localConfig))
+                {
+                    _config = defaultConfig;
+                }
+
+                if (File.Exists(_configFile))
                 {
                     var json = File.ReadAllText(_configFile);
                     _config = JsonSerializer.Deserialize(json, OptimizerContext.Default.AppConfiguration) ?? new();
+                    ApplyMissingConfigDefaults(defaultConfig);
                 }
                 else
                 {
-                    // Create default config
-                    _config = new AppConfiguration();
+                    _config = defaultConfig;
                     var json = JsonSerializer.Serialize(_config, OptimizerContext.Default.AppConfiguration);
                     File.WriteAllText(_configFile, json);
                 }
             }
             catch { /* Use defaults */ }
+        }
+
+        private void ApplyMissingConfigDefaults(AppConfiguration defaults)
+        {
+            _config.App = MergeRepositoryConfig(_config.App, defaults.App);
+            _config.OptiScaler = MergeRepositoryConfig(_config.OptiScaler, defaults.OptiScaler);
+            _config.OptiScalerBetas = MergeRepositoryConfig(_config.OptiScalerBetas, defaults.OptiScalerBetas);
+            _config.OptiScalerExtras = MergeRepositoryConfig(_config.OptiScalerExtras, defaults.OptiScalerExtras);
+            _config.Fakenvapi = MergeRepositoryConfig(_config.Fakenvapi, defaults.Fakenvapi);
+            _config.NukemFG = MergeRepositoryConfig(_config.NukemFG, defaults.NukemFG);
+
+            if ((_config.ScanExclusions == null || _config.ScanExclusions.Count == 0) &&
+                defaults.ScanExclusions.Count > 0)
+            {
+                _config.ScanExclusions = defaults.ScanExclusions;
+            }
+        }
+
+        private static RepositoryConfig MergeRepositoryConfig(RepositoryConfig? current, RepositoryConfig fallback)
+        {
+            if (current != null &&
+                !string.IsNullOrWhiteSpace(current.RepoOwner) &&
+                !string.IsNullOrWhiteSpace(current.RepoName))
+            {
+                return current;
+            }
+
+            return new RepositoryConfig
+            {
+                RepoOwner = fallback.RepoOwner,
+                RepoName = fallback.RepoName
+            };
         }
 
         public void SaveConfiguration()
@@ -297,7 +336,9 @@ namespace OptiscalerClient.Services
                         r => string.Equals(r.Version, entry.Version, StringComparison.OrdinalIgnoreCase));
                     if (existing != null)
                     {
-                        if (string.IsNullOrEmpty(existing.DownloadUrl))
+                        if (!string.IsNullOrEmpty(entry.DownloadUrl))
+                            existing.DownloadUrl = entry.DownloadUrl;
+                        else if (string.IsNullOrEmpty(existing.DownloadUrl))
                             existing.DownloadUrl = entry.DownloadUrl;
                         existing.IsLatestStable = entry.IsLatestStable;
                         existing.IsLatestBeta = entry.IsLatestBeta;
@@ -328,9 +369,23 @@ namespace OptiscalerClient.Services
             _cachedLatestStableVersion = all.FirstOrDefault(r => r.IsLatestStable)?.Version
                 ?? all.FirstOrDefault(r => !r.IsBeta)?.Version;
 
-            // Stable versions first (latest stable at top), then betas
-            var stables = all.Where(r => !r.IsBeta).Select(r => r.Version).ToList();
-            var betas = all.Where(r => r.IsBeta).Select(r => r.Version).ToList();
+            // Stable versions first (latest stable at top), then betas.
+            var stables = all
+                .Where(r => !r.IsBeta)
+                .OrderByDescending(r => r.IsLatestStable)
+                .ThenByDescending(r => r.Version.Length)
+                .ThenByDescending(r => r.Version, StringComparer.OrdinalIgnoreCase)
+                .Select(r => r.Version)
+                .ToList();
+
+            var betas = all
+                .Where(r => r.IsBeta)
+                .OrderByDescending(r => r.IsLatestBeta)
+                .ThenByDescending(r => r.Version.Length)
+                .ThenByDescending(r => r.Version, StringComparer.OrdinalIgnoreCase)
+                .Select(r => r.Version)
+                .ToList();
+
             var merged = new System.Collections.Generic.List<string>();
             merged.AddRange(stables);
             merged.AddRange(betas);

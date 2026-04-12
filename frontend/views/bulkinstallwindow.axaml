@@ -5,6 +5,7 @@
         xmlns:local="clr-namespace:OptiscalerClient"
         xmlns:converters="clr-namespace:OptiscalerClient.Converters"
         xmlns:models="clr-namespace:OptiscalerClient.Models"
+        xmlns:views="clr-namespace:OptiscalerClient.Views"
         mc:Ignorable="d"
         x:Class="OptiscalerClient.Views.BulkInstallWindow"
         Title="{DynamicResource TxtBulkInstallWindow}"
@@ -19,6 +20,7 @@
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:BitmapValueConverter x:Key="BitmapValueConverter"/>
     </Window.Resources>
 
     <Panel Margin="15" Name="RootPanel" Opacity="0">
@@ -148,7 +150,7 @@
                                                   VerticalAlignment="Center"/>
 
                                         <Image Grid.Column="1"
-                                               Source="{Binding CoverPath}"
+                                               Source="{Binding CoverPath, Converter={StaticResource BitmapValueConverter}}"
                                                Width="28"
                                                Height="42"
                                                Stretch="UniformToFill"
@@ -218,27 +220,119 @@
                         BorderThickness="0,1,0,1"
                         Padding="24,20">
                     <StackPanel Spacing="16">
-                        <TextBlock Text="{DynamicResource TxtInstallationSettings}"
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="1.25*,Auto,0.95*" Margin="0,8,0,0">
+
+                        <!-- Row 0: Beta info panel spanning all columns -->
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                                Name="BetaInfoPanel"
+                                Background="{StaticResource BrBgElevated}"
+                                BorderBrush="#4A90E2"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="12,8"
+                                Margin="0,0,0,12"
+                                IsVisible="False">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="ℹ"
+                                           Foreground="#4A90E2"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource TxtBetaIncludesComponents}"
+                                           Foreground="#4A90E2"
+                                           FontSize="12"
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                   Text="{DynamicResource TxtInstallationSettings}"
                                    FontSize="14"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource BrTextPrimary}"/>
+                                   Foreground="{StaticResource BrTextPrimary}"
+                                   Margin="0,0,0,4"/>
 
-                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,*" Margin="0,8,0,0">
-
-                        <!-- Row 1, Col 0: Version selector -->
-                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
+                        <!-- Row 2, Col 0: Version selector -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource TxtVersion}"
                                        Foreground="{StaticResource BrTextSecondary}"
                                        VerticalAlignment="Center"
                                        FontSize="13"
                                        Width="65"/>
                             <ComboBox Name="CmbOptiVersion"
-                                      Width="210"
+                                      Width="290"
                                       Classes="BtnSelector"
                                       HorizontalAlignment="Stretch"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"
+                                      MinHeight="44"
+                                      Padding="8,2,40,2"
                                       Background="{StaticResource BrBgBase}"
                                       Foreground="{StaticResource BrTextPrimary}"
-                                      BorderBrush="{StaticResource BrBorderSubtle}"/>
+                                      BorderBrush="{StaticResource BrBorderSubtle}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate DataType="views:VersionOption">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DisplayVersion}"
+                                                       VerticalAlignment="Center"/>
+                                            <Border CornerRadius="4"
+                                                    Background="#D4A017"
+                                                    Padding="5,1"
+                                                    IsVisible="{Binding IsBeta}">
+                                                <TextBlock Text="BETA"
+                                                           FontSize="10"
+                                                           Foreground="White"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border CornerRadius="4"
+                                                    Background="#7C3AED"
+                                                    Padding="5,1"
+                                                    IsVisible="{Binding IsLatest}">
+                                                <TextBlock Text="LATEST"
+                                                           FontSize="10"
+                                                           Foreground="White"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                                <ComboBox.SelectionBoxItemTemplate>
+                                    <DataTemplate DataType="views:VersionOption">
+                                        <Grid ColumnDefinitions="*,Auto,Auto"
+                                              ColumnSpacing="6">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding DisplayVersion}"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <Border Grid.Column="1"
+                                                    CornerRadius="4"
+                                                    Background="#D4A017"
+                                                    Padding="5,1"
+                                                    IsVisible="{Binding IsBeta}">
+                                                <TextBlock Text="BETA"
+                                                           FontSize="10"
+                                                           Foreground="White"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Column="2"
+                                                    CornerRadius="4"
+                                                    Background="#7C3AED"
+                                                    Padding="5,1"
+                                                    IsVisible="{Binding IsLatest}">
+                                                <TextBlock Text="LATEST"
+                                                           FontSize="10"
+                                                           Foreground="White"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ComboBox.SelectionBoxItemTemplate>
+                            </ComboBox>
                             <Border Background="{StaticResource BrBgElevated}"
                                     BorderBrush="{StaticResource BrBorderSubtle}"
                                     BorderThickness="1" CornerRadius="8"
@@ -253,15 +347,15 @@
                             </Border>
                         </StackPanel>
 
-                        <!-- Row 1, Col 2: Injector selector -->
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+                        <!-- Row 2, Col 2: Injector selector -->
+                        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
                             <TextBlock Text="{DynamicResource TxtInjectionLbl}"
                                        Foreground="{StaticResource BrTextSecondary}"
                                        VerticalAlignment="Center"
                                        FontSize="13"
                                        Width="65"/>
                             <ComboBox Name="CmbInjectionMethod"
-                                      Width="210"
+                                      Width="225"
                                       Classes="BtnSelector"
                                       SelectedIndex="0"
                                       Background="{StaticResource BrBgBase}"
@@ -289,13 +383,13 @@
                         </StackPanel>
 
                         <!-- Vertical divider spanning all rows -->
-                        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                        <Border Grid.Row="2" Grid.RowSpan="2" Grid.Column="1"
                                 Width="1"
                                 Background="{StaticResource BrBorderSubtle}"
                                 Margin="20,0"/>
 
-                        <!-- Row 2, Col 0: FSR4 INT8 selector -->
-                        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Row 3, Col 0: FSR4 INT8 selector -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="FSR4 INT8:"
                                        Foreground="{StaticResource BrTextSecondary}"
                                        VerticalAlignment="Center"
@@ -323,8 +417,8 @@
                             </Border>
                         </StackPanel>
 
-                        <!-- Row 2, Col 2: Fakenvapi + NukemFG -->
-                        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Row 3, Col 2: Fakenvapi + NukemFG -->
+                        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <CheckBox Name="ChkFakenvapi"
                                       Content="{DynamicResource TxtInstallFakenvapi}"
                                       Foreground="{StaticResource BrTextPrimary}"

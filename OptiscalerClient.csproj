@@ -40,5 +40,6 @@
     <PackageReference Include="PeNet" Version="6.0.0" />
     <PackageReference Include="SharpCompress" Version="0.44.5" />
     <PackageReference Include="System.Management" Version="10.0.0" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -134,17 +135,15 @@ public partial class BulkInstallWindow : Window
 
     private async Task LoadVersionsAsync()
     {
-        // Check if we need to fetch versions
-        if (_componentService.OptiScalerAvailableVersions.Count == 0)
-        {
-            await _componentService.CheckForUpdatesAsync();
-        }
+        // Always refresh the service state here; internal rate limiting keeps this cheap.
+        await _componentService.CheckForUpdatesAsync();
 
         Dispatcher.UIThread.Post(() =>
         {
             var allVersions = _componentService.OptiScalerAvailableVersions;
             var betaVersions = _componentService.BetaVersions;
             var latestBeta = _componentService.LatestBetaVersion;
+            var showBetaVersions = _componentService.Config.ShowBetaVersions;
 
             var cmbOptiVersion = this.FindControl<ComboBox>("CmbOptiVersion");
             if (cmbOptiVersion == null) return;
@@ -187,6 +186,15 @@ public partial class BulkInstallWindow : Window
                     isLatestStableMarked = true;
                 }
 
+                if (showBetaVersions && hasBeta)
+                {
+                    selectedIndex = 0;
+                }
+                else if (isFirstStable)
+                {
+                    selectedIndex = currentIndex;
+                }
+
                 cmbOptiVersion.Items.Add(BuildVersionItem(ver, isBeta: false, isLatest: shouldMarkAsLatest));
                 currentIndex++;
             }
@@ -199,39 +207,21 @@ public partial class BulkInstallWindow : Window
             }
 
             cmbOptiVersion.SelectedIndex = selectedIndex;
+            UpdateCheckboxStatesForVersion(cmbOptiVersion);
+            PopulateExtrasComboBox();
+            UpdateSelectionCount();
         });
     }
 
-    private static ComboBoxItem BuildVersionItem(string ver, bool isBeta, bool isLatest)
+    private static VersionOption BuildVersionItem(string ver, bool isBeta, bool isLatest)
     {
-        var stack = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 6 };
-        stack.Children.Add(new TextBlock { Text = ver, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
-
-        if (isBeta)
+        return new VersionOption
         {
-            var badge = new Border
-            {
-                CornerRadius = new CornerRadius(4),
-                Background = new SolidColorBrush(Color.Parse("#D4A017")),
-                Padding = new Thickness(5, 1),
-                Child = new TextBlock { Text = "BETA", FontSize = 10, Foreground = Brushes.White, FontWeight = FontWeight.Bold }
-            };
-            stack.Children.Add(badge);
-        }
-
-        if (isLatest)
-        {
-            var badge = new Border
-            {
-                CornerRadius = new CornerRadius(4),
-                Background = new SolidColorBrush(Color.Parse("#7C3AED")),
-                Padding = new Thickness(5, 1),
-                Child = new TextBlock { Text = "LATEST", FontSize = 10, Foreground = Brushes.White, FontWeight = FontWeight.Bold }
-            };
-            stack.Children.Add(badge);
-        }
-
-        return new ComboBoxItem { Content = stack, Tag = ver };
+            DisplayVersion = ver,
+            Value = ver,
+            IsBeta = isBeta,
+            IsLatest = isLatest
+        };
     }
 
     private void GameItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -263,8 +253,15 @@ public partial class BulkInstallWindow : Window
                 : selectedCount == 1
                     ? "Install 1 game"
                     : $"Install {selectedCount} games";
-            btnInstall.IsEnabled = selectedCount > 0 && !_isInstalling;
+            btnInstall.IsEnabled = selectedCount > 0 && !_isInstalling && HasSelectedVersion();
         }
+    }
+
+    private bool HasSelectedVersion()
+    {
+        var cmbOptiVersion = this.FindControl<ComboBox>("CmbOptiVersion");
+        return cmbOptiVersion?.SelectedItem is VersionOption selectedItem &&
+               !string.IsNullOrWhiteSpace(selectedItem.Value);
     }
 
     private void UpdateSelectAllCheckbox()
@@ -313,9 +310,18 @@ public partial class BulkInstallWindow : Window
         var chkFakenvapi = this.FindControl<CheckBox>("ChkFakenvapi");
         var chkNukemFG = this.FindControl<CheckBox>("ChkNukemFG");
 
-        if (cmbOptiVersion?.SelectedItem is not ComboBoxItem selectedItem) return;
+        if (cmbOptiVersion?.SelectedItem is not VersionOption selectedItem)
+        {
+            await new ConfirmDialog(
+                this,
+                "No Versions Available",
+                "Please wait for the OptiScaler version list to finish loading, then try again.",
+                isAlert: true
+            ).ShowDialog<bool>(this);
+            return;
+        }
         
-        string version = selectedItem.Tag?.ToString() ?? "";
+        string version = selectedItem.Value ?? "";
         bool installFakenvapi = chkFakenvapi?.IsChecked == true;
         bool installNukemFG = chkNukemFG?.IsChecked == true;
 
@@ -343,110 +349,272 @@ public partial class BulkInstallWindow : Window
         if (progressSection != null) progressSection.IsVisible = true;
 
         int totalGames = selectedGames.Count;
-        int currentGame = 0;
+        int successCount = 0;
+        var failures = new List<string>();
 
-        foreach (var gameItem in selectedGames)
+        try
         {
-            currentGame++;
+            var preparedAssets = await PrepareInstallAssetsAsync(
+                version,
+                installFakenvapi,
+                installNukemFG,
+                injectExtras ? selectedExtrasVersion : null,
+                txtProgressStatus,
+                txtProgressCount,
+                progressBar);
 
-            if (txtProgressStatus != null)
-                txtProgressStatus.Text = $"Installing {gameItem.Name}...";
-            
-            if (txtProgressCount != null)
-                txtProgressCount.Text = $"{currentGame} / {totalGames}";
-            
+            if (!preparedAssets.Success)
+            {
+                return;
+            }
+
+            int currentGame = 0;
+            foreach (var gameItem in selectedGames)
+            {
+                currentGame++;
+
+                if (txtProgressStatus != null)
+                    txtProgressStatus.Text = $"Installing {gameItem.Name}...";
+
+                if (txtProgressCount != null)
+                    txtProgressCount.Text = $"{currentGame} / {totalGames}";
+
+                if (progressBar != null)
+                {
+                    progressBar.IsIndeterminate = false;
+                    progressBar.Value = (currentGame - 1) * 100.0 / totalGames;
+                }
+
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        _installService.InstallOptiScaler(
+                            gameItem.Game,
+                            preparedAssets.OptiCacheDir,
+                            injectionMethod,
+                            installFakenvapi,
+                            preparedAssets.FakenvapiCacheDir,
+                            installNukemFG,
+                            preparedAssets.NukemFGCacheDir,
+                            optiscalerVersion: version
+                        );
+                    });
+
+                    if (!string.IsNullOrEmpty(preparedAssets.ExtrasDllPath) &&
+                        !string.IsNullOrEmpty(selectedExtrasVersion))
+                    {
+                        await Task.Run(() =>
+                        {
+                            var gameDir = _installService.DetermineInstallDirectory(gameItem.Game) ?? gameItem.Game.InstallPath;
+                            var destPath = Path.Combine(gameDir, "amd_fidelityfx_upscaler_dx12.dll");
+                            File.Copy(preparedAssets.ExtrasDllPath, destPath, overwrite: true);
+                            gameItem.Game.Fsr4ExtraVersion = selectedExtrasVersion;
+                            DebugWindow.Log($"[BulkInstall] Copied FSR4 INT8 DLL to {destPath} for {gameItem.Name}");
+                        });
+                    }
+                    else
+                    {
+                        gameItem.Game.Fsr4ExtraVersion = null;
+                    }
+
+                    gameItem.IsInstalled = true;
+                    gameItem.CanInstall = false;
+                    gameItem.IsSelected = false;
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    failures.Add($"{gameItem.Name}: {ex.Message}");
+                    DebugWindow.Log($"[BulkInstall] Failed to install {gameItem.Name}: {ex.Message}");
+                }
+
+                await Task.Delay(100);
+            }
+
             if (progressBar != null)
-                progressBar.Value = (currentGame - 1) * 100.0 / totalGames;
+            {
+                progressBar.IsIndeterminate = false;
+                progressBar.Value = 100;
+            }
+
+            await Task.Delay(500);
+
+            var summary = successCount == totalGames
+                ? $"Successfully installed OptiScaler on {successCount} game{(successCount != 1 ? "s" : "")}."
+                : $"Installed OptiScaler on {successCount} of {totalGames} game{(totalGames != 1 ? "s" : "")}.";
+
+            if (failures.Count > 0)
+            {
+                summary += $"\n\nFailed installs:\n{string.Join("\n", failures)}";
+            }
+
+            await new ConfirmDialog(
+                this,
+                "Bulk Installation Complete",
+                summary,
+                isAlert: true
+            ).ShowDialog<bool>(this);
+
+            if (successCount == totalGames)
+            {
+                Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            await new ConfirmDialog(
+                this,
+                "Installation failed",
+                ex.Message,
+                isAlert: true
+            ).ShowDialog<bool>(this);
+        }
+        finally
+        {
+            _isInstalling = false;
+
+            if (progressSection != null) progressSection.IsVisible = false;
+            if (btnCancel != null) btnCancel.IsEnabled = true;
+            if (progressBar != null) progressBar.IsIndeterminate = false;
+
+            UpdateSelectionCount();
+        }
+    }
+
+    private async Task<(bool Success, string OptiCacheDir, string FakenvapiCacheDir, string NukemFGCacheDir, string? ExtrasDllPath)>
+        PrepareInstallAssetsAsync(
+            string version,
+            bool installFakenvapi,
+            bool installNukemFG,
+            string? selectedExtrasVersion,
+            TextBlock? txtProgressStatus,
+            TextBlock? txtProgressCount,
+            ProgressBar? progressBar)
+    {
+        await _componentService.CheckForUpdatesAsync();
+
+        if (txtProgressCount != null)
+        {
+            txtProgressCount.Text = "Preparing files...";
+        }
+
+        string optiCacheDir = _componentService.GetOptiScalerCachePath(version);
+        if (!Directory.Exists(optiCacheDir) ||
+            Directory.GetFiles(optiCacheDir, "*.*", SearchOption.AllDirectories).Length == 0)
+        {
+            if (txtProgressStatus != null)
+            {
+                txtProgressStatus.Text = $"Downloading OptiScaler {version}...";
+            }
+
+            var progress = new Progress<double>(p =>
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (progressBar != null)
+                    {
+                        progressBar.IsIndeterminate = false;
+                        progressBar.Value = p;
+                    }
+                }));
+
+            var statusText = new Progress<string>(s =>
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (txtProgressStatus != null)
+                    {
+                        txtProgressStatus.Text = s;
+                    }
+                }));
+
+            await _componentService.DownloadOptiScalerAsync(version, progress, statusText);
+        }
+
+        string fakenvapiCacheDir = installFakenvapi ? _componentService.GetFakenvapiCachePath() : "";
+        if (installFakenvapi &&
+            (!Directory.Exists(fakenvapiCacheDir) ||
+             Directory.GetFiles(fakenvapiCacheDir, "*.*", SearchOption.AllDirectories).Length == 0))
+        {
+            if (txtProgressStatus != null)
+            {
+                txtProgressStatus.Text = "Downloading Fakenvapi...";
+            }
+
+            if (progressBar != null)
+            {
+                progressBar.IsIndeterminate = true;
+            }
+
+            await _componentService.DownloadAndExtractFakenvapiAsync();
+        }
+
+        string nukemFGCacheDir = installNukemFG ? _componentService.GetNukemFGCachePath() : "";
+        if (installNukemFG &&
+            (!Directory.Exists(nukemFGCacheDir) ||
+             Directory.GetFiles(nukemFGCacheDir, "*.*", SearchOption.AllDirectories).Length == 0))
+        {
+            if (txtProgressStatus != null)
+            {
+                txtProgressStatus.Text = "Waiting for NukemFG file...";
+            }
+
+            if (progressBar != null)
+            {
+                progressBar.IsIndeterminate = true;
+            }
+
+            bool provided = await _componentService.ProvideNukemFGManuallyAsync(isUpdate: false);
+            if (!provided ||
+                !Directory.Exists(nukemFGCacheDir) ||
+                Directory.GetFiles(nukemFGCacheDir, "*.*", SearchOption.AllDirectories).Length == 0)
+            {
+                await new ConfirmDialog(
+                    this,
+                    "NukemFG required",
+                    "Bulk install was cancelled because the NukemFG file was not provided.",
+                    isAlert: true
+                ).ShowDialog<bool>(this);
+                return (false, optiCacheDir, fakenvapiCacheDir, nukemFGCacheDir, null);
+            }
+        }
+
+        string? extrasDllPath = null;
+        if (!string.IsNullOrEmpty(selectedExtrasVersion) &&
+            !selectedExtrasVersion.Equals("none", StringComparison.OrdinalIgnoreCase))
+        {
+            if (txtProgressStatus != null)
+            {
+                txtProgressStatus.Text = $"Downloading FSR4 INT8 v{selectedExtrasVersion}...";
+            }
+
+            var extrasProgress = new Progress<double>(p =>
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (progressBar != null)
+                    {
+                        progressBar.IsIndeterminate = false;
+                        progressBar.Value = p;
+                    }
+                }));
 
             try
             {
-                // Get cache paths
-                var optiCacheDir = _componentService.GetOptiScalerCachePath(version);
-                var fakeCacheDir = installFakenvapi ? _componentService.GetFakenvapiCachePath() : "";
-                var nukemCacheDir = installNukemFG ? _componentService.GetNukemFGCachePath() : "";
-
-                await Task.Run(() =>
-                {
-                    _installService.InstallOptiScaler(
-                        gameItem.Game,
-                        optiCacheDir,
-                        injectionMethod, // Use selected injection method
-                        installFakenvapi,
-                        fakeCacheDir,
-                        installNukemFG,
-                        nukemCacheDir,
-                        optiscalerVersion: version
-                    );
-                });
-
-                // ── FSR4 INT8 DLL injection ────────────────────────────────────────
-                if (injectExtras && !string.IsNullOrEmpty(selectedExtrasVersion))
-                {
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (txtProgressStatus != null) txtProgressStatus.Text = $"Downloading FSR4 INT8 v{selectedExtrasVersion} for {gameItem.Name}...";
-                        if (progressBar != null) progressBar.IsIndeterminate = false;
-                    });
-
-                    string extrasDllPath;
-                    try
-                    {
-                        var extrasProgress = new Progress<double>(p =>
-                            Dispatcher.UIThread.Post(() => { if (progressBar != null) progressBar.Value = p; }));
-
-                        extrasDllPath = await _componentService.DownloadExtrasDllAsync(selectedExtrasVersion, extrasProgress);
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugWindow.Log($"[BulkInstall] Failed to download FSR4 INT8 v{selectedExtrasVersion}: {ex.Message}");
-                        continue; // Skip FSR4 installation but continue with OptiScaler
-                    }
-
-                    // Copy FSR4 INT8 DLL to game directory
-                    await Task.Run(() =>
-                    {
-                        var gameDir = _installService.DetermineInstallDirectory(gameItem.Game) ?? gameItem.Game.InstallPath;
-                        var destPath = System.IO.Path.Combine(gameDir, "amd_fidelityfx_upscaler_dx12.dll");
-                        System.IO.File.Copy(extrasDllPath, destPath, overwrite: true);
-                        gameItem.Game.Fsr4ExtraVersion = selectedExtrasVersion;
-                        DebugWindow.Log($"[BulkInstall] Copied FSR4 INT8 DLL to {destPath} for {gameItem.Name}");
-                    });
-                }
-
-                gameItem.IsInstalled = true;
-                gameItem.CanInstall = false;
-                gameItem.IsSelected = false;
+                extrasDllPath = await _componentService.DownloadExtrasDllAsync(selectedExtrasVersion, extrasProgress);
             }
             catch (Exception ex)
             {
-                DebugWindow.Log($"[BulkInstall] Failed to install {gameItem.Name}: {ex.Message}");
+                DebugWindow.Log($"[BulkInstall] Failed to download FSR4 INT8 v{selectedExtrasVersion}: {ex.Message}");
+                await new ConfirmDialog(
+                    this,
+                    "FSR4 INT8 download failed",
+                    $"OptiScaler will still be installed, but the FSR4 INT8 DLL could not be downloaded:\n{ex.Message}",
+                    isAlert: true
+                ).ShowDialog<bool>(this);
+                extrasDllPath = null;
             }
-
-            await Task.Delay(100); // Small delay between installations
         }
 
-        if (progressBar != null)
-            progressBar.Value = 100;
-
-        await Task.Delay(500);
-
-        _isInstalling = false;
-        
-        if (progressSection != null) progressSection.IsVisible = false;
-        if (btnCancel != null) btnCancel.IsEnabled = true;
-
-        UpdateSelectionCount();
-
-        // Show completion dialog
-        var completedCount = totalGames;
-        await new ConfirmDialog(
-            this,
-            "Bulk Installation Complete",
-            $"Successfully installed OptiScaler on {completedCount} game{(completedCount != 1 ? "s" : "")}.",
-            isAlert: true
-        ).ShowDialog<bool>(this);
-
-        Close();
+        return (true, optiCacheDir, fakenvapiCacheDir, nukemFGCacheDir, extrasDllPath);
     }
 
     private void BtnCancel_Click(object? sender, RoutedEventArgs e)
@@ -468,6 +636,7 @@ public partial class BulkInstallWindow : Window
     private void CmbOptiVersion_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         UpdateCheckboxStatesForVersion(sender as ComboBox);
+        UpdateSelectionCount();
     }
 
     /// <summary>
@@ -578,14 +747,20 @@ public partial class BulkInstallWindow : Window
     {
         if (cmb == null) return;
 
-        var selectedTag = (cmb?.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+        var selectedTag = (cmb?.SelectedItem as VersionOption)?.Value;
         bool isBeta = !string.IsNullOrEmpty(selectedTag) && _componentService.BetaVersions.Contains(selectedTag);
 
         var chkFakenvapi = this.FindControl<CheckBox>("ChkFakenvapi");
         var chkNukemFG = this.FindControl<CheckBox>("ChkNukemFG");
+        var betaInfoPanel = this.FindControl<Border>("BetaInfoPanel");
 
         if (isBeta)
         {
+            if (betaInfoPanel != null)
+            {
+                betaInfoPanel.IsVisible = true;
+            }
+
             if (chkFakenvapi != null)
             {
                 chkFakenvapi.IsEnabled = false;
@@ -601,6 +776,11 @@ public partial class BulkInstallWindow : Window
         }
         else
         {
+            if (betaInfoPanel != null)
+            {
+                betaInfoPanel.IsVisible = false;
+            }
+
             if (chkFakenvapi != null)
             {
                 chkFakenvapi.IsEnabled = true;
@@ -715,4 +895,12 @@ public class BulkGameItem : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+}
+
+public class VersionOption
+{
+    public string DisplayVersion { get; set; } = "";
+    public string Value { get; set; } = "";
+    public bool IsBeta { get; set; }
+    public bool IsLatest { get; set; }
 }

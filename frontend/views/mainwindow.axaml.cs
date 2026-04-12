@@ -891,6 +891,8 @@ namespace OptiscalerClient.Views
             var bulkWindow = new BulkInstallWindow(_componentService, installService, _games.ToList());
             await bulkWindow.ShowDialog<object>(this);
 
+            _persistenceService.SaveGames(_allGames);
+
             // Refresh game list after bulk install
             if (_lstGames != null)
             {
